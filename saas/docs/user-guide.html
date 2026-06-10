@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career-Ops SaaS — User Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: #1a1f2e;
+      color: #fff;
+      padding: 40px 48px 36px;
+    }
+    .site-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    .site-header p  { font-size: 1.05rem; opacity: .75; max-width: 560px; }
+
+    /* ── Table of contents ── */
+    .toc-wrapper {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 48px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .toc-wrapper h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: #718096; margin-bottom: 10px; }
+    .toc-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+    }
+    .toc-grid a {
+      font-size: .82rem;
+      color: #4a6cf7;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .toc-grid a:hover { text-decoration: underline; }
+
+    /* ── Main content ── */
+    .content { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── Section ── */
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      margin-bottom: 48px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .section-header .nav-label {
+      display: inline-block;
+      background: #4a6cf7;
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .section-header h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+    .section-header .path {
+      font-size: .8rem;
+      color: #a0aec0;
+      font-family: monospace;
+    }
+
+    .section-body { padding: 24px 28px; }
+
+    /* ── Screenshot ── */
+    .screenshot-wrap {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+      background: #f7fafc;
+    }
+    .screenshot-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── Feature list ── */
+    .features { margin: 16px 0; }
+    .features h3 {
+      font-size: .88rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #718096;
+      margin-bottom: 10px;
+    }
+    .features ul { list-style: none; }
+    .features ul li {
+      padding: 6px 0 6px 22px;
+      position: relative;
+      font-size: .95rem;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .features ul li:last-child { border-bottom: none; }
+    .features ul li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #4a6cf7;
+      font-weight: 700;
+    }
+
+    /* ── Tips ── */
+    .tip {
+      background: #ebf4ff;
+      border-left: 4px solid #4a6cf7;
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      font-size: .9rem;
+      margin-top: 16px;
+    }
+    .tip strong { color: #2b6cb0; }
+
+    /* ── Plan badge ── */
+    .plan-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .plan-badge.team     { background: #c6f6d5; color: #276749; }
+    .plan-badge.enterprise { background: #feebc8; color: #7b341e; }
+    .plan-badge.admin    { background: #e9d8fd; color: #553c9a; }
+
+    /* ── Login box ── */
+    .login-box {
+      background: #1a1f2e;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: monospace;
+      font-size: .88rem;
+      margin: 16px 0;
+    }
+    .login-box .label { color: #a0aec0; margin-bottom: 4px; font-size: .8rem; }
+    .login-box .value { color: #68d391; font-weight: 600; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: #a0aec0;
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─────────────────────── HEADER ─────────────────────── -->
+<header class="site-header">
+  <h1>Career-Ops SaaS — User Guide</h1>
+  <p>A complete walkthrough of every page and feature in the platform.</p>
+  <p style="margin-top:12px; font-size:.9rem; opacity:.65;">First time here? Start with the <a href="getting-started.html" style="color:#90cdf4;">Getting Started Guide →</a></p>
+</header>
+
+<!-- ─────────────────────── TOC ─────────────────────── -->
+<nav class="toc-wrapper">
+  <h2>Jump to section</h2>
+  <div class="toc-grid">
+    <a href="#login">Login</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#applications">Applications</a>
+    <a href="#new-evaluation">New Evaluation</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#portals">Portals</a>
+    <a href="#scanner">Scanner</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#team">Team</a>
+    <a href="#audit-log">Audit Log</a>
+    <a href="#profile">Profile</a>
+    <a href="#settings">Settings</a>
+    <a href="#ai-settings">AI Settings</a>
+    <a href="#ai-costs">AI Costs</a>
+    <a href="#prompts">Prompts</a>
+    <a href="#ai-insights">AI Insights</a>
+    <a href="#sso">SSO</a>
+    <a href="#eval-modes">Eval Modes</a>
+    <a href="#webhooks">Webhooks</a>
+    <a href="#interview-prep">Interview Prep</a>
+    <a href="#branding">Branding</a>
+    <a href="#api-analytics">API Analytics</a>
+  </div>
+</nav>
+
+<!-- ─────────────────────── CONTENT ─────────────────────── -->
+<main class="content">
+
+  <!-- ── Getting Started ── -->
+  <section class="section" id="login">
+    <div class="section-header">
+      <span class="nav-label">Getting started</span>
+      <h2>Logging In</h2>
+      <div class="path">http://localhost:5173/login</div>
+    </div>
+    <div class="section-body">
+      <p>Open the app in your browser and enter your credentials. For the demo environment, use:</p>
+      <div class="login-box">
+        <div class="label">Email</div>
+        <div class="value">demo@example.com</div>
+        <div class="label" style="margin-top:10px">Password</div>
+        <div class="value">demo1234</div>
+      </div>
+      <p>After login you land on the Dashboard automatically. Your organisation name and plan tier are always visible in the top-right corner.</p>
+    </div>
+  </section>
+
+  <!-- ── Dashboard ── -->
+  <section class="section" id="dashboard">
+    <div class="section-header">
+      <span class="nav-label">Home</span>
+      <h2>Dashboard</h2>
+      <div class="path">/</div>
+    </div>
+    <div class="section-body">
+      <p>The Dashboard is your command centre — it shows the health of your job search at a glance.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/01-dashboard.png" alt="Dashboard screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li><strong>Total Applications</strong> — how many jobs you are tracking</li>
+          <li><strong>Avg Score</strong> — average AI fit score across all evaluations (out of 5.0)</li>
+          <li><strong>Pending Evals</strong> — jobs in the queue waiting for an AI evaluation</li>
+          <li><strong>Conversion Rate</strong> — percentage of applications that reached an offer</li>
+          <li><strong>Score Distribution chart</strong> — bar chart grouping applications by score band (0–2, 2–3, 3–4, 4–5)</li>
+          <li><strong>Recent Applications</strong> — the last few applications you added</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Use this page to quickly spot if your pipeline is healthy. If most scores are 2–3, the jobs you are targeting may not match your profile well.</div>
+    </div>
+  </section>
+
+  <!-- ── Applications ── -->
+  <section class="section" id="applications">
+    <div class="section-header">
+      <span class="nav-label">Core</span>
+      <h2>Applications</h2>
+      <div class="path">/applications</div>
+    </div>
+    <div class="section-body">
+      <p>The master list of every job you are tracking. Each row represents one application and shows its current status in your pipeline.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/02-applications.png" alt="Applications screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>View all applications with columns for Company, Role, Score, Status, and Date</li>
+          <li>Filter by status (Evaluated, Applied, Interview, Offer, Rejected, Discarded)</li>
+          <li>Click any row to open the full evaluation report</li>
+          <li>Use the <strong>+ Add Application</strong> button to add jobs manually</li>
+          <li>Track progress through the hiring funnel in real time</li>
+        </ul>
+      </div>
+      <div class="features">
+        <h3>Status meanings</h3>
+        <ul>
+          <li><strong>Evaluated</strong> — AI report done, waiting for your decision</li>
+          <li><strong>Applied</strong> — you have submitted the application</li>
+          <li><strong>Interview</strong> — actively in an interview process</li>
+          <li><strong>Offer</strong> — offer received</li>
+          <li><strong>Rejected</strong> — rejected by the company</li>
+          <li><strong>Discarded</strong> — you decided not to pursue</li>
+          <li><strong>SKIP</strong> — poor fit, do not apply</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── New Evaluation ── -->
+  <section class="section" id="new-evaluation">
+    <div class="section-header">
+      <span class="nav-label">Core</span>
+      <h2>New Evaluation</h2>
+      <div class="path">/evaluations/new</div>
+    </div>
+    <div class="section-body">
+      <p>Submit a job posting for AI analysis. The system reads the job description and scores it against your profile across six dimensions.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/03-new-evaluation.png" alt="New Evaluation screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>How to use it</h3>
+        <ul>
+          <li>Paste the <strong>job posting URL</strong> — the AI will fetch and read the full description</li>
+          <li>Or paste the <strong>job description text</strong> directly if you do not have a URL</li>
+          <li>Click <strong>Evaluate</strong> to submit — the job goes into the evaluation queue</li>
+          <li>You will be redirected to the status page; refresh to see progress</li>
+          <li>When complete, the full report appears with a score, gaps, and a tailored CV</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> The AI scores against your target roles and compensation range from your Profile. Keep your Profile up to date for the most accurate scores.</div>
+    </div>
+  </section>
+
+  <!-- ── Pipeline ── -->
+  <section class="section" id="pipeline">
+    <div class="section-header">
+      <span class="nav-label">Core</span>
+      <h2>Pipeline</h2>
+      <div class="path">/pipeline</div>
+    </div>
+    <div class="section-body">
+      <p>A URL inbox for jobs you want to evaluate later. Paste links here during the day; process them in bulk when you are ready.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/04-pipeline.png" alt="Pipeline screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Add job URLs one by one or paste a list of URLs</li>
+          <li>See each URL with its status: pending, processing, done, or error</li>
+          <li>Click <strong>Process All</strong> to evaluate every pending URL in the queue</li>
+          <li>Remove URLs you no longer want to evaluate</li>
+          <li>Processed URLs automatically move to Applications</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Use this as a "save for later" bucket. When you see an interesting job posting but do not have time to review it, add the URL here and process it in your next session.</div>
+    </div>
+  </section>
+
+  <!-- ── Portals ── -->
+  <section class="section" id="portals">
+    <div class="section-header">
+      <span class="nav-label">Scanner</span>
+      <h2>Portals</h2>
+      <div class="path">/portals</div>
+    </div>
+    <div class="section-body">
+      <p>Configure which company job portals the scanner should check. Each portal entry points to a company's Greenhouse, Lever, or Ashby API endpoint.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/05-portals.png" alt="Portals screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>View all configured portals in a searchable list</li>
+          <li>Add new portals manually by entering the company name and ATS URL</li>
+          <li>Import a YAML file to bulk-load many portals at once</li>
+          <li>Enable or disable individual portals without deleting them</li>
+          <li>Set title filters to only pick up roles matching your target keywords</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> The system comes pre-loaded with 45+ popular tech companies. Import the example YAML from the Settings page to get started quickly.</div>
+    </div>
+  </section>
+
+  <!-- ── Scanner ── -->
+  <section class="section" id="scanner">
+    <div class="section-header">
+      <span class="nav-label">Scanner</span>
+      <h2>Scanner</h2>
+      <div class="path">/scanner</div>
+    </div>
+    <div class="section-body">
+      <p>Runs automated searches across all your configured portals and surfaces new job postings that match your title filters — without spending any AI tokens.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/06-scanner.png" alt="Scanner screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Click <strong>Scan Now</strong> to trigger an immediate scan of all active portals</li>
+          <li>View newly discovered jobs with company, title, and posting date</li>
+          <li>Send any discovered job directly to the Pipeline or straight to Evaluation</li>
+          <li>See scan history — when each portal was last checked</li>
+          <li>Deduplication is automatic — jobs you have already seen will not appear again</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> The scanner hits Greenhouse/Ashby/Lever JSON APIs directly — it costs zero AI credits. Run it as often as you like.</div>
+    </div>
+  </section>
+
+  <!-- ── Analytics ── -->
+  <section class="section" id="analytics">
+    <div class="section-header">
+      <span class="nav-label">Insights</span>
+      <h2>Analytics</h2>
+      <div class="path">/analytics</div>
+    </div>
+    <div class="section-body">
+      <p>Deep-dive charts and pattern analysis on your entire application history. Use this to refine your targeting and understand why you are or are not getting callbacks.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/07-analytics.png" alt="Analytics screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li><strong>Application Funnel</strong> — how many applications moved from each stage to the next</li>
+          <li><strong>Score vs Outcome</strong> — correlation between AI score and actual interview/offer outcomes</li>
+          <li><strong>Rejection Patterns</strong> — which gaps come up most often in rejected applications</li>
+          <li><strong>Top Companies</strong> — which companies you have applied to most</li>
+          <li><strong>Follow-up Cadence</strong> — how long applications typically take to progress</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> If you see a consistent gap appearing across many rejected applications (e.g. "no cloud certification"), that is a signal to address it.</div>
+    </div>
+  </section>
+
+  <!-- ── Team ── -->
+  <section class="section" id="team">
+    <div class="section-header">
+      <span class="nav-label">Collaboration</span>
+      <h2>Team</h2>
+      <div class="path">/team</div>
+    </div>
+    <div class="section-body">
+      <p>Manage the members of your organisation. Add colleagues, coaches, or recruiters who help you with your job search.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/08-team.png" alt="Team screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>See all current members with their role (Owner, Admin, Member)</li>
+          <li>Invite new members by email — they receive a link to join the organisation</li>
+          <li>Change a member's role or remove them from the organisation</li>
+          <li>Owners can transfer ownership to another admin</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> On the <strong>Pro</strong> plan you can have up to 5 members. Upgrade to Team for larger groups.</div>
+    </div>
+  </section>
+
+  <!-- ── Audit Log ── -->
+  <section class="section" id="audit-log">
+    <div class="section-header">
+      <span class="nav-label">Compliance</span>
+      <h2>Audit Log</h2>
+      <div class="path">/audit</div>
+    </div>
+    <div class="section-body">
+      <p>A tamper-proof record of every significant action taken in your organisation — who did what and when.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/09-audit-log.png" alt="Audit Log screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li>Timestamp of every action</li>
+          <li>User who performed the action</li>
+          <li>Action type (create, update, delete, login, etc.)</li>
+          <li>IP address of the request</li>
+          <li>Filter by user, action type, or date range</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> This page is essential when multiple team members share the account — you can always see who changed what.</div>
+    </div>
+  </section>
+
+  <!-- ── Profile ── -->
+  <section class="section" id="profile">
+    <div class="section-header">
+      <span class="nav-label">Your account</span>
+      <h2>Profile</h2>
+      <div class="path">/profile</div>
+    </div>
+    <div class="section-body">
+      <p>Your personal information and career configuration. The AI reads this every time it evaluates a job — keeping it accurate directly improves evaluation quality.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/10-profile.png" alt="Profile screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>Tabs</h3>
+        <ul>
+          <li><strong>Identity</strong> — name, email, phone, location, LinkedIn, GitHub, portfolio URLs</li>
+          <li><strong>Target Roles</strong> — the job titles you are actively targeting (primary and secondary)</li>
+          <li><strong>Compensation</strong> — your salary expectations (currency, min, max)</li>
+          <li><strong>Narrative</strong> — your professional headline and superpowers — used in CV generation</li>
+          <li><strong>CVs</strong> — manage your uploaded CV files used for tailored applications</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Fill in at least Target Roles and Compensation before running your first evaluation. Without them, the AI cannot score fit accurately.</div>
+    </div>
+  </section>
+
+  <!-- ── Settings ── -->
+  <section class="section" id="settings">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>Settings</h2>
+      <div class="path">/settings</div>
+    </div>
+    <div class="section-body">
+      <p>Organisation-level configuration — your plan details, usage this month, and API keys for programmatic access.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/11-settings.png" alt="Settings screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li><strong>Organisation</strong> — name, URL slug, and current plan tier</li>
+          <li><strong>Usage This Month</strong> — evaluations and scans consumed vs. your monthly allowance</li>
+          <li><strong>API Keys</strong> — create, name, and revoke API keys for integrations and automation</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Click <strong>+ Create Key</strong> to generate an API key. Copy it immediately — it is shown only once.</div>
+    </div>
+  </section>
+
+  <!-- ── AI Settings ── -->
+  <section class="section" id="ai-settings">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>AI Settings</h2>
+      <div class="path">/settings/ai</div>
+    </div>
+    <div class="section-body">
+      <p>Choose and configure the AI provider used for job evaluations. You can bring your own API key or use the platform key.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/12-ai-settings.png" alt="AI Settings screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>Options</h3>
+        <ul>
+          <li><strong>Provider</strong> — choose between DeepSeek, Google Gemini, OpenAI, or Anthropic (Claude)</li>
+          <li><strong>Model</strong> — select the specific model version for the chosen provider</li>
+          <li><strong>Temperature</strong> — 0 = deterministic, 2 = creative. Keep at 0.3 for consistent evaluations</li>
+          <li><strong>Max Tokens</strong> — maximum output length per evaluation (4,096 default is fine)</li>
+          <li><strong>Fallback Provider</strong> — automatically used if the primary provider fails</li>
+          <li><strong>Custom API Key</strong> — paste your own key to use your own quota (stored encrypted)</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Click <strong>Test Connection</strong> after saving to confirm your key works before running evaluations.</div>
+    </div>
+  </section>
+
+  <!-- ── AI Costs ── -->
+  <section class="section" id="ai-costs">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>AI Costs</h2>
+      <div class="path">/admin/ai-costs</div>
+      <span class="plan-badge admin">Admin</span>
+    </div>
+    <div class="section-body">
+      <p>Real-time spend tracking for all AI calls made by your organisation. Use this to monitor costs and forecast your monthly bill.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/13-ai-costs.png" alt="AI Costs screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li><strong>Total Spend</strong> — cumulative AI spend in the selected period</li>
+          <li><strong>Evaluations</strong> — total AI evaluations run</li>
+          <li><strong>Avg $/Eval</strong> — average cost per evaluation</li>
+          <li><strong>Forecast EOM</strong> — projected spend by end of month at current rate</li>
+          <li><strong>Daily Spend chart</strong> — spending trend over the last 7, 30, or 90 days</li>
+          <li><strong>Provider Breakdown</strong> — spend split by AI provider</li>
+          <li><strong>Model Breakdown</strong> — spend split by model</li>
+          <li><strong>Cost by Organisation</strong> — breakdown per tenant (platform-admin view)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Prompts ── -->
+  <section class="section" id="prompts">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>Prompt Templates</h2>
+      <div class="path">/settings/prompts</div>
+    </div>
+    <div class="section-body">
+      <p>View and customise the AI prompt templates used for job evaluations. Advanced users can override the default system prompts for their organisation.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/14-prompts.png" alt="Prompts screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Browse all available templates: <strong>evaluation</strong> and <strong>shared</strong> system prompt</li>
+          <li>Click any template to view its full content</li>
+          <li>Create a custom version to override the system default for your organisation</li>
+          <li>Templates are versioned — you can revert to an earlier version</li>
+          <li>Multi-language templates available (English, German, French, Japanese)</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Leave these as defaults unless you have a specific reason to change them. The system prompts are carefully tuned for accurate evaluations.</div>
+    </div>
+  </section>
+
+  <!-- ── AI Insights ── -->
+  <section class="section" id="ai-insights">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>AI Insights</h2>
+      <div class="path">/admin/insights</div>
+      <span class="plan-badge admin">Admin</span>
+    </div>
+    <div class="section-body">
+      <p>Platform-level intelligence about evaluation quality and opportunities to improve your job-search targeting.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/15-ai-insights.png" alt="AI Insights screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>Sections</h3>
+        <ul>
+          <li><strong>Smart Dedup Suggestions</strong> — flags applications with ≥85% company+role similarity so you avoid redundant submissions</li>
+          <li><strong>Evaluation Quality Calibration</strong> — shows correlation between AI scores and real interview/offer outcomes; flags if calibration score drops below 70%</li>
+          <li><strong>Batch Size Recommendations</strong> — suggests optimal batch sizes based on your historical processing patterns</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Quality Calibration needs at least 3 evaluations with known outcomes before it can show meaningful data.</div>
+    </div>
+  </section>
+
+  <!-- ── SSO ── -->
+  <section class="section" id="sso">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>SSO Configuration</h2>
+      <div class="path">/settings/sso</div>
+      <span class="plan-badge team">Team</span>
+      <span class="plan-badge enterprise">Enterprise</span>
+    </div>
+    <div class="section-body">
+      <p>Connect your organisation's identity provider so team members can sign in with their company account.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/16-sso.png" alt="SSO screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>Supported protocols</h3>
+        <ul>
+          <li><strong>OIDC</strong> — works with Okta, Auth0, Google Workspace, Azure AD, and any OpenID-compliant IdP</li>
+          <li><strong>SAML 2.0</strong> — for enterprise IdPs that use SAML assertions</li>
+        </ul>
+      </div>
+      <div class="features">
+        <h3>Setup steps</h3>
+        <ul>
+          <li>Select your protocol (OIDC or SAML)</li>
+          <li>Enter the <strong>Issuer URL</strong> from your identity provider</li>
+          <li>Enter the <strong>Client ID</strong> and <strong>Client Secret</strong> from your IdP application</li>
+          <li>Optionally enable <strong>Force SSO</strong> to block password logins for all members</li>
+          <li>Click <strong>Save Config</strong></li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Warning:</strong> If you enable Force SSO, keep at least one admin with a working session open. Members who are not yet enrolled will be locked out.</div>
+    </div>
+  </section>
+
+  <!-- ── Eval Modes ── -->
+  <section class="section" id="eval-modes">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>Evaluation Modes</h2>
+      <div class="path">/settings/evaluation-modes</div>
+    </div>
+    <div class="section-body">
+      <p>Create custom scoring configurations for different job archetypes. For example, you might want to weight "Leadership" more heavily when evaluating VP-level roles.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/17-eval-modes.png" alt="Evaluation Modes screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Click <strong>+ New Mode</strong> to create a custom evaluation configuration</li>
+          <li>Name the mode (e.g. "Senior IC", "Engineering Manager")</li>
+          <li>Adjust the weight of each scoring block (A–F) for that archetype</li>
+          <li>Select a mode when submitting a New Evaluation to apply its weights</li>
+          <li>Delete or edit modes at any time</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Leave this empty to use the standard balanced weights. Create modes only when you are targeting very different role types simultaneously.</div>
+    </div>
+  </section>
+
+  <!-- ── Webhooks ── -->
+  <section class="section" id="webhooks">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>Webhooks</h2>
+      <div class="path">/settings/webhooks</div>
+      <span class="plan-badge team">Team</span>
+      <span class="plan-badge enterprise">Enterprise</span>
+    </div>
+    <div class="section-body">
+      <p>Send real-time notifications to external systems whenever something happens in your Career-Ops account — evaluation completed, application status changed, new job found, etc.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/18-webhooks.png" alt="Webhooks screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Click <strong>+ Add Webhook</strong> to register an endpoint URL</li>
+          <li>Choose which event types to subscribe to (evaluation.completed, application.updated, scan.found, etc.)</li>
+          <li>Each delivery includes a JSON payload and an HMAC signature for verification</li>
+          <li>View delivery history and retry failed deliveries</li>
+          <li>Disable a webhook temporarily without deleting it</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Webhooks let you pipe events into Slack, Notion, Zapier, or your own automation tooling.</div>
+    </div>
+  </section>
+
+  <!-- ── Interview Prep ── -->
+  <section class="section" id="interview-prep">
+    <div class="section-header">
+      <span class="nav-label">Core</span>
+      <h2>Interview Prep</h2>
+      <div class="path">/interview-prep</div>
+    </div>
+    <div class="section-body">
+      <p>Build and manage your personal library of STAR+R interview stories. Reference these during phone screens and interviews to give structured, memorable answers.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/19-interview-prep.png" alt="Interview Prep screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you can do</h3>
+        <ul>
+          <li>Click <strong>+ Add Story</strong> to create a new STAR story</li>
+          <li>Structure each story: <strong>S</strong>ituation, <strong>T</strong>ask, <strong>A</strong>ction, <strong>R</strong>esult, and <strong>R</strong>eflection</li>
+          <li>Tag stories by competency (Leadership, Technical, Collaboration, etc.)</li>
+          <li>Filter by tag using the buttons at the top</li>
+          <li>Stories are shared with the AI — it can suggest which stories fit a job's requirements</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Aim for 8–12 strong stories covering a range of competencies. The AI will recommend which ones to lead with for each specific role.</div>
+    </div>
+  </section>
+
+  <!-- ── Branding ── -->
+  <section class="section" id="branding">
+    <div class="section-header">
+      <span class="nav-label">Settings</span>
+      <h2>White-Label Branding</h2>
+      <div class="path">/settings/branding</div>
+      <span class="plan-badge enterprise">Enterprise</span>
+    </div>
+    <div class="section-body">
+      <p>Replace Career-Ops branding with your own logo, colours, and domain. Settings save on all plans but only apply visually on Enterprise.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/20-branding.png" alt="Branding screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>Options</h3>
+        <ul>
+          <li><strong>Logo URL</strong> — link to your company logo (PNG or SVG, recommended 200×50px)</li>
+          <li><strong>Primary Colour</strong> — main brand colour (buttons, highlights)</li>
+          <li><strong>Secondary Colour</strong> — used for backgrounds and accents</li>
+          <li><strong>Font Family</strong> — choose from Inter, Roboto, or Lato</li>
+          <li><strong>Login Background URL</strong> — custom image for the login page</li>
+          <li><strong>Custom Domain</strong> — serve the app from your own domain (e.g. careers.yourcompany.com) — add a CNAME record pointing to your Career-Ops instance</li>
+        </ul>
+      </div>
+      <p style="margin-top:12px">A live preview of the dashboard with your branding is shown on the right side as you make changes.</p>
+    </div>
+  </section>
+
+  <!-- ── API Analytics ── -->
+  <section class="section" id="api-analytics">
+    <div class="section-header">
+      <span class="nav-label">Developer</span>
+      <h2>API Key Analytics</h2>
+      <div class="path">/api-keys/analytics</div>
+    </div>
+    <div class="section-body">
+      <p>Monitor usage and rate-limit status for all API keys attached to your organisation. Useful if you are building integrations on top of Career-Ops.</p>
+      <div class="screenshot-wrap">
+        <img src="screenshots/21-api-analytics.png" alt="API Analytics screenshot" loading="lazy" />
+      </div>
+      <div class="features">
+        <h3>What you see</h3>
+        <ul>
+          <li><strong>Total Requests (last 24h)</strong> — number of API calls made across all keys</li>
+          <li><strong>Current Plan Tier</strong> — your plan and its hourly rate limit</li>
+          <li><strong>Rate Limit (req/hour)</strong> — maximum requests per hour for your plan</li>
+          <li><strong>Request Volume chart</strong> — API traffic over the selected time window (8h, 24h, 3d, 7d)</li>
+          <li><strong>Top Endpoints</strong> — which API routes are called most frequently</li>
+          <li><strong>Rate Limit Tiers table</strong> — comparison of limits across Free, Pro, Team, and Enterprise plans</li>
+        </ul>
+      </div>
+      <div class="features">
+        <h3>Plan rate limits</h3>
+        <ul>
+          <li><strong>Free</strong> — 100 req/h</li>
+          <li><strong>Pro</strong> — 1,000 req/h</li>
+          <li><strong>Team</strong> — 10,000 req/h</li>
+          <li><strong>Enterprise</strong> — 100,000 req/h</li>
+        </ul>
+      </div>
+      <div class="tip"><strong>Tip:</strong> Create and manage API keys under <strong>Settings → API Keys</strong>. Each key appears individually in this analytics view once it has made its first request.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Career-Ops SaaS — Internal User Guide &nbsp;·&nbsp; Generated 2026
+</footer>
+
+</body>
+</html>

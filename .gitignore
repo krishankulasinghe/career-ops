@@ -29,6 +29,9 @@ modes/_profile.md
 
 # Secrets (never commit — use .env.example as template)
 .env
+saas/.env
+saas/node_modules/
+saas/dist/
 
 # Generated
 .resolved-prompt-*

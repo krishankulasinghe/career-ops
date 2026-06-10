@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career-Ops — Getting Started</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #4a6cf7;
+      --blue-lt: #ebf0ff;
+      --green:   #38a169;
+      --green-lt:#f0fff4;
+      --orange:  #dd6b20;
+      --orange-lt:#fffaf0;
+      --red:     #e53e3e;
+      --red-lt:  #fff5f5;
+      --dark:    #1a1f2e;
+      --text:    #2d3748;
+      --muted:   #718096;
+      --border:  #e2e8f0;
+      --bg:      #f5f6fa;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--dark);
+      color: #fff;
+      padding: 52px 48px 44px;
+    }
+    .hero-eyebrow {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #90cdf4;
+      margin-bottom: 12px;
+    }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: 14px; }
+    .hero p  { font-size: 1.05rem; opacity: .8; max-width: 580px; margin-bottom: 24px; }
+    .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-pill {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: .82rem;
+      color: #e2e8f0;
+    }
+
+    /* ── STICKY NAV ── */
+    .sticky-nav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 48px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      gap: 4px 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .sticky-nav a {
+      font-size: .82rem;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+    .sticky-nav .nav-sep { color: var(--border); }
+    .sticky-nav .nav-ext {
+      margin-left: auto;
+      font-size: .82rem;
+      color: var(--muted);
+    }
+    .sticky-nav .nav-ext a { color: var(--muted); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+
+    /* ── SECTION TITLES ── */
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sec-num {
+      width: 32px; height: 32px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sec-title h2 { font-size: 1.25rem; font-weight: 700; }
+    .sec-divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .card-body { padding: 24px; }
+    .card-body p { margin-bottom: 12px; color: var(--text); }
+    .card-body p:last-child { margin-bottom: 0; }
+
+    /* ── SCREENSHOT ── */
+    .ss-wrap {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 16px 0;
+      background: #f7fafc;
+    }
+    .ss-wrap img { display: block; width: 100%; height: auto; }
+    .ss-caption {
+      font-size: .78rem;
+      color: var(--muted);
+      padding: 6px 10px;
+      background: #f7fafc;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .95rem;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li input[type=checkbox] {
+      width: 18px; height: 18px;
+      margin-top: 1px;
+      accent-color: var(--blue);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .checklist li label { cursor: pointer; flex: 1; }
+    .checklist li label .step-num {
+      display: inline-block;
+      background: var(--blue-lt);
+      color: var(--blue);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      margin-right: 6px;
+    }
+    .checklist li .time-badge {
+      font-size: .72rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+
+    /* ── WORKFLOW STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 16px;
+    }
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .step-circle {
+      width: 40px; height: 40px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 4px 0;
+      min-height: 20px;
+    }
+    .step:last-child .step-line { display: none; }
+    .step-right {
+      padding-bottom: 32px;
+    }
+    .step-right h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .step-right p  { font-size: .92rem; color: #4a5568; margin-bottom: 10px; }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-radius: 8px;
+      padding: 13px 16px;
+      margin: 14px 0;
+      font-size: .9rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .callout.tip    { background: var(--blue-lt);   border-left: 4px solid var(--blue);   }
+    .callout.warn   { background: var(--orange-lt); border-left: 4px solid var(--orange); }
+    .callout.danger { background: var(--red-lt);    border-left: 4px solid var(--red);    }
+    .callout.good   { background: var(--green-lt);  border-left: 4px solid var(--green);  }
+    .callout strong { font-weight: 700; }
+
+    /* ── FEATURE BLOCKS ── */
+    .feat-block {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+    .feat-block-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .feat-block-icon {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .feat-block-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .feat-block-header .feat-tagline {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+    .feat-block-header .feat-badge {
+      margin-left: auto;
+      background: var(--blue-lt);
+      color: var(--blue);
+      font-size: .75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .feat-block-body {
+      padding: 20px 24px 24px;
+    }
+    .feat-block-body p {
+      font-size: .93rem;
+      color: #4a5568;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    .feat-steps-title {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+    .feat-steps {
+      list-style: none;
+      counter-reset: feat-counter;
+      margin-bottom: 16px;
+    }
+    .feat-steps li {
+      counter-increment: feat-counter;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .92rem;
+      color: var(--text);
+    }
+    .feat-steps li:last-child { border-bottom: none; }
+    .feat-steps li::before {
+      content: counter(feat-counter);
+      min-width: 22px; height: 22px;
+      background: var(--dark);
+      color: #fff;
+      border-radius: 50%;
+      font-size: .72rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .feat-what-you-see {
+      background: #f7fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: .88rem;
+      color: #4a5568;
+      margin: 12px 0;
+    }
+    .feat-what-you-see strong { color: var(--text); }
+
+    /* ── SCORE GUIDE ── */
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .92rem;
+    }
+    .score-row:last-child { border-bottom: none; }
+    .score-badge {
+      width: 52px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 3px 0;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .score-badge.red    { background: #fed7d7; color: #c53030; }
+    .score-badge.orange { background: #feebc8; color: #c05621; }
+    .score-badge.yellow { background: #fefcbf; color: #975a16; }
+    .score-badge.green  { background: #c6f6d5; color: #276749; }
+    .score-badge.teal   { background: #b2f5ea; color: #1d4044; }
+
+    /* ── TROUBLESHOOT ── */
+    .trouble-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .trouble-q {
+      padding: 12px 16px;
+      background: #fafafa;
+      font-weight: 600;
+      font-size: .92rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .trouble-q::before { content: "?"; background: #e2e8f0; color: var(--muted); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .8rem; flex-shrink: 0; }
+    .trouble-a {
+      padding: 12px 16px;
+      font-size: .9rem;
+      color: #4a5568;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── WHAT TO DO NEXT ── */
+    .next-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .next-card {
+      background: var(--dark);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 18px;
+      text-decoration: none;
+      display: block;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .next-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.18); text-decoration: none; }
+    .next-card .nc-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .next-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 4px; color: #fff; }
+    .next-card p  { font-size: .82rem; opacity: .7; line-height: 1.4; }
+
+    /* ── SUPPORT BOX ── */
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .support-grid { grid-template-columns: 1fr; } }
+    .support-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .support-item .s-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .support-item h3 { font-size: .88rem; font-weight: 700; margin-bottom: 4px; }
+    .support-item p  { font-size: .8rem; color: var(--muted); }
+
+    /* ── INLINE CODE ── */
+    code {
+      background: #edf2f7;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: "Consolas", "SF Mono", monospace;
+      font-size: .88em;
+      color: #553c9a;
+    }
+
+    /* ── PROGRESS BAR (checklist) ── */
+    #checklist-progress {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    #checklist-bar {
+      height: 100%;
+      background: var(--green);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .3s;
+    }
+    #checklist-label {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-eyebrow">Career-Ops SaaS</div>
+  <h1>Welcome — let's get you started</h1>
+  <p>Career-Ops is your AI-powered job search cockpit. It evaluates job postings against your profile, tracks your applications, scans company portals for new roles, and helps you prep for interviews.</p>
+  <div class="hero-pills">
+    <span class="hero-pill">⏱ 5-minute setup</span>
+    <span class="hero-pill">🤖 AI job scoring</span>
+    <span class="hero-pill">📋 Application tracker</span>
+    <span class="hero-pill">🔍 Portal scanner</span>
+    <span class="hero-pill">🎤 Interview prep</span>
+  </div>
+</header>
+
+<!-- ── STICKY NAV ── -->
+<nav class="sticky-nav">
+  <a href="#checklist">Quick-Start</a>
+  <a href="#workflow">How It Works</a>
+  <a href="#features">Features</a>
+  <a href="#actions">Common Actions</a>
+  <a href="#rules">Rules &amp; Limits</a>
+  <a href="#troubleshoot">Troubleshooting</a>
+  <a href="#next">What's Next</a>
+  <span class="nav-ext">→ <a href="user-guide.html">Full Reference Guide</a></span>
+</nav>
+
+<main class="page">
+
+  <!-- ════════════════════════════════════════════
+       SECTION 1 — QUICK-START CHECKLIST
+  ═════════════════════════════════════════════ -->
+  <section id="checklist">
+    <div class="sec-title">
+      <div class="sec-num">1</div>
+      <h2>5-Minute Quick-Start Checklist</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p>Complete these five steps and you will have your first AI evaluation in hand. Most people finish in under five minutes.</p>
+        <div id="checklist-progress"><div id="checklist-bar"></div></div>
+        <div id="checklist-label">0 / 5 complete</div>
+        <ul class="checklist" id="the-checklist">
+          <li>
+            <input type="checkbox" id="c1" onchange="updateProgress()">
+            <label for="c1"><span class="step-num">Step 1</span> Log in at <code>localhost:5173</code> with your email and password</label>
+            <span class="time-badge">~30 sec</span>
+          </li>
+          <li>
+            <input type="checkbox" id="c2" onchange="updateProgress()">
+            <label for="c2"><span class="step-num">Step 2</span> Go to <strong>Profile → Target Roles</strong> and add at least one job title you are targeting</label>
+            <span class="time-badge">~1 min</span>
+          </li>
+          <li>
+            <input type="checkbox" id="c3" onchange="updateProgress()">
+            <label for="c3"><span class="step-num">Step 3</span> Go to <strong>Profile → Compensation</strong> and set your salary expectations</label>
+            <span class="time-badge">~30 sec</span>
+          </li>
+          <li>
+            <input type="checkbox" id="c4" onchange="updateProgress()">
+            <label for="c4"><span class="step-num">Step 4</span> Click <strong>New Evaluation</strong> in the sidebar, paste a job URL, and click <em>Evaluate</em></label>
+            <span class="time-badge">~1 min</span>
+          </li>
+          <li>
+            <input type="checkbox" id="c5" onchange="updateProgress()">
+            <label for="c5"><span class="step-num">Step 5</span> Wait ~60 seconds, then open the report from <strong>Applications</strong> and read your score</label>
+            <span class="time-badge">~2 min</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout good">
+      <span class="callout-icon">✅</span>
+      <div>Once you see a score on your first evaluation, you're up and running. Everything else is optional — come back to it when you need it.</div>
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 2 — HOW IT WORKS
+  ═════════════════════════════════════════════ -->
+  <section id="workflow">
+    <div class="sec-title">
+      <div class="sec-num">2</div>
+      <h2>How It Works — The Basic Workflow</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p>Every job search in Career-Ops follows the same loop. Here it is from start to finish:</p>
+      </div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-circle">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-right">
+          <h3>Sign in</h3>
+          <p>Enter your email and password on the login screen. You land on the Dashboard automatically.</p>
+          <div class="ss-wrap">
+            <img src="screenshots/00-login.png" alt="Login screen" loading="lazy" />
+            <div class="ss-caption">The login screen — enter your credentials and click Sign in</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-circle">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-right">
+          <h3>Set up your Profile</h3>
+          <p>Before evaluating any job, go to <strong>Profile</strong> and fill in your <strong>Target Roles</strong> and <strong>Compensation</strong> tabs. The AI reads these every time it scores a job. Without them, scores will be inaccurate.</p>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div><strong>Target Roles</strong> is the most important field. Add the job titles you are actively looking for — e.g. "Senior Software Engineer", "Staff Engineer". You can add multiple.</div>
+          </div>
+          <div class="ss-wrap">
+            <img src="screenshots/10-profile.png" alt="Profile page" loading="lazy" />
+            <div class="ss-caption">Profile → Identity tab. Use the tabs at the top to fill in Target Roles and Compensation.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-circle">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-right">
+          <h3>Evaluate a job</h3>
+          <p>Click <strong>New Evaluation</strong> in the sidebar. Paste the job posting URL (or the full job description text if you don't have a URL) and click <strong>Evaluate</strong>.</p>
+          <div class="ss-wrap">
+            <img src="screenshots/03-new-evaluation.png" alt="New Evaluation form" loading="lazy" />
+            <div class="ss-caption">New Evaluation — paste the URL or job description text, then click Evaluate</div>
+          </div>
+          <div class="callout tip">
+            <span class="callout-icon">⏱</span>
+            <div>Evaluation takes about <strong>30–90 seconds</strong>. The AI fetches the full job description, scores it against your profile across six dimensions, and generates a report.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-circle">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-right">
+          <h3>Read the score and report</h3>
+          <p>When the evaluation finishes, open <strong>Applications</strong> in the sidebar. Click the new row to open the full report.</p>
+          <p>The score is out of 5.0 and covers six areas: role fit, compensation match, company quality, location/remote policy, growth potential, and legitimacy.</p>
+          <div class="card" style="margin: 0;">
+            <div class="card-body" style="padding: 16px;">
+              <div class="score-row"><span class="score-badge teal">4.5–5</span><span>Excellent match — prioritise this application</span></div>
+              <div class="score-row"><span class="score-badge green">4.0–4.4</span><span>Strong match — definitely worth applying</span></div>
+              <div class="score-row"><span class="score-badge yellow">3.5–3.9</span><span>Decent fit — apply if you have bandwidth</span></div>
+              <div class="score-row"><span class="score-badge orange">3.0–3.4</span><span>Weak fit — consider carefully before applying</span></div>
+              <div class="score-row"><span class="score-badge red">0–2.9</span><span>Poor fit — not recommended</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-circle">5</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-right">
+          <h3>Track your application</h3>
+          <p>The job appears automatically in <strong>Applications</strong> with status <em>Evaluated</em>. As you progress through the hiring process, update the status: <em>Applied → Interview → Offer</em> (or <em>Rejected / Discarded</em>). Your dashboard stats update in real time.</p>
+          <div class="ss-wrap">
+            <img src="screenshots/02-applications.png" alt="Applications tracker" loading="lazy" />
+            <div class="ss-caption">Applications — every evaluated job appears here with its score and current status</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 3 — FEATURE OVERVIEW
+  ═════════════════════════════════════════════ -->
+  <section id="features">
+    <div class="sec-title">
+      <div class="sec-num">3</div>
+      <h2>Features &amp; When to Use Them</h2>
+    </div>
+    <p style="margin-bottom:28px; color: var(--muted);">Each feature below explains what it does, when to use it, and exactly what to click — step by step. You don't need all of them on day one, but read through so you know what's available.</p>
+
+    <!-- ─── 1. Dashboard ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">🏠</div>
+        <div>
+          <h3>Dashboard</h3>
+          <div class="feat-tagline">Your job search at a glance — the first screen you see after login</div>
+        </div>
+        <span class="feat-badge">Start here</span>
+      </div>
+      <div class="feat-block-body">
+        <p>The Dashboard is your home screen. It shows live summary numbers — how many jobs you have evaluated, how many applications are active, your average score, and how many interviews you have lined up. You don't type anything here; it just shows you where you stand.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/01-dashboard.png" alt="Dashboard" loading="lazy" />
+          <div class="ss-caption">Dashboard — KPI cards update automatically as you evaluate jobs and move applications forward</div>
+        </div>
+        <div class="feat-what-you-see">
+          <strong>What you'll see:</strong> Four or more stat cards (Total Evaluated, Applied, In Interview, Average Score). As you add more evaluations and update statuses, these numbers update in real time.
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Check the Dashboard at the start of each session to see where your search stands. If your average score is dropping, your Profile targeting may need adjustment.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 2. New Evaluation ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">⭐</div>
+        <div>
+          <h3>New Evaluation</h3>
+          <div class="feat-tagline">Have the AI score any job against your profile in under 90 seconds</div>
+        </div>
+        <span class="feat-badge">Most used</span>
+      </div>
+      <div class="feat-block-body">
+        <p>This is the core feature. You give Career-Ops a job posting — either as a URL or by pasting the text — and the AI reads it, compares it against everything in your Profile, and produces a detailed report with a score out of 5.0. The report tells you exactly where the job is a good fit and where the gaps are.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/03-new-evaluation.png" alt="New Evaluation form" loading="lazy" />
+          <div class="ss-caption">New Evaluation page — paste a job URL or switch to the text tab to paste a description directly</div>
+        </div>
+        <div class="feat-steps-title">How to evaluate a job — step by step</div>
+        <ol class="feat-steps">
+          <li>Click <strong>New Evaluation</strong> in the left sidebar.</li>
+          <li>If you have a URL (from LinkedIn, a company website, or a job board): paste it into the <strong>Job URL</strong> field.</li>
+          <li>If you only have the job description text (no URL): click the <strong>Paste Text</strong> tab and paste the full description there instead.</li>
+          <li>Optionally add a note about the company or why you are interested — this gets saved with the report.</li>
+          <li>Click the blue <strong>Evaluate</strong> button.</li>
+          <li>The page will show a spinner and a status message. <strong>Do not close the tab</strong> — wait 30–90 seconds.</li>
+          <li>When the evaluation finishes, you are taken to the report. Read the score, the six dimension ratings, and the gap analysis.</li>
+          <li>The job is automatically added to your <strong>Applications</strong> list with status <em>Evaluated</em>.</li>
+        </ol>
+        <div class="feat-what-you-see">
+          <strong>What you'll see in the report:</strong> An overall score (e.g. 4.2 / 5.0), sub-scores for Role Fit, Compensation, Company Quality, Location/Remote, Growth Potential, and Legitimacy. Below that: a list of strengths, gaps, and a recommended action (Apply / Skip / Consider).
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div><strong>Your Profile must be filled in first.</strong> If Target Roles and Compensation are empty, the AI has nothing to compare the job against and the score will be meaningless. Set up your Profile before running your first evaluation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 3. Applications ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">📋</div>
+        <div>
+          <h3>Applications</h3>
+          <div class="feat-tagline">Every job you've evaluated, in one sortable list — update status as you progress</div>
+        </div>
+        <span class="feat-badge">Check daily</span>
+      </div>
+      <div class="feat-block-body">
+        <p>Applications is your master tracker. Every time you run an evaluation, the job appears here automatically. You then update the status as you move through the hiring process — from Evaluated, to Applied, to Interview, to Offer or Rejected. This is also where you reopen past reports.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/02-applications.png" alt="Applications tracker" loading="lazy" />
+          <div class="ss-caption">Applications list — each row is one job with its company, role, score, current status, and date</div>
+        </div>
+        <div class="feat-steps-title">How to use the Applications tracker</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Applications</strong> in the left sidebar to open your list.</li>
+          <li>Each row shows: Company, Role, Score, Status, and Date. Click any row to open the full evaluation report.</li>
+          <li>To update a status (e.g. after you applied): click the row, find the <strong>Status</strong> field, and change it to <em>Applied</em>.</li>
+          <li>Continue updating as things progress: <em>Applied → Interview → Offer</em> or <em>Applied → Rejected</em>.</li>
+          <li>Use the <strong>Search</strong> bar at the top to find a specific company quickly.</li>
+          <li>Use the <strong>Filter by Status</strong> dropdown to see only active applications, or only rejections.</li>
+        </ol>
+        <div class="feat-what-you-see">
+          <strong>Status options explained:</strong> <em>Evaluated</em> = report done, no action yet. <em>Applied</em> = you sent the application. <em>Interview</em> = in the process. <em>Offer</em> = received an offer. <em>Rejected</em> = rejected by company. <em>Discarded</em> = you chose not to pursue it.
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Keep statuses up to date. The Dashboard summary numbers and Analytics charts are driven entirely by what you set here — stale statuses give you a misleading picture of your search.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 4. Pipeline ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">📥</div>
+        <div>
+          <h3>Pipeline</h3>
+          <div class="feat-tagline">A URL inbox — save jobs while browsing, evaluate them later in one batch</div>
+        </div>
+      </div>
+      <div class="feat-block-body">
+        <p>The Pipeline is a holding area. When you are browsing LinkedIn or a job board and find something interesting but don't have time to evaluate it right now, paste the URL into the Pipeline. Later, when you sit down to do a proper review, you can process all saved URLs at once instead of opening them one by one.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/04-pipeline.png" alt="Pipeline" loading="lazy" />
+          <div class="ss-caption">Pipeline — a list of saved job URLs waiting to be evaluated. Click Process All to evaluate them in bulk.</div>
+        </div>
+        <div class="feat-steps-title">How to save jobs to the Pipeline and process them</div>
+        <ol class="feat-steps">
+          <li>When you spot an interesting job but don't want to evaluate it right now, copy the job URL.</li>
+          <li>Click <strong>Pipeline</strong> in the sidebar.</li>
+          <li>Paste the URL into the input field at the top and click <strong>Add</strong>. The job appears in the list.</li>
+          <li>Repeat for as many jobs as you want to save.</li>
+          <li>When you are ready to evaluate them, click <strong>Process All</strong>. Each URL is sent to the evaluation queue one by one.</li>
+          <li>Check <strong>Applications</strong> a few minutes later — all processed jobs will appear there with their scores.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Use Pipeline during your morning browse, then process everything in one go later. It keeps your evaluation sessions focused instead of scattered.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 5. Portals ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">🔭</div>
+        <div>
+          <h3>Portals</h3>
+          <div class="feat-tagline">Tell the Scanner which companies to watch and what job titles to look for</div>
+        </div>
+        <span class="feat-badge">Set up once</span>
+      </div>
+      <div class="feat-block-body">
+        <p>Portals is the configuration screen for the Scanner. It holds a list of companies (with their job portal URLs) and a set of keyword filters. You set this up once, and then the Scanner uses it every time it runs. Think of it as telling Career-Ops: "watch these 20 companies and alert me if they post anything matching these titles."</p>
+        <div class="ss-wrap">
+          <img src="screenshots/05-portals.png" alt="Portals" loading="lazy" />
+          <div class="ss-caption">Portals — each row is a company with its portal URL and the title keywords to match against</div>
+        </div>
+        <div class="feat-steps-title">How to set up your Portals</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Portals</strong> in the sidebar.</li>
+          <li>You will see a pre-loaded list of companies. Scroll through and toggle <strong>Enable</strong> on the ones you actually care about. Toggle off companies that are not relevant to your search.</li>
+          <li>For each enabled portal, check the <strong>Title Filter</strong> column. This is the keyword the Scanner will use to match job titles. Make sure it reflects what you are looking for — e.g. "Engineer", "Product Manager", "Data Scientist".</li>
+          <li>To add a company that isn't listed: click <strong>+ Add Portal</strong>, enter the company name and their careers page URL, and set the title filter.</li>
+          <li>Click <strong>Save</strong> when done.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Use broad title keywords. "Engineer" will catch "Senior Engineer", "Staff Engineer", "Software Engineer II" — all in one filter. Narrow keywords like "Senior Software Engineer" may miss variations.</div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>At least one portal must be enabled with a title filter set before the Scanner can run. If the Scanner returns no results, come back here first and check your filters.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 6. Scanner ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">🔍</div>
+        <div>
+          <h3>Scanner</h3>
+          <div class="feat-tagline">Automatically find new openings at your target companies — uses zero AI credits</div>
+        </div>
+        <span class="feat-badge">Free to run</span>
+      </div>
+      <div class="feat-block-body">
+        <p>The Scanner hits the job portal APIs of every company in your Portals list and checks for new openings that match your title filters. It does this without using any AI — it directly queries Greenhouse, Lever, Ashby, and other ATS APIs. Results appear instantly. You then decide which ones to evaluate.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/06-scanner.png" alt="Scanner" loading="lazy" />
+          <div class="ss-caption">Scanner — click Scan Now, then results appear below. Send any interesting job to Evaluation or Pipeline.</div>
+        </div>
+        <div class="feat-steps-title">How to run a scan and act on results</div>
+        <ol class="feat-steps">
+          <li>Make sure your Portals are configured first (see above). The Scanner will only check enabled portals.</li>
+          <li>Click <strong>Scanner</strong> in the sidebar.</li>
+          <li>Click the <strong>Scan Now</strong> button. The scan usually completes in 10–30 seconds.</li>
+          <li>Results appear in a list below the button. Each result shows the company, job title, location, and a link to the original posting.</li>
+          <li>For each result you are interested in, click <strong>Evaluate</strong> to send it straight to AI evaluation, or <strong>Save to Pipeline</strong> to review it later.</li>
+          <li>Jobs you have already seen are marked as <em>Previously seen</em> — the Scanner remembers what it showed you and won't show duplicates.</li>
+        </ol>
+        <div class="callout good">
+          <span class="callout-icon">✅</span>
+          <div><strong>Run the Scanner weekly.</strong> It costs nothing and takes under 30 seconds. You will catch new postings before other applicants, which matters — job postings get the most views in the first 48 hours.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 7. Analytics ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">📊</div>
+        <div>
+          <h3>Analytics</h3>
+          <div class="feat-tagline">Charts and patterns that show you what is and isn't working in your search</div>
+        </div>
+        <span class="feat-badge">After 10+ jobs</span>
+      </div>
+      <div class="feat-block-body">
+        <p>Analytics turns your Applications data into charts. You can see your pipeline funnel (how many jobs move from Evaluated to Applied to Interview), your score distribution, rejection patterns, and which companies or role types are scoring highest. It helps you answer the question: "Am I targeting the right kinds of jobs?"</p>
+        <div class="ss-wrap">
+          <img src="screenshots/07-analytics.png" alt="Analytics" loading="lazy" />
+          <div class="ss-caption">Analytics — funnel chart, score distribution, and rejection pattern analysis</div>
+        </div>
+        <div class="feat-steps-title">How to read the Analytics page</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Analytics</strong> in the sidebar.</li>
+          <li>The <strong>Funnel</strong> chart at the top shows how many jobs are in each status — this tells you if you are applying to enough jobs or if too many are stalling at Evaluated.</li>
+          <li>The <strong>Score Distribution</strong> chart shows the spread of your scores. If most scores are below 3.5, your target role keywords or compensation range may need adjusting.</li>
+          <li>The <strong>Rejection Patterns</strong> section (visible once you have some rejections) shows whether rejections cluster by company type, role level, or location.</li>
+          <li>Use the date range filter at the top to focus on a specific time period.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Analytics is most useful once you have 10 or more evaluations. With fewer data points, the patterns are too noisy to draw conclusions from.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 8. Interview Prep ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">🎤</div>
+        <div>
+          <h3>Interview Prep</h3>
+          <div class="feat-tagline">Build a library of STAR stories so you're never caught off guard in an interview</div>
+        </div>
+      </div>
+      <div class="feat-block-body">
+        <p>Interview Prep is a personal story bank. A STAR story is a structured way to answer behavioural interview questions ("Tell me about a time when..."). You write the story once — Situation, Task, Action, Result — and store it here. Before each interview you review the relevant stories instead of trying to recall them under pressure.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/19-interview-prep.png" alt="Interview Prep" loading="lazy" />
+          <div class="ss-caption">Interview Prep — your saved STAR stories, tagged by competency so you can find the right one quickly</div>
+        </div>
+        <div class="feat-steps-title">How to build your story bank</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Interview Prep</strong> in the sidebar.</li>
+          <li>Click <strong>+ Add Story</strong>.</li>
+          <li>Give the story a title that describes the situation (e.g. "Led migration to microservices under 3-month deadline").</li>
+          <li>Fill in the four STAR fields: <strong>Situation</strong> (context), <strong>Task</strong> (what you had to do), <strong>Action</strong> (exactly what you did), <strong>Result</strong> (outcome, ideally with a number).</li>
+          <li>Add a <strong>Competency tag</strong> — e.g. Leadership, Problem Solving, Communication. This helps you filter later.</li>
+          <li>Click <strong>Save</strong>. Repeat for each story.</li>
+          <li>Aim for 8–12 stories covering different competencies. Good coverage: 2–3 leadership stories, 2–3 technical problem-solving, 1–2 conflict/stakeholder, 1–2 delivery under pressure.</li>
+        </ol>
+        <div class="feat-what-you-see">
+          <strong>Before an interview:</strong> Filter by the competencies the company is likely to test. Read through your top 3–4 stories for each. You will answer confidently because you practised the structure in advance, not on the spot.
+        </div>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Add a story immediately after any experience that was challenging or had a measurable outcome — your memory is sharpest right after the event. Don't wait until interview season.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 9. Profile ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">👤</div>
+        <div>
+          <h3>Profile</h3>
+          <div class="feat-tagline">The information the AI uses to score every job — keep it accurate and complete</div>
+        </div>
+        <span class="feat-badge">Do this first</span>
+      </div>
+      <div class="feat-block-body">
+        <p>Your Profile is what the AI reads before scoring any job. It contains your target roles, compensation expectations, location preferences, and a narrative about your strengths. The more complete and accurate your Profile, the more accurate your evaluation scores will be.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/10-profile.png" alt="Profile" loading="lazy" />
+          <div class="ss-caption">Profile — four tabs: Identity, Target Roles, Compensation, and Narrative. Fill in all four for best results.</div>
+        </div>
+        <div class="feat-steps-title">How to fill in your Profile</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Profile</strong> in the sidebar (usually near the bottom, under your name).</li>
+          <li><strong>Identity tab:</strong> Enter your full name, current location, and years of experience. This gives the AI context about who you are.</li>
+          <li><strong>Target Roles tab:</strong> Click <strong>+ Add Role</strong> and type the job titles you are actively targeting. Add multiple — e.g. "Senior Software Engineer", "Staff Engineer", "Engineering Lead". These are compared directly against job titles in every evaluation.</li>
+          <li><strong>Compensation tab:</strong> Set your minimum and target salary. Enter the currency and whether these are annual figures. The AI will flag jobs that pay below your minimum as a compensation mismatch.</li>
+          <li><strong>Narrative tab:</strong> Write 2–3 sentences about your professional superpower — the thing you do better than most candidates. Also list your must-have requirements (e.g. "fully remote", "no more than 10% travel"). The AI uses this when assessing role fit.</li>
+          <li>Click <strong>Save</strong> on each tab after filling it in.</li>
+        </ol>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div>Updating your Profile does <strong>not</strong> re-score existing evaluations. If you make significant changes, re-evaluate your top jobs to get updated scores.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 10. Team ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">👥</div>
+        <div>
+          <h3>Team</h3>
+          <div class="feat-tagline">Invite a career coach, recruiter, or trusted colleague to collaborate on your search</div>
+        </div>
+      </div>
+      <div class="feat-block-body">
+        <p>Team lets you add other people to your Career-Ops workspace. A collaborator can view your evaluations and applications, leave comments, and help you decide which jobs to prioritise. You stay in control — you choose what access level each person gets.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/08-team.png" alt="Team" loading="lazy" />
+          <div class="ss-caption">Team page — invite people by email, set their role (Viewer or Collaborator), and manage existing members</div>
+        </div>
+        <div class="feat-steps-title">How to invite a team member</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Team</strong> in the sidebar.</li>
+          <li>Click <strong>Invite Member</strong>.</li>
+          <li>Enter the person's email address.</li>
+          <li>Choose their role: <strong>Viewer</strong> (can only read, not change anything) or <strong>Collaborator</strong> (can add comments and suggestions).</li>
+          <li>Click <strong>Send Invite</strong>. They will receive an email with a link to join your workspace.</li>
+          <li>Once they accept, they appear in the member list and can access your Applications and evaluations.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>If you have a career coach or a friend in the industry who reviews your applications, give them Viewer access. They can see your scores and reports without you having to export or share screenshots manually.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 11. Settings ─── -->
+    <div class="feat-block">
+      <div class="feat-block-header">
+        <div class="feat-block-icon">⚙️</div>
+        <div>
+          <h3>Settings</h3>
+          <div class="feat-tagline">Manage your account, API keys, usage quota, and organisation details</div>
+        </div>
+      </div>
+      <div class="feat-block-body">
+        <p>Settings is where you manage the administrative side of your account — your subscription plan, monthly usage, organisation name, and API keys if you are integrating Career-Ops with other tools. Most users only visit Settings once during setup and occasionally to check quota.</p>
+        <div class="ss-wrap">
+          <img src="screenshots/11-settings.png" alt="Settings" loading="lazy" />
+          <div class="ss-caption">Settings — organisation details, plan information, usage meter, and API key management</div>
+        </div>
+        <div class="feat-steps-title">Things to do in Settings</div>
+        <ol class="feat-steps">
+          <li>Click <strong>Settings</strong> in the sidebar (at the very bottom).</li>
+          <li>Check the <strong>Usage</strong> section to see how many evaluations you have used this month and how many remain in your plan.</li>
+          <li>To create an API key (for developers): click <strong>API Keys → Create New Key</strong>, give it a name, and copy the key — it is shown only once.</li>
+          <li>To update your organisation name or billing email: edit the fields in the <strong>Organisation</strong> section and click <strong>Save</strong>.</li>
+          <li>To change your plan: click <strong>Upgrade Plan</strong> or contact support.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>Check Settings if you get a "quota exceeded" error when trying to evaluate a job. If you are near the limit, consider whether the jobs in your Pipeline are worth using credits on, or wait for the next billing cycle.</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 4 — COMMON ACTIONS
+  ═════════════════════════════════════════════ -->
+  <section id="actions">
+    <div class="sec-title">
+      <div class="sec-num">4</div>
+      <h2>Most Common Actions</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+
+        <p><strong>Evaluating a job from LinkedIn or a job board</strong></p>
+        <p>Copy the job posting URL → click <strong>New Evaluation</strong> in the sidebar → paste the URL → click <em>Evaluate</em> → wait ~60 seconds → open the result in <strong>Applications</strong>.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 16px 0;" />
+
+        <p><strong>Evaluating a job when you only have the description (no URL)</strong></p>
+        <p>Click <strong>New Evaluation</strong> → switch to the <em>Paste Text</em> tab → paste the full job description → click <em>Evaluate</em>.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 16px 0;" />
+
+        <p><strong>Saving jobs to review later</strong></p>
+        <p>Go to <strong>Pipeline</strong> → paste the URL → it will sit there until you click <em>Process All</em>. Good for when you are browsing and want to batch-evaluate later.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 16px 0;" />
+
+        <p><strong>Finding new jobs without searching manually</strong></p>
+        <p>Go to <strong>Portals</strong> and make sure your target companies are listed and enabled. Then go to <strong>Scanner</strong> and click <em>Scan Now</em>. New openings matching your title filters will appear — send any to the Pipeline or straight to Evaluation.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 16px 0;" />
+
+        <p><strong>Updating an application status</strong></p>
+        <p>Go to <strong>Applications</strong> → find the row → click it to open → change the status (e.g., <em>Applied</em>, <em>Interview</em>, <em>Rejected</em>). Status changes appear in the Dashboard stats immediately.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 16px 0;" />
+
+        <p><strong>Preparing for an interview</strong></p>
+        <p>Go to <strong>Interview Prep</strong> → click <em>+ Add Story</em> → write out a STAR story from your experience. Aim for 8–12 stories covering different competencies. Before each interview, review the relevant stories.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 5 — RULES, LIMITS & BEST PRACTICES
+  ═════════════════════════════════════════════ -->
+  <section id="rules">
+    <div class="sec-title">
+      <div class="sec-num">5</div>
+      <h2>Important Rules, Limits &amp; Best Practices</h2>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>Complete your Profile first.</strong> If Target Roles and Compensation are empty, the AI has nothing to compare the job against — scores will be generic and unreliable.</div>
+    </div>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚫</span>
+      <div><strong>Don't apply to jobs scoring below 4.0</strong> unless you have a specific reason. Career-Ops is designed for quality over quantity — a targeted application to a 4.5 beats ten sprayed applications to 3.0s.</div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>The Scanner is free.</strong> It hits company job portal APIs directly and uses zero AI credits. Run it as often as you like without worrying about quota.</div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-body">
+        <p><strong>Monthly usage limits (Pro plan)</strong></p>
+        <p>Each AI evaluation counts against your monthly quota. Check <strong>Settings</strong> to see how many you have used and how many remain. The Scanner, Pipeline, and Applications tracker do <em>not</em> consume quota.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 14px 0;" />
+
+        <p><strong>Each job is evaluated once</strong></p>
+        <p>Submitting the same URL a second time creates a new evaluation and uses a credit. Before re-evaluating, check if the job is already in your Applications list.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 14px 0;" />
+
+        <p><strong>Profile updates affect future evaluations only</strong></p>
+        <p>Changing your Target Roles or Compensation will not re-score existing applications. If you significantly update your profile, you may want to re-evaluate key jobs.</p>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin: 14px 0;" />
+
+        <p><strong>Never submit before reviewing</strong></p>
+        <p>Career-Ops can draft applications and fill forms, but it will always stop before clicking Submit. You make the final call on every application.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 6 — TROUBLESHOOTING
+  ═════════════════════════════════════════════ -->
+  <section id="troubleshoot">
+    <div class="sec-title">
+      <div class="sec-num">6</div>
+      <h2>Troubleshooting Common Problems</h2>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">The score seems too low / doesn't match my experience</div>
+      <div class="trouble-a">Open <strong>Profile → Target Roles</strong> and confirm your target job titles are set correctly. The AI scores against these — if they are empty or mismatched, the score will be wrong. Also check <strong>Profile → Narrative</strong> to make sure your headline and superpowers are filled in.</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">My evaluation is stuck on "processing" for more than 3 minutes</div>
+      <div class="trouble-a">Go to <strong>AI Settings</strong> and click <em>Test Connection</em>. If it fails, your AI provider API key may have expired or hit its rate limit. Check that the key is valid and the provider is reachable. You can also try switching to a fallback provider.</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">The Scanner found no results</div>
+      <div class="trouble-a">Go to <strong>Portals</strong> and check that: (1) at least one portal is enabled, and (2) the title filter contains keywords that match real job titles at those companies. Try broadening the filter — e.g. replace "Senior Software Engineer" with just "Engineer".</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">I can't log in — my password is not working</div>
+      <div class="trouble-a">Clear your browser cookies for <code>localhost:5173</code> and try again. If you are the demo user, the credentials are <code>demo@example.com</code> / <code>demo1234</code>. If you are on a real account, use the <em>Create one</em> link on the login page to check your registration.</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">An application shows the wrong status</div>
+      <div class="trouble-a">Open <strong>Applications</strong>, click the row, and update the status manually. If the status field shows something unexpected (e.g. "Evaluated" after you applied), it was not updated after you sent the application — the tracker only knows what you tell it.</div>
+    </div>
+
+    <div class="trouble-item">
+      <div class="trouble-q">I submitted the same job twice by accident</div>
+      <div class="trouble-a">Both evaluations count against your quota and cannot be refunded. Before evaluating, quickly check <strong>Applications</strong> to confirm the job is not already there. You can delete the duplicate row from the Applications list.</div>
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 7 — SUPPORT & RESOURCES
+  ═════════════════════════════════════════════ -->
+  <section id="support">
+    <div class="sec-title">
+      <div class="sec-num">7</div>
+      <h2>Support &amp; Resources</h2>
+    </div>
+
+    <div class="support-grid">
+      <div class="support-item">
+        <div class="s-icon">📖</div>
+        <h3>Full Reference Guide</h3>
+        <p>Detailed documentation for every page and feature</p>
+        <p style="margin-top:8px"><a href="user-guide.html">Open guide →</a></p>
+      </div>
+      <div class="support-item">
+        <div class="s-icon">💬</div>
+        <h3>Discord Community</h3>
+        <p>Ask questions and share tips with other users</p>
+        <p style="margin-top:8px"><a href="https://discord.gg/8pRpHETxa4" target="_blank">Join Discord →</a></p>
+      </div>
+      <div class="support-item">
+        <div class="s-icon">🐛</div>
+        <h3>Report a Bug</h3>
+        <p>Found something broken? Open an issue on GitHub</p>
+        <p style="margin-top:8px"><a href="https://github.com/santifer/career-ops/issues" target="_blank">GitHub Issues →</a></p>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top: 20px;">
+      <span class="callout-icon">📧</span>
+      <div>For account or billing questions, email <strong>support@career-ops.io</strong>. For general help and feature requests, the Discord community is usually faster.</div>
+    </div>
+  </section>
+
+  <hr class="sec-divider" />
+
+  <!-- ════════════════════════════════════════════
+       SECTION 8 — WHAT TO DO NEXT
+  ═════════════════════════════════════════════ -->
+  <section id="next">
+    <div class="sec-title">
+      <div class="sec-num">8</div>
+      <h2>What to Do Next</h2>
+    </div>
+    <p style="margin-bottom: 20px; color: var(--muted);">You've completed the quick-start. Here are the best next steps depending on where you are in your search:</p>
+
+    <div class="next-grid">
+      <a href="http://localhost:5173/evaluations/new" class="next-card" target="_blank">
+        <div class="nc-icon">⭐</div>
+        <h3>Evaluate your first job</h3>
+        <p>Paste a URL and see your first AI score in under 2 minutes</p>
+      </a>
+      <a href="http://localhost:5173/portals" class="next-card" target="_blank">
+        <div class="nc-icon">🔭</div>
+        <h3>Set up company portals</h3>
+        <p>Configure the companies the scanner should watch for you</p>
+      </a>
+      <a href="http://localhost:5173/interview-prep" class="next-card" target="_blank">
+        <div class="nc-icon">🎤</div>
+        <h3>Add interview stories</h3>
+        <p>Build your STAR story library before your next phone screen</p>
+      </a>
+      <a href="http://localhost:5173/scanner" class="next-card" target="_blank">
+        <div class="nc-icon">🔍</div>
+        <h3>Run the scanner</h3>
+        <p>Find new openings at target companies — free, instant</p>
+      </a>
+      <a href="user-guide.html" class="next-card" target="_blank">
+        <div class="nc-icon">📖</div>
+        <h3>Read the full guide</h3>
+        <p>Every feature explained with screenshots and examples</p>
+      </a>
+      <a href="http://localhost:5173/settings/ai" class="next-card" target="_blank">
+        <div class="nc-icon">🤖</div>
+        <h3>Configure AI provider</h3>
+        <p>Bring your own API key or adjust the model and temperature</p>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function updateProgress() {
+    const boxes = document.querySelectorAll('#the-checklist input[type=checkbox]');
+    const checked = [...boxes].filter(b => b.checked).length;
+    const total   = boxes.length;
+    const pct     = Math.round((checked / total) * 100);
+    document.getElementById('checklist-bar').style.width = pct + '%';
+    document.getElementById('checklist-label').textContent = `${checked} / ${total} complete${checked === total ? ' — you\'re ready! 🎉' : ''}`;
+    // Cross out completed items
+    boxes.forEach(b => {
+      const label = b.nextElementSibling;
+      label.style.textDecoration = b.checked ? 'line-through' : '';
+      label.style.opacity = b.checked ? '0.5' : '1';
+    });
+  }
+</script>
+</body>
+</html>
