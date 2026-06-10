@@ -4,14 +4,15 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { usePipeline, useAddToPipeline, useProcessPipeline, useDeletePipelineItem } from '@/api/pipeline';
 import toast from 'react-hot-toast';
 
-const COLUMNS = [
-  { status: 'pending', label: 'Pending', color: '#ffce54' },
-  { status: 'processing', label: 'Processing', color: '#5d9cec' },
-  { status: 'processed', label: 'Processed', color: '#48cfad' },
-];
+const STATUS_BADGE: Record<string, string> = {
+  pending: 'badge badge-soft-warning',
+  processing: 'badge badge-soft-primary',
+  processed: 'badge badge-soft-success',
+};
 
 export function PipelinePage() {
   const [urlsInput, setUrlsInput] = useState('');
+  const [search, setSearch] = useState('');
   const { data: items = [], isLoading } = usePipeline();
   const addToQueue = useAddToPipeline();
   const processAll = useProcessPipeline();
@@ -30,87 +31,140 @@ export function PipelinePage() {
     toast.success(`Queued ${result.enqueued} evaluations`);
   };
 
-  const grouped = COLUMNS.reduce((acc, col) => {
-    acc[col.status] = items.filter((i) => i.status === col.status);
-    return acc;
-  }, {} as Record<string, typeof items>);
+  const filtered = search
+    ? items.filter(
+        (i) =>
+          i.url.toLowerCase().includes(search.toLowerCase()) ||
+          (i.company ?? '').toLowerCase().includes(search.toLowerCase()) ||
+          (i.title ?? '').toLowerCase().includes(search.toLowerCase()),
+      )
+    : items;
+
+  const pendingCount = items.filter((i) => i.status === 'pending').length;
 
   return (
     <Layout title="Pipeline">
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'flex-start' }}>
-        <div style={{ flex: 1 }}>
-          <textarea
-            className="form-control"
-            rows={3}
-            value={urlsInput}
-            onChange={(e) => setUrlsInput(e.target.value)}
-            placeholder="Paste job URLs (one per line)&#10;https://jobs.ashbyhq.com/company/job-id&#10;https://jobs.lever.co/company/job-id"
-            style={{ fontFamily: 'monospace', fontSize: 13 }}
-          />
+      {/* Add URLs card */}
+      <div className="card mb-3">
+        <div className="card-header">
+          <h5 className="mb-0">Add URLs to Pipeline</h5>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <button className="btn btn-primary" onClick={handleAdd} disabled={addToQueue.isPending}>
-            {addToQueue.isPending ? 'Adding…' : '+ Add URLs'}
-          </button>
-          <button className="btn btn-secondary" onClick={handleProcess} disabled={processAll.isPending}>
-            {processAll.isPending ? 'Processing…' : '▶ Process All'}
-          </button>
+        <div className="card-body">
+          <div className="mb-3">
+            <label className="form-label fw-semi-bold">Job URLs (one per line)</label>
+            <textarea
+              className="form-control"
+              rows={3}
+              value={urlsInput}
+              onChange={(e) => setUrlsInput(e.target.value)}
+              placeholder={"Paste job URLs (one per line)\nhttps://jobs.ashbyhq.com/company/job-id\nhttps://jobs.lever.co/company/job-id"}
+              style={{ fontFamily: 'monospace', fontSize: 13 }}
+            />
+          </div>
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-primary"
+              onClick={handleAdd}
+              disabled={addToQueue.isPending || !urlsInput.trim()}
+            >
+              {addToQueue.isPending ? 'Adding…' : '+ Add URLs'}
+            </button>
+            <button
+              className="btn btn-falcon-default"
+              onClick={handleProcess}
+              disabled={processAll.isPending || pendingCount === 0}
+            >
+              {processAll.isPending ? 'Processing…' : `Process All${pendingCount > 0 ? ` (${pendingCount})` : ''}`}
+            </button>
+          </div>
         </div>
       </div>
 
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          {COLUMNS.map((col) => (
-            <div key={col.status}>
-              <div style={{
-                padding: '8px 12px',
-                background: `${col.color}20`,
-                borderRadius: '4px 4px 0 0',
-                borderLeft: `3px solid ${col.color}`,
-                fontWeight: 600,
-                fontSize: 13,
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}>
-                <span>{col.label}</span>
-                <span style={{ background: col.color, color: '#fff', borderRadius: 10, padding: '1px 8px', fontSize: 12 }}>
-                  {grouped[col.status]?.length ?? 0}
-                </span>
-              </div>
-              <div className="card" style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none', padding: 8, minHeight: 200 }}>
-                {grouped[col.status]?.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 24, fontSize: 13 }}>Empty</div>
-                ) : (
-                  grouped[col.status]?.map((item) => (
-                    <div key={item.id} style={{
-                      padding: '8px 10px',
-                      border: '1px solid var(--card-border)',
-                      borderRadius: 4,
-                      marginBottom: 6,
-                      fontSize: 13,
-                      background: '#fff',
-                    }}>
-                      <div style={{ fontWeight: 500, wordBreak: 'break-all' }}>{item.company ?? item.title ?? 'Job'}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, wordBreak: 'break-all' }}>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer">{item.url.slice(0, 50)}…</a>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => deleteItem.mutateAsync(item.id)}
-                          style={{ padding: '1px 6px', fontSize: 11 }}
-                        >×</button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          ))}
+      {/* Pipeline table card */}
+      <div className="card">
+        <div className="card-header d-flex align-items-center justify-content-between gap-3 flex-wrap">
+          <h5 className="mb-0">Pipeline Items</h5>
+          <div style={{ maxWidth: 280, width: '100%' }}>
+            <input
+              type="search"
+              className="form-control form-control-sm"
+              placeholder="Search by URL or company…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </div>
-      )}
+        <div className="card-body p-0">
+          {isLoading ? (
+            <div className="p-4">
+              <LoadingSpinner />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center text-muted py-5">
+              {search ? 'No results match your search.' : 'No items in pipeline. Add some URLs above.'}
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover table-sm fs--1 mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th>Company / Title</th>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Added</th>
+                    <th className="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((item) => (
+                    <tr key={item.id}>
+                      <td className="fw-semi-bold text-nowrap">
+                        {item.company ?? item.title ?? <span className="text-500">—</span>}
+                      </td>
+                      <td>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-600 text-decoration-none"
+                          title={item.url}
+                        >
+                          {item.url.length > 55 ? `${item.url.slice(0, 55)}…` : item.url}
+                        </a>
+                      </td>
+                      <td>
+                        <span className={STATUS_BADGE[item.status] ?? 'badge badge-soft-secondary'}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="text-nowrap text-500">
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="text-end">
+                        <button
+                          className="btn btn-sm btn-falcon-default"
+                          onClick={() => deleteItem.mutateAsync(item.id)}
+                          title="Remove"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        {filtered.length > 0 && (
+          <div className="card-footer d-flex align-items-center justify-content-between py-2 fs--1 text-500">
+            <span>Showing {filtered.length} of {items.length} item{items.length !== 1 ? 's' : ''}</span>
+            {pendingCount > 0 && (
+              <span className="badge badge-soft-warning">{pendingCount} pending</span>
+            )}
+          </div>
+        )}
+      </div>
     </Layout>
   );
 }

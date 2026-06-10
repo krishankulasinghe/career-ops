@@ -88,91 +88,160 @@ export function SSOSettingsPage() {
 
   return (
     <Layout title="SSO Configuration">
-      <div style={{ maxWidth: 600 }}>
-
-        {config?.isActive && (
-          <div style={{ padding: '10px 14px', borderRadius: 6, background: 'rgba(34,197,94,0.1)', border: '1px solid var(--success)', fontSize: 13, marginBottom: 16 }}>
-            ✓ SSO is active. Users with your domain will be redirected to the IdP on login.
-            {config.forceSso && <span style={{ marginLeft: 8, color: 'var(--warning)' }}>Force SSO is ON — password login is blocked for org members.</span>}
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">SSO Configuration</h5>
+                  <p className="text-600 fs--1 mb-0">Configure Single Sign-On for your organization</p>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>SSO Configuration</h3>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-            Gated to Team and Enterprise plans. Supports OIDC (Okta, Auth0, Google Workspace) and SAML 2.0.
-          </div>
+        <div className="col-lg-8">
+          {config?.isActive && (
+            <div className="alert alert-success mb-3" role="alert">
+              ✓ SSO is active. Users with your domain will be redirected to the IdP on login.
+              {config.forceSso && (
+                <span className="text-warning ms-2">Force SSO is ON — password login is blocked for org members.</span>
+              )}
+            </div>
+          )}
 
-          {/* Protocol */}
-          <div className="form-group">
-            <label className="form-label">Protocol</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {['oidc', 'saml'].map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, protocol: p }))}
-                  style={{
-                    padding: '6px 16px', borderRadius: 6, cursor: 'pointer',
-                    border: `2px solid ${form.protocol === p ? 'var(--primary)' : 'var(--card-border)'}`,
-                    background: form.protocol === p ? 'rgba(93,156,236,0.15)' : 'transparent',
-                    color: 'var(--text)', fontWeight: form.protocol === p ? 600 : 400, fontSize: 13,
-                  }}
-                >
-                  {p.toUpperCase()}
-                </button>
-              ))}
+          {/* Protocol selection */}
+          <div className="card mb-3">
+            <div className="card-header">
+              <h5 className="mb-0">Protocol</h5>
+            </div>
+            <div className="card-body">
+              <p className="text-600 fs--1 mb-3">
+                Gated to Team and Enterprise plans. Supports OIDC (Okta, Auth0, Google Workspace) and SAML 2.0.
+              </p>
+              <div className="d-flex gap-2">
+                {(['oidc', 'saml'] as const).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`btn ${form.protocol === p ? 'btn-primary' : 'btn-falcon-default'}`}
+                    onClick={() => setForm((f) => ({ ...f, protocol: p }))}
+                  >
+                    {p.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {form.protocol === 'oidc' ? (
-            <>
-              <div className="form-group">
-                <label className="form-label">Issuer URL</label>
-                <input className="form-control" value={form.issuer} onChange={(e) => setForm((f) => ({ ...f, issuer: e.target.value }))} placeholder="https://your-idp.example.com" />
+          {/* OIDC settings */}
+          {form.protocol === 'oidc' && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h5 className="mb-0">OIDC Settings</h5>
               </div>
-              <div className="form-group">
-                <label className="form-label">Client ID</label>
-                <input className="form-control" value={form.clientId} onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))} />
+              <div className="card-body">
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">Issuer URL</label>
+                  <input
+                    className="form-control"
+                    value={form.issuer}
+                    onChange={(e) => setForm((f) => ({ ...f, issuer: e.target.value }))}
+                    placeholder="https://your-idp.example.com"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">Client ID</label>
+                  <input
+                    className="form-control"
+                    value={form.clientId}
+                    onChange={(e) => setForm((f) => ({ ...f, clientId: e.target.value }))}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">Client Secret</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    value={form.clientSecret}
+                    onChange={(e) => setForm((f) => ({ ...f, clientSecret: e.target.value }))}
+                    placeholder={config?.hasClientSecret ? '(saved — leave blank to keep)' : 'Enter client secret'}
+                    autoComplete="new-password"
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Client Secret</label>
-                <input type="password" className="form-control" value={form.clientSecret} onChange={(e) => setForm((f) => ({ ...f, clientSecret: e.target.value }))}
-                  placeholder={config?.hasClientSecret ? '(saved — leave blank to keep)' : 'Enter client secret'} autoComplete="new-password" />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="form-group">
-                <label className="form-label">IdP Metadata URL</label>
-                <input className="form-control" value={form.idpMetadataUrl} onChange={(e) => setForm((f) => ({ ...f, idpMetadataUrl: e.target.value }))} placeholder="https://your-idp.example.com/metadata.xml" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">SP Entity ID</label>
-                <input className="form-control" value={form.entityId} onChange={(e) => setForm((f) => ({ ...f, entityId: e.target.value }))} />
-              </div>
-            </>
+            </div>
           )}
 
+          {/* SAML settings */}
+          {form.protocol === 'saml' && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h5 className="mb-0">SAML 2.0 Settings</h5>
+              </div>
+              <div className="card-body">
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">IdP Metadata URL</label>
+                  <input
+                    className="form-control"
+                    value={form.idpMetadataUrl}
+                    onChange={(e) => setForm((f) => ({ ...f, idpMetadataUrl: e.target.value }))}
+                    placeholder="https://your-idp.example.com/metadata.xml"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">SP Entity ID</label>
+                  <input
+                    className="form-control"
+                    value={form.entityId}
+                    onChange={(e) => setForm((f) => ({ ...f, entityId: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ACS URL */}
           {config?.acsUrl && (
-            <div className="form-group">
-              <label className="form-label">ACS / Callback URL (configure in your IdP)</label>
-              <input className="form-control" readOnly value={config.acsUrl} style={{ color: 'var(--text-muted)' }} />
+            <div className="card mb-3">
+              <div className="card-header">
+                <h5 className="mb-0">Callback URL</h5>
+              </div>
+              <div className="card-body">
+                <label className="form-label fw-semi-bold">ACS / Callback URL (configure in your IdP)</label>
+                <input className="form-control text-600" readOnly value={config.acsUrl} />
+              </div>
             </div>
           )}
 
-          <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
-              <input type="checkbox" checked={form.forceSso} onChange={(e) => setForm((f) => ({ ...f, forceSso: e.target.checked }))} />
-              Force SSO — block password login for all org members
-            </label>
-            <div style={{ fontSize: 12, color: 'var(--warning)', marginTop: 4 }}>
-              Warning: if SSO breaks, org members won't be able to log in. Keep at least one admin with a working session.
+          {/* Force SSO */}
+          <div className="card mb-3">
+            <div className="card-header">
+              <h5 className="mb-0">Security Options</h5>
+            </div>
+            <div className="card-body">
+              <div className="form-check form-switch mb-2">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="forceSso"
+                  checked={form.forceSso}
+                  onChange={(e) => setForm((f) => ({ ...f, forceSso: e.target.checked }))}
+                />
+                <label className="form-check-label" htmlFor="forceSso">
+                  Force SSO — block password login for all org members
+                </label>
+              </div>
+              <small className="text-warning">
+                Warning: if SSO breaks, org members won't be able to log in. Keep at least one admin with a working session.
+              </small>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button className="btn btn-secondary" onClick={handleSave} disabled={save.isPending}>
+          <div className="d-flex justify-content-end gap-2 mt-2">
+            <button className="btn btn-falcon-default" onClick={handleSave} disabled={save.isPending}>
               {save.isPending ? 'Saving…' : 'Save Config'}
             </button>
             {config && !config.isActive && (

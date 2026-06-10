@@ -25,16 +25,20 @@ export function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--body-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>Career-Ops</div>
-          <div style={{ color: 'var(--text-muted)', marginTop: 8 }}>Sign in to your account</div>
-        </div>
+    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100">
+      <div className="card w-100" style={{ maxWidth: 400 }}>
+        <div className="card-body p-4">
+          <div className="text-center mb-4">
+            <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
+            <p className="text-500">AI-powered job search pipeline</p>
+          </div>
 
-        <div className="card">
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+            {error && (
+              <div className="alert alert-danger py-2 mb-3 fs--1">{error}</div>
+            )}
+
+            <div className="form-group mb-3">
               <label className="form-label">Email</label>
               <input
                 type="email"
@@ -46,7 +50,7 @@ export function LoginPage() {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group mb-3">
               <label className="form-label">Password</label>
               <input
                 type="password"
@@ -57,18 +61,23 @@ export function LoginPage() {
               />
             </div>
 
-            {error && <div className="form-error" style={{ marginBottom: 12 }}>{error}</div>}
-
-            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={login.isPending}>
+            <button
+              type="submit"
+              className="btn btn-primary w-100 mt-3"
+              disabled={login.isPending}
+            >
               {login.isPending ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-        </div>
 
-        <div style={{ textAlign: 'center', marginTop: 16, color: 'var(--text-muted)' }}>
-          Don't have an account? <Link to="/register">Create one</Link>
+          <p className="fs--1 text-center mt-3">
+            Don't have an account? <Link to="/register">Sign up</Link>
+          </p>
         </div>
       </div>
+      <p className="mt-3 text-center text-500 fs--1">
+        © {new Date().getFullYear()} Career-Ops
+      </p>
     </div>
   );
 }

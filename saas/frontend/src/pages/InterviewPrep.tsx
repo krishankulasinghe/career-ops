@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import toast from 'react-hot-toast';
 
 interface Story {
@@ -23,6 +25,14 @@ async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 const EMPTY_STORY = { situation: '', task: '', action: '', result: '', reflection: '', tags: '' };
+
+const FIELD_PLACEHOLDERS: Record<string, string> = {
+  situation: 'What was the context and challenge?',
+  task: 'What was your specific responsibility?',
+  action: 'What steps did you take?',
+  result: 'What was the outcome? Use numbers when possible.',
+  reflection: 'What did you learn?',
+};
 
 export function InterviewPrepPage() {
   const qc = useQueryClient();
@@ -76,82 +86,139 @@ export function InterviewPrepPage() {
 
   return (
     <Layout title="Interview Prep">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className={`btn btn-sm ${!filterTag ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFilterTag('')}>All</button>
-            {allTags.map((t) => (
-              <button key={t} className={`btn btn-sm ${filterTag === t ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFilterTag(t)}>{t}</button>
-            ))}
-          </div>
-          <button className="btn btn-primary" onClick={() => { setEditing(null); setForm(EMPTY_STORY); setShowCreate(true); }}>
+      {/* Interview Schedule Calendar */}
+      <div className="card mb-3">
+        <div className="card-header">
+          <h5 className="mb-0">Interview Schedule</h5>
+        </div>
+        <div className="card-body">
+          <FullCalendar
+            plugins={[dayGridPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth' }}
+            events={[]}
+            height={300}
+          />
+        </div>
+      </div>
+
+      {/* STAR Story Bank */}
+      <div className="card">
+        <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <h5 className="mb-0">STAR Story Bank</h5>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => { setEditing(null); setForm(EMPTY_STORY); setShowCreate(true); }}
+          >
             + Add Story
           </button>
         </div>
 
-        {isLoading ? <LoadingSpinner /> : !filtered.length ? (
-          <div className="card" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
-            No STAR stories yet. Add your first story to build your interview library.
+        {/* Tag filters */}
+        {allTags.length > 0 && (
+          <div className="card-body border-bottom py-2 d-flex gap-2 flex-wrap">
+            <button
+              className={`btn btn-sm${!filterTag ? ' btn-primary' : ' btn-falcon-default'}`}
+              onClick={() => setFilterTag('')}
+            >
+              All
+            </button>
+            {allTags.map((t) => (
+              <button
+                key={t}
+                className={`btn btn-sm${filterTag === t ? ' btn-primary' : ' btn-falcon-default'}`}
+                onClick={() => setFilterTag(t)}
+              >
+                {t}
+              </button>
+            ))}
           </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {filtered.map((s) => (
-              <div key={s.id} className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                      {s.tags.map((t) => (
-                        <span key={t} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(93,156,236,0.15)', color: 'var(--primary)' }}>{t}</span>
-                      ))}
+        )}
+
+        <div className="card-body">
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : filtered.length === 0 ? (
+            <div className="text-center text-muted py-4">
+              No STAR stories yet. Add your first story to build your interview library.
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {filtered.map((s) => (
+                <div key={s.id} className="card mb-0 border">
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-flex-start gap-3">
+                      <div className="flex-1" style={{ minWidth: 0 }}>
+                        {s.tags.length > 0 && (
+                          <div className="d-flex gap-1 flex-wrap mb-2">
+                            {s.tags.map((t) => (
+                              <span key={t} className="badge badge-soft-primary fs--2">{t}</span>
+                            ))}
+                          </div>
+                        )}
+                        <dl className="row fs--1 mb-0">
+                          <dt className="col-sm-2 text-600">Situation</dt>
+                          <dd className="col-sm-10">{s.situation.slice(0, 100)}{s.situation.length > 100 ? '…' : ''}</dd>
+                          <dt className="col-sm-2 text-600">Task</dt>
+                          <dd className="col-sm-10">{s.task.slice(0, 100)}{s.task.length > 100 ? '…' : ''}</dd>
+                          <dt className="col-sm-2 text-600">Action</dt>
+                          <dd className="col-sm-10">{s.action.slice(0, 100)}{s.action.length > 100 ? '…' : ''}</dd>
+                          <dt className="col-sm-2 text-600">Result</dt>
+                          <dd className="col-sm-10 mb-0">{s.result.slice(0, 100)}{s.result.length > 100 ? '…' : ''}</dd>
+                        </dl>
+                      </div>
+                      <div className="d-flex flex-column gap-2" style={{ flexShrink: 0 }}>
+                        <button className="btn btn-sm btn-falcon-default" onClick={() => setPracticeStory(s)}>Practice</button>
+                        <button className="btn btn-sm btn-falcon-default" onClick={() => openEdit(s)}>Edit</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => deleteStory.mutate(s.id)}>Delete</button>
+                      </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '6px 12px', fontSize: 13 }}>
-                      <div style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Situation</div>
-                      <div>{s.situation.slice(0, 100)}{s.situation.length > 100 ? '…' : ''}</div>
-                      <div style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Task</div>
-                      <div>{s.task.slice(0, 100)}{s.task.length > 100 ? '…' : ''}</div>
-                      <div style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Action</div>
-                      <div>{s.action.slice(0, 100)}{s.action.length > 100 ? '…' : ''}</div>
-                      <div style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Result</div>
-                      <div>{s.result.slice(0, 100)}{s.result.length > 100 ? '…' : ''}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, marginLeft: 16 }}>
-                    <button className="btn btn-sm btn-secondary" onClick={() => setPracticeStory(s)}>Practice</button>
-                    <button className="btn btn-sm btn-secondary" onClick={() => openEdit(s)}>Edit</button>
-                    <button className="btn btn-sm btn-secondary" style={{ color: 'var(--danger)' }} onClick={() => deleteStory.mutate(s.id)}>Delete</button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </div>
+
+        {stories.length > 0 && (
+          <div className="card-footer fs--1 text-500 py-2">
+            {filtered.length} of {stories.length} stor{stories.length !== 1 ? 'ies' : 'y'}
           </div>
         )}
       </div>
 
-      {/* Practice mode */}
+      {/* Practice modal */}
       {practiceStory && (
-        <div className="modal-overlay" onClick={() => setPracticeStory(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
-            <div className="modal-header">
-              <h2 className="modal-title">Q&A Practice Mode</h2>
-              <button className="modal-close" onClick={() => setPracticeStory(null)}>×</button>
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--primary)', marginBottom: 16 }}>
-              "Tell me about a time when you…"
-            </div>
-            {['Situation', 'Task', 'Action', 'Result', 'Reflection'].map((label) => {
-              const key = label.toLowerCase() as keyof Story;
-              const value = practiceStory[key] as string;
-              return value ? (
-                <div key={label} style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 13, lineHeight: 1.6 }}>{value}</div>
-                </div>
-              ) : null;
-            })}
-            <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {practiceStory.tags.map((t) => (
-                <span key={t} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(93,156,236,0.15)', color: 'var(--primary)' }}>{t}</span>
-              ))}
+        <div className="modal fade show d-block" tabIndex={-1} onClick={() => setPracticeStory(null)} style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Q&A Practice Mode</h5>
+                <button type="button" className="btn-close" onClick={() => setPracticeStory(null)} />
+              </div>
+              <div className="modal-body">
+                <p className="text-primary fw-semi-bold mb-3">"Tell me about a time when you…"</p>
+                {(['Situation', 'Task', 'Action', 'Result', 'Reflection'] as const).map((label) => {
+                  const key = label.toLowerCase() as keyof Story;
+                  const value = practiceStory[key] as string | undefined;
+                  return value ? (
+                    <div key={label} className="mb-3">
+                      <div className="text-uppercase fs--2 fw-bold text-500 mb-1">{label}</div>
+                      <div className="fs--1 lh-lg">{value}</div>
+                    </div>
+                  ) : null;
+                })}
+                {practiceStory.tags.length > 0 && (
+                  <div className="d-flex gap-1 flex-wrap mt-3">
+                    {practiceStory.tags.map((t) => (
+                      <span key={t} className="badge badge-soft-primary fs--2">{t}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-falcon-default" onClick={() => setPracticeStory(null)}>Close</button>
+              </div>
             </div>
           </div>
         </div>
@@ -159,35 +226,55 @@ export function InterviewPrepPage() {
 
       {/* Create / Edit modal */}
       {showCreate && (
-        <div className="modal-overlay" onClick={() => setShowCreate(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600, maxHeight: '90vh', overflowY: 'auto' }}>
-            <div className="modal-header">
-              <h2 className="modal-title">{editing ? 'Edit Story' : 'Add STAR Story'}</h2>
-              <button className="modal-close" onClick={() => setShowCreate(false)}>×</button>
-            </div>
-            {(['situation', 'task', 'action', 'result', 'reflection'] as const).map((field) => (
-              <div key={field} className="form-group">
-                <label className="form-label" style={{ textTransform: 'capitalize' }}>
-                  {field}{field !== 'reflection' ? ' *' : ''}
-                </label>
-                <textarea
-                  className="form-control"
-                  rows={3}
-                  value={form[field]}
-                  onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-                  placeholder={`${field === 'situation' ? 'What was the context and challenge?' : field === 'task' ? 'What was your specific responsibility?' : field === 'action' ? 'What steps did you take?' : field === 'result' ? 'What was the outcome? Use numbers when possible.' : 'What did you learn?'}`}
-                />
+        <div className="modal fade show d-block" tabIndex={-1} onClick={() => setShowCreate(false)} style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{editing ? 'Edit Story' : 'Add STAR Story'}</h5>
+                <button type="button" className="btn-close" onClick={() => setShowCreate(false)} />
               </div>
-            ))}
-            <div className="form-group">
-              <label className="form-label">Tags (comma-separated)</label>
-              <input className="form-control" value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))} placeholder="leadership, conflict, technical, delivery" />
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleSave} disabled={!form.situation || !form.task || !form.action || !form.result || createStory.isPending || updateStory.isPending}>
-                {(createStory.isPending || updateStory.isPending) ? 'Saving…' : 'Save Story'}
-              </button>
+              <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                {(['situation', 'task', 'action', 'result', 'reflection'] as const).map((field) => (
+                  <div key={field} className="mb-3">
+                    <label className="form-label fw-semi-bold" style={{ textTransform: 'capitalize' }}>
+                      {field}{field !== 'reflection' ? ' *' : ''}
+                    </label>
+                    <textarea
+                      className="form-control"
+                      rows={3}
+                      value={form[field]}
+                      onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                      placeholder={FIELD_PLACEHOLDERS[field]}
+                    />
+                  </div>
+                ))}
+                <div className="mb-3">
+                  <label className="form-label fw-semi-bold">Tags (comma-separated)</label>
+                  <input
+                    className="form-control"
+                    value={form.tags}
+                    onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
+                    placeholder="leadership, conflict, technical, delivery"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-falcon-default"
+                  onClick={() => setShowCreate(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSave}
+                  disabled={!form.situation || !form.task || !form.action || !form.result || createStory.isPending || updateStory.isPending}
+                >
+                  {(createStory.isPending || updateStory.isPending) ? 'Saving…' : 'Save Story'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,15 +1,12 @@
-import { Link } from 'react-router-dom';
-import { Layout } from '@/components/layout/Layout';
-
 export function NotFoundPage() {
   return (
-    <Layout>
-      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <div style={{ fontSize: 72, fontWeight: 700, color: 'var(--card-border)' }}>404</div>
-        <h2 style={{ color: 'var(--text-secondary)' }}>Page Not Found</h2>
-        <p style={{ color: 'var(--text-muted)' }}>The page you're looking for doesn't exist.</p>
-        <Link to="/" className="btn btn-primary">← Back to Dashboard</Link>
-      </div>
-    </Layout>
+    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100 text-center px-3">
+      <h1 className="display-1 fw-bold text-300">404</h1>
+      <h5 className="fw-bold mb-3">Page Not Found</h5>
+      <p className="text-500 mb-4">The page you are looking for doesn't exist or has been moved.</p>
+      <a className="btn btn-primary" href="/">
+        <span className="fas fa-home me-2"></span>Go to Dashboard
+      </a>
+    </div>
   );
 }

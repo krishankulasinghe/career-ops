@@ -83,48 +83,78 @@ export function EvalModesPage() {
 
   return (
     <Layout title="Evaluation Modes">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn btn-primary" onClick={() => { setShowCreate(true); setEditing(null); setForm({ name: '', weights: { ...DEFAULT_WEIGHTS }, defaultArchetype: '', isDefault: false }); }}>
-            + New Mode
-          </button>
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Evaluation Modes</h5>
+                  <p className="text-600 fs--1 mb-0">Customize scoring weights per archetype or role type</p>
+                </div>
+                <div className="col-auto">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => { setShowCreate(true); setEditing(null); setForm({ name: '', weights: { ...DEFAULT_WEIGHTS }, defaultArchetype: '', isDefault: false }); }}
+                  >
+                    + New Mode
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Loading…</div>
+          <div className="col-12 text-center text-600 py-4">Loading…</div>
         ) : !(modes ?? []).length ? (
-          <div className="card" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
-            No evaluation modes yet. Create one to customize scoring weights per archetype.
+          <div className="col-12">
+            <div className="card mb-3">
+              <div className="card-body text-center text-600 py-5">
+                No evaluation modes yet. Create one to customize scoring weights per archetype.
+              </div>
+            </div>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-            {modes!.map((m) => (
-              <div key={m.id} className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 15 }}>{m.name}</div>
-                    {m.isDefault && <span style={{ fontSize: 11, background: 'rgba(93,156,236,0.2)', color: 'var(--primary)', padding: '2px 6px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>Default</span>}
-                    {m.defaultArchetype && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Archetype: {m.defaultArchetype}</div>}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn btn-sm btn-secondary" onClick={() => openEdit(m)}>Edit</button>
-                    <button className="btn btn-sm btn-secondary" style={{ color: 'var(--danger)' }} onClick={() => deleteMode.mutate(m.id)}>Delete</button>
+          modes!.map((m) => (
+            <div key={m.id} className="col-md-6 col-xl-4">
+              <div className="card mb-3 h-100">
+                <div className="card-header">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 className="mb-1 fw-bold">{m.name}</h6>
+                      {m.isDefault && (
+                        <span className="badge badge-soft-primary me-1">Default</span>
+                      )}
+                      {m.defaultArchetype && (
+                        <div className="text-600 fs--2 mt-1">Archetype: {m.defaultArchetype}</div>
+                      )}
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button className="btn btn-falcon-default btn-sm" onClick={() => openEdit(m)}>Edit</button>
+                      <button className="btn btn-falcon-danger btn-sm" onClick={() => deleteMode.mutate(m.id)}>Delete</button>
+                    </div>
                   </div>
                 </div>
-                <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {Object.entries(m.weights ?? DEFAULT_WEIGHTS).map(([key, val]) => (
-                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                      <span style={{ width: 140, color: 'var(--text-muted)' }}>{BLOCK_LABELS[key] ?? key}</span>
-                      <div style={{ flex: 1, height: 6, background: 'var(--card-border)', borderRadius: 3 }}>
-                        <div style={{ width: `${((val ?? 1) / 10) * 100}%`, height: '100%', background: 'var(--primary)', borderRadius: 3 }} />
+                <div className="card-body">
+                  <div className="d-flex flex-column gap-2">
+                    {Object.entries(m.weights ?? DEFAULT_WEIGHTS).map(([key, val]) => (
+                      <div key={key} className="d-flex align-items-center gap-2 fs--2">
+                        <span className="text-600" style={{ width: 140 }}>{BLOCK_LABELS[key] ?? key}</span>
+                        <div className="flex-1 progress" style={{ height: 6 }}>
+                          <div
+                            className="progress-bar"
+                            style={{ width: `${((val ?? 1) / 10) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-end" style={{ width: 20 }}>{val ?? 1}</span>
                       </div>
-                      <span style={{ width: 20, textAlign: 'right' }}>{val ?? 1}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
 
@@ -136,24 +166,35 @@ export function EvalModesPage() {
               <button className="modal-close" onClick={() => { setShowCreate(false); setEditing(null); }}>×</button>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Name</label>
-              <input className="form-control" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Senior IC, Startup Founder, Remote-Only" />
+            <div className="mb-3">
+              <label className="form-label fw-semi-bold">Name</label>
+              <input
+                className="form-control"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Senior IC, Startup Founder, Remote-Only"
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Default Archetype (auto-apply to this archetype)</label>
-              <input className="form-control" value={form.defaultArchetype} onChange={(e) => setForm((f) => ({ ...f, defaultArchetype: e.target.value }))} placeholder="e.g. Senior IC" />
+            <div className="mb-3">
+              <label className="form-label fw-semi-bold">Default Archetype (auto-apply to this archetype)</label>
+              <input
+                className="form-control"
+                value={form.defaultArchetype}
+                onChange={(e) => setForm((f) => ({ ...f, defaultArchetype: e.target.value }))}
+                placeholder="e.g. Senior IC"
+              />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Scoring Weights (0–10)</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="mb-3">
+              <label className="form-label fw-semi-bold">Scoring Weights (0–10)</label>
+              <div className="d-flex flex-column gap-2">
                 {Object.keys(DEFAULT_WEIGHTS).map((key) => (
-                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ width: 150, fontSize: 13 }}>{BLOCK_LABELS[key]}</span>
+                  <div key={key} className="d-flex align-items-center gap-3">
+                    <span className="text-600 fs--1" style={{ width: 150 }}>{BLOCK_LABELS[key]}</span>
                     <input
                       type="range"
+                      className="form-range flex-1"
                       min={0}
                       max={10}
                       step={0.5}
@@ -162,9 +203,8 @@ export function EvalModesPage() {
                         ...f,
                         weights: { ...f.weights, [key]: parseFloat(e.target.value) },
                       }))}
-                      style={{ flex: 1 }}
                     />
-                    <span style={{ width: 28, textAlign: 'right', fontSize: 13 }}>
+                    <span className="text-end fs--1" style={{ width: 28 }}>
                       {(form.weights as Record<string, number>)[key] ?? 1}
                     </span>
                   </div>
@@ -172,15 +212,21 @@ export function EvalModesPage() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
-                <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))} />
-                Set as default mode
-              </label>
+            <div className="mb-3">
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="isDefault"
+                  checked={form.isDefault}
+                  onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))}
+                />
+                <label className="form-check-label" htmlFor="isDefault">Set as default mode</label>
+              </div>
             </div>
 
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => { setShowCreate(false); setEditing(null); }}>Cancel</button>
+            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button className="btn btn-falcon-default" onClick={() => { setShowCreate(false); setEditing(null); }}>Cancel</button>
               <button className="btn btn-primary" onClick={handleSave} disabled={createMode.isPending || updateMode.isPending}>
                 {(createMode.isPending || updateMode.isPending) ? 'Saving…' : 'Save'}
               </button>

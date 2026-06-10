@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { ScoreGauge } from '@/components/shared/ScoreGauge';
+import { StatusBadge } from '@/components/shared/StatusBadge';
 import { MarkdownRenderer } from '@/components/shared/MarkdownRenderer';
 import { useEvaluation } from '@/api/evaluations';
 import { useApplication } from '@/api/applications';
@@ -18,7 +19,7 @@ export function EvaluationDetailPage() {
   const { data: application } = useApplication(evaluation?.applicationId ?? '');
 
   if (isLoading) return <Layout><LoadingSpinner label="Loading evaluation…" /></Layout>;
-  if (!evaluation) return <Layout><div>Evaluation not found</div></Layout>;
+  if (!evaluation) return <Layout><div className="alert alert-warning">Evaluation not found</div></Layout>;
 
   const radarData = [
     { subject: 'CV Match', value: parseFloat(evaluation.scoreCvMatch ?? '0') },
@@ -36,128 +37,176 @@ export function EvaluationDetailPage() {
     { key: 'metadata', label: 'Metadata' },
   ];
 
+  const gapBadgeClass = (severity: string) => {
+    if (severity === 'hard' || severity === 'critical') return 'badge badge-soft-danger';
+    if (severity === 'soft') return 'badge badge-soft-warning';
+    return 'badge badge-soft-secondary';
+  };
+
   return (
     <Layout title="Evaluation">
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        <div className="card" style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <ScoreGauge score={evaluation.scoreGlobal} size="lg" />
-            <div style={{ flex: 1 }}>
-              <h2 style={{ margin: 0, fontSize: 20 }}>{application?.company}</h2>
-              <div style={{ color: 'var(--text-secondary)', marginTop: 4 }}>{application?.role}</div>
-              {evaluation.archetype && (
-                <span className="badge badge-info" style={{ marginTop: 8 }}>{evaluation.archetype}</span>
-              )}
-              {evaluation.legitimacyTier && (
-                <span className="badge badge-secondary" style={{ marginLeft: 6, marginTop: 8 }}>{evaluation.legitimacyTier}</span>
-              )}
-            </div>
-
-            {application?.pdfUrl && (
-              <a
-                href={`/api/v1/pdf/${evaluation.applicationId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-secondary"
-              >
-                📄 Download PDF
-              </a>
-            )}
-          </div>
-
-          {evaluation.tlDr && (
-            <div style={{ marginTop: 16, padding: 12, background: 'var(--body-bg)', borderRadius: 4, color: 'var(--text-secondary)', fontSize: 14 }}>
-              {evaluation.tlDr}
-            </div>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', gap: 4, marginBottom: 0 }}>
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`btn ${tab === t.key ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ borderBottomLeftRadius: tab === t.key ? 0 : undefined, borderBottomRightRadius: tab === t.key ? 0 : undefined }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="card" style={{ borderTopLeftRadius: 0, minHeight: 400 }}>
-          {tab === 'report' && (
-            <MarkdownRenderer content={evaluation.reportContent} />
-          )}
-
-          {tab === 'scores' && (
-            <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
-              <ResponsiveContainer width={320} height={280}>
-                <RadarChart data={radarData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.25} />
-                </RadarChart>
-              </ResponsiveContainer>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                {radarData.map((d) => (
-                  <div key={d.subject} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <ScoreGauge score={d.value} size="sm" />
-                    <span style={{ fontSize: 13 }}>{d.subject}</span>
+      <div className="row g-3">
+        {/* Left: main content with tabs */}
+        <div className="col-lg-8">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                  <h5 className="mb-0">
+                    {application?.company}
+                    {application?.role ? <span className="text-600 fw-normal"> — {application.role}</span> : null}
+                  </h5>
+                  <div className="d-flex gap-2 mt-1 flex-wrap">
+                    {evaluation.archetype && (
+                      <span className="badge badge-soft-info">{evaluation.archetype}</span>
+                    )}
+                    {evaluation.legitimacyTier && (
+                      <span className="badge badge-soft-secondary">{evaluation.legitimacyTier}</span>
+                    )}
                   </div>
-                ))}
+                </div>
+                {application?.status && <StatusBadge status={application.status} />}
               </div>
             </div>
-          )}
 
-          {tab === 'gaps' && (
-            evaluation.gaps?.length ? (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Gap</th>
-                    <th>Severity</th>
-                    <th>Mitigation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {evaluation.gaps.map((gap, i) => (
-                    <tr key={i}>
-                      <td>{gap.description}</td>
-                      <td>
-                        <span className={`badge badge-${gap.severity === 'hard' || gap.severity === 'critical' ? 'danger' : gap.severity === 'soft' ? 'warning' : 'secondary'}`}>
-                          {gap.severity}
-                        </span>
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{gap.mitigation ?? '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: 40 }}>No gaps identified</div>
-            )
-          )}
+            {evaluation.tlDr && (
+              <div className="card-body border-bottom py-2">
+                <p className="text-600 fs--1 mb-0">{evaluation.tlDr}</p>
+              </div>
+            )}
 
-          {tab === 'metadata' && (
-            <dl style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '8px 16px', fontSize: 14 }}>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Provider</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiProvider ?? '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Model</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiModel ?? '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Tokens In</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiTokensIn?.toLocaleString() ?? '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Tokens Out</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiTokensOut?.toLocaleString() ?? '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Cost</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiCostUsd ? `$${parseFloat(evaluation.aiCostUsd).toFixed(4)}` : '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Latency</dt>
-              <dd style={{ margin: 0 }}>{evaluation.aiLatencyMs ? `${evaluation.aiLatencyMs}ms` : '—'}</dd>
-              <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Created</dt>
-              <dd style={{ margin: 0 }}>{new Date(evaluation.createdAt).toLocaleString()}</dd>
-            </dl>
-          )}
+            <div className="card-body p-0">
+              {/* Tab nav */}
+              <ul className="nav nav-tabs px-3 pt-2">
+                {tabs.map((t) => (
+                  <li className="nav-item" key={t.key}>
+                    <button
+                      className={`nav-link${tab === t.key ? ' active' : ''}`}
+                      onClick={() => setTab(t.key)}
+                      type="button"
+                    >
+                      {t.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="tab-content">
+                {/* Report tab */}
+                <div className={`tab-pane fade${tab === 'report' ? ' show active' : ''} p-3`}>
+                  <MarkdownRenderer content={evaluation.reportContent} />
+                </div>
+
+                {/* Scores tab */}
+                <div className={`tab-pane fade${tab === 'scores' ? ' show active' : ''} p-3`}>
+                  <div className="d-flex flex-wrap gap-4 align-items-center">
+                    <ResponsiveContainer width={320} height={280}>
+                      <RadarChart data={radarData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
+                        <Tooltip />
+                        <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.25} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                    <div className="row g-3">
+                      {radarData.map((d) => (
+                        <div key={d.subject} className="col-6 d-flex align-items-center gap-2">
+                          <ScoreGauge score={d.value} size="sm" />
+                          <span className="fs--1">{d.subject}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gaps tab */}
+                <div className={`tab-pane fade${tab === 'gaps' ? ' show active' : ''}`}>
+                  {evaluation.gaps?.length ? (
+                    <div className="table-responsive">
+                      <table className="table table-hover table-sm fs--1 mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th>Gap</th>
+                            <th>Severity</th>
+                            <th>Mitigation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {evaluation.gaps.map((gap, i) => (
+                            <tr key={i}>
+                              <td>{gap.description}</td>
+                              <td>
+                                <span className={gapBadgeClass(gap.severity)}>{gap.severity}</span>
+                              </td>
+                              <td className="text-600">{gap.mitigation ?? '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-5">No gaps identified</div>
+                  )}
+                </div>
+
+                {/* Metadata tab */}
+                <div className={`tab-pane fade${tab === 'metadata' ? ' show active' : ''} p-3`}>
+                  <dl className="row fs--1 mb-0">
+                    <dt className="col-sm-3 text-600">Provider</dt>
+                    <dd className="col-sm-9">{evaluation.aiProvider ?? '—'}</dd>
+                    <dt className="col-sm-3 text-600">Model</dt>
+                    <dd className="col-sm-9">{evaluation.aiModel ?? '—'}</dd>
+                    <dt className="col-sm-3 text-600">Tokens In</dt>
+                    <dd className="col-sm-9">{evaluation.aiTokensIn?.toLocaleString() ?? '—'}</dd>
+                    <dt className="col-sm-3 text-600">Tokens Out</dt>
+                    <dd className="col-sm-9">{evaluation.aiTokensOut?.toLocaleString() ?? '—'}</dd>
+                    <dt className="col-sm-3 text-600">Cost</dt>
+                    <dd className="col-sm-9">{evaluation.aiCostUsd ? `$${parseFloat(evaluation.aiCostUsd).toFixed(4)}` : '—'}</dd>
+                    <dt className="col-sm-3 text-600">Latency</dt>
+                    <dd className="col-sm-9">{evaluation.aiLatencyMs ? `${evaluation.aiLatencyMs}ms` : '—'}</dd>
+                    <dt className="col-sm-3 text-600">Created</dt>
+                    <dd className="col-sm-9">{new Date(evaluation.createdAt).toLocaleString()}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: score + actions sidebar */}
+        <div className="col-lg-4">
+          <div className="card mb-3">
+            <div className="card-body text-center">
+              <ScoreGauge score={evaluation.scoreGlobal} size="lg" />
+              <p className="text-700 mt-2 mb-0">Match Score</p>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-header">
+              <h6 className="mb-0">Actions</h6>
+            </div>
+            <div className="card-body d-grid gap-2">
+              {application?.pdfUrl && (
+                <a
+                  href={`/api/v1/pdf/${evaluation.applicationId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-falcon-default btn-sm"
+                >
+                  Download PDF
+                </a>
+              )}
+              <a
+                href={application?.url ?? '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-falcon-default btn-sm"
+              >
+                View Job Posting
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

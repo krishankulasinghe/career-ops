@@ -1,20 +1,35 @@
 interface KPICardProps {
-  label: string;
+  title: string;
   value: string | number;
-  sub?: string;
-  color?: string;
+  change?: { value: number; positive: boolean };
+  icon?: string;
+  color?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
 }
 
-export function KPICard({ label, value, sub, color = 'var(--primary)' }: KPICardProps) {
+export function KPICard({ title, value, change, icon, color = 'primary' }: KPICardProps) {
   return (
-    <div className="card" style={{ flex: 1 }}>
-      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-        {label}
+    <div className="card h-100">
+      <div className="card-body">
+        <div className="row align-items-center g-0">
+          <div className="col">
+            <h6 className="text-700 mb-1">{title}</h6>
+            <h4 className="fw-bold mb-2">{value}</h4>
+            {change && (
+              <span className={`badge badge-soft-${change.positive ? 'success' : 'danger'} rounded-pill`}>
+                <span className={`fas fa-caret-${change.positive ? 'up' : 'down'} me-1`}></span>
+                {Math.abs(change.value)}%
+              </span>
+            )}
+          </div>
+          {icon && (
+            <div className="col-auto ps-3">
+              <div className={`icon-circle icon-circle-${color}`}>
+                <span className={`${icon} text-${color}`}></span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-      <div style={{ fontSize: 32, fontWeight: 700, color, lineHeight: 1 }}>
-        {value}
-      </div>
-      {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>{sub}</div>}
     </div>
   );
 }

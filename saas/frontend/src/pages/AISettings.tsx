@@ -87,173 +87,170 @@ export function AISettingsPage() {
 
   return (
     <Layout title="AI Settings">
-      <div style={{ maxWidth: 640 }}>
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Provider Configuration</h3>
-
-          {/* Provider selector */}
-          <div className="form-group">
-            <label className="form-label">AI Provider</label>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {(['deepseek', 'gemini', 'openai', 'anthropic'] as const).map((p) => {
-                const isAllowed = allowed.includes(p);
-                return (
-                  <button
-                    key={p}
-                    type="button"
-                    disabled={!isAllowed}
-                    onClick={() => isAllowed && handleProviderChange(p)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: 6,
-                      border: `2px solid ${form.provider === p ? 'var(--primary)' : 'var(--card-border)'}`,
-                      background: form.provider === p ? 'rgba(93,156,236,0.15)' : 'transparent',
-                      color: isAllowed ? 'var(--text)' : 'var(--text-muted)',
-                      cursor: isAllowed ? 'pointer' : 'not-allowed',
-                      opacity: isAllowed ? 1 : 0.4,
-                      fontSize: 13,
-                      fontWeight: form.provider === p ? 600 : 400,
-                      position: 'relative',
-                    }}
-                  >
-                    {PROVIDER_LABELS[p]}
-                    {!isAllowed && (
-                      <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--warning)' }}>PRO+</span>
-                    )}
-                  </button>
-                );
-              })}
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">AI Settings</h5>
+                  <p className="text-600 fs--1 mb-0">Configure your AI provider, model, and generation parameters</p>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Model selector */}
-          <div className="form-group">
-            <label className="form-label">Model</label>
-            <select
-              className="form-control"
-              value={form.model}
-              onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
-            >
-              {(PROVIDER_MODELS[form.provider] ?? []).map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Temperature */}
-          <div className="form-group">
-            <label className="form-label">
-              Temperature: <strong>{form.temperature.toFixed(2)}</strong>
-              <span style={{ color: 'var(--text-muted)', marginLeft: 8, fontSize: 12 }}>
-                (0 = deterministic · 2 = creative)
-              </span>
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={2}
-              step={0.05}
-              value={form.temperature}
-              onChange={(e) => setForm((f) => ({ ...f, temperature: parseFloat(e.target.value) }))}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          {/* Max tokens */}
-          <div className="form-group">
-            <label className="form-label">
-              Max Tokens: <strong>{form.maxTokens.toLocaleString()}</strong>
-            </label>
-            <input
-              type="range"
-              min={256}
-              max={32768}
-              step={256}
-              value={form.maxTokens}
-              onChange={(e) => setForm((f) => ({ ...f, maxTokens: parseInt(e.target.value) }))}
-              style={{ width: '100%' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)' }}>
-              <span>256</span><span>32 768</span>
+        <div className="col-lg-8">
+          <div className="card mb-3">
+            <div className="card-header">
+              <h5 className="mb-0">Provider Configuration</h5>
             </div>
-          </div>
+            <div className="card-body">
 
-          {/* Fallback */}
-          <div className="form-group">
-            <label className="form-label">Fallback Provider</label>
-            <select
-              className="form-control"
-              value={form.fallbackProvider}
-              onChange={(e) => setForm((f) => ({ ...f, fallbackProvider: e.target.value }))}
-            >
-              <option value="">None</option>
-              {(['deepseek', 'gemini', 'openai', 'anthropic'] as const)
-                .filter((p) => p !== form.provider && allowed.includes(p))
-                .map((p) => <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>)}
-            </select>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-              Used automatically if the primary provider fails
-            </div>
-          </div>
+              {/* Provider selector */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">AI Provider</label>
+                <div className="d-flex gap-2 flex-wrap">
+                  {(['deepseek', 'gemini', 'openai', 'anthropic'] as const).map((p) => {
+                    const isAllowed = allowed.includes(p);
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        disabled={!isAllowed}
+                        onClick={() => isAllowed && handleProviderChange(p)}
+                        className={`btn btn-sm ${form.provider === p ? 'btn-primary' : 'btn-falcon-default'}`}
+                        style={{ opacity: isAllowed ? 1 : 0.4, cursor: isAllowed ? 'pointer' : 'not-allowed' }}
+                      >
+                        {PROVIDER_LABELS[p]}
+                        {!isAllowed && (
+                          <span className="badge badge-soft-warning ms-1 fs--2">PRO+</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* Custom API key */}
-          <div className="form-group">
-            <label className="form-label">Custom API Key</label>
-            {settings?.hasCustomKey && !showKeyInput ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 13, color: 'var(--success)' }}>✓ Custom key configured</span>
-                <button className="btn btn-secondary btn-sm" onClick={() => setShowKeyInput(true)}>
-                  Replace
+              {/* Model selector */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Model</label>
+                <select
+                  className="form-select"
+                  value={form.model}
+                  onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
+                >
+                  {(PROVIDER_MODELS[form.provider] ?? []).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Temperature */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">
+                  Temperature: <strong>{form.temperature.toFixed(2)}</strong>
+                  <small className="text-600 ms-2">(0 = deterministic · 2 = creative)</small>
+                </label>
+                <input
+                  type="range"
+                  className="form-range"
+                  min={0}
+                  max={2}
+                  step={0.05}
+                  value={form.temperature}
+                  onChange={(e) => setForm((f) => ({ ...f, temperature: parseFloat(e.target.value) }))}
+                />
+              </div>
+
+              {/* Max tokens */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">
+                  Max Tokens: <strong>{form.maxTokens.toLocaleString()}</strong>
+                </label>
+                <input
+                  type="range"
+                  className="form-range"
+                  min={256}
+                  max={32768}
+                  step={256}
+                  value={form.maxTokens}
+                  onChange={(e) => setForm((f) => ({ ...f, maxTokens: parseInt(e.target.value) }))}
+                />
+                <div className="d-flex justify-content-between">
+                  <small className="text-600">256</small>
+                  <small className="text-600">32 768</small>
+                </div>
+              </div>
+
+              {/* Fallback */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Fallback Provider</label>
+                <select
+                  className="form-select"
+                  value={form.fallbackProvider}
+                  onChange={(e) => setForm((f) => ({ ...f, fallbackProvider: e.target.value }))}
+                >
+                  <option value="">None</option>
+                  {(['deepseek', 'gemini', 'openai', 'anthropic'] as const)
+                    .filter((p) => p !== form.provider && allowed.includes(p))
+                    .map((p) => <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>)}
+                </select>
+                <small className="form-text text-500">Used automatically if the primary provider fails</small>
+              </div>
+
+              {/* Custom API key */}
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Custom API Key</label>
+                {settings?.hasCustomKey && !showKeyInput ? (
+                  <div className="d-flex align-items-center gap-3">
+                    <span className="text-success fs--1">✓ Custom key configured</span>
+                    <button className="btn btn-falcon-default btn-sm" onClick={() => setShowKeyInput(true)}>
+                      Replace
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="password"
+                      className="form-control"
+                      value={form.apiKey}
+                      onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
+                      placeholder={`Your ${PROVIDER_LABELS[form.provider]} API key (leave blank to use platform key)`}
+                      autoComplete="new-password"
+                    />
+                    <small className="form-text text-500">Encrypted with AES-256-GCM before storage. Shown only once.</small>
+                  </>
+                )}
+              </div>
+
+              {/* Test result */}
+              {testResult && (
+                <div className={`alert ${testResult.ok ? 'alert-success' : 'alert-danger'} fs--1 mb-3`} role="alert">
+                  {testResult.ok
+                    ? `✓ Connected (${testResult.latencyMs}ms)`
+                    : `✗ Failed: ${testResult.error}`}
+                </div>
+              )}
+
+              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <button
+                  className="btn btn-falcon-default"
+                  onClick={handleTest}
+                  disabled={testConn.isPending}
+                >
+                  {testConn.isPending ? 'Testing…' : 'Test Connection'}
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSave}
+                  disabled={update.isPending}
+                >
+                  {update.isPending ? 'Saving…' : 'Save Settings'}
                 </button>
               </div>
-            ) : (
-              <>
-                <input
-                  type="password"
-                  className="form-control"
-                  value={form.apiKey}
-                  onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
-                  placeholder={`Your ${PROVIDER_LABELS[form.provider]} API key (leave blank to use platform key)`}
-                  autoComplete="new-password"
-                />
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                  Encrypted with AES-256-GCM before storage. Shown only once.
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Test result */}
-          {testResult && (
-            <div style={{
-              padding: '10px 14px',
-              borderRadius: 6,
-              background: testResult.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-              border: `1px solid ${testResult.ok ? 'var(--success)' : 'var(--danger)'}`,
-              fontSize: 13,
-              marginBottom: 16,
-            }}>
-              {testResult.ok
-                ? `✓ Connected (${testResult.latencyMs}ms)`
-                : `✗ Failed: ${testResult.error}`}
             </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button
-              className="btn btn-secondary"
-              onClick={handleTest}
-              disabled={testConn.isPending}
-            >
-              {testConn.isPending ? 'Testing…' : 'Test Connection'}
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={handleSave}
-              disabled={update.isPending}
-            >
-              {update.isPending ? 'Saving…' : 'Save Settings'}
-            </button>
           </div>
         </div>
       </div>

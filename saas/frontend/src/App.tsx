@@ -32,7 +32,17 @@ import { MarketplacePage } from '@/pages/Marketplace';
 import { IntegrationsPage } from '@/pages/Integrations';
 import { DataResidencyPage } from '@/pages/DataResidency';
 import { TrustCenterPage } from '@/pages/TrustCenter';
-import '@/styles/tokens.css';
+import { GettingStartedPage } from '@/pages/docs/GettingStarted';
+import { UserGuidePage } from '@/pages/docs/UserGuide';
+import { FaqPage } from '@/pages/docs/Faq';
+import { ConfigurationPage } from '@/pages/docs/Configuration';
+import { StylingPage } from '@/pages/docs/Styling';
+import { DarkModePage } from '@/pages/docs/DarkMode';
+import { PluginPage } from '@/pages/docs/Plugin';
+import { GulpPage } from '@/pages/docs/Gulp';
+import { DesignFilePage } from '@/pages/docs/DesignFile';
+import { ChangelogPage } from '@/pages/docs/Changelog';
+import '@/styles/overrides.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -130,6 +140,17 @@ export default function App() {
           <Route path="/settings/data-residency" element={
             <ProtectedRoute><DataResidencyPage /></ProtectedRoute>
           } />
+          <Route path="/docs" element={<ProtectedRoute><UserGuidePage /></ProtectedRoute>} />
+          <Route path="/docs/getting-started" element={<ProtectedRoute><GettingStartedPage /></ProtectedRoute>} />
+          <Route path="/docs/faq" element={<ProtectedRoute><FaqPage /></ProtectedRoute>} />
+          <Route path="/docs/configuration" element={<ProtectedRoute><ConfigurationPage /></ProtectedRoute>} />
+          <Route path="/docs/styling" element={<ProtectedRoute><StylingPage /></ProtectedRoute>} />
+          <Route path="/docs/dark-mode" element={<ProtectedRoute><DarkModePage /></ProtectedRoute>} />
+          <Route path="/docs/plugin" element={<ProtectedRoute><PluginPage /></ProtectedRoute>} />
+          <Route path="/docs/gulp" element={<ProtectedRoute><GulpPage /></ProtectedRoute>} />
+          <Route path="/docs/design-file" element={<ProtectedRoute><DesignFilePage /></ProtectedRoute>} />
+          <Route path="/docs/changelog" element={<ProtectedRoute><ChangelogPage /></ProtectedRoute>} />
+
           {/* Public — no ProtectedRoute */}
           <Route path="/trust" element={<TrustCenterPage />} />
 

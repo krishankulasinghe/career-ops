@@ -89,73 +89,115 @@ export function WebhooksPage() {
 
   return (
     <Layout title="Webhooks">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>+ Add Webhook</button>
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Webhooks</h5>
+                  <p className="text-600 fs--1 mb-0">Receive real-time events from Career-Ops to your endpoints</p>
+                </div>
+                <div className="col-auto">
+                  <button className="btn btn-primary btn-sm" onClick={() => setShowCreate(true)}>
+                    + Add Webhook
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {isLoading ? <div style={{ color: 'var(--text-muted)' }}>Loading…</div> : !hooks.length ? (
-          <div className="card" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
-            No webhooks yet. Requires Team or Enterprise plan.
+        {isLoading ? (
+          <div className="col-12 text-center text-600 py-4">Loading…</div>
+        ) : !hooks.length ? (
+          <div className="col-12">
+            <div className="card mb-3">
+              <div className="card-body text-center text-600 py-5">
+                No webhooks yet. Requires Team or Enterprise plan.
+              </div>
+            </div>
           </div>
         ) : (
           hooks.map((h) => (
-            <div key={h.id} className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 13, marginBottom: 6 }}>{h.url}</div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {(h.events ?? []).map((ev) => (
-                      <span key={ev} style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: 'rgba(93,156,236,0.15)', color: 'var(--primary)' }}>{ev}</span>
-                    ))}
-                  </div>
-                  {h.lastDelivery && (
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
-                      Last delivery: {new Date(h.lastDelivery).toLocaleString()}
-                      {h.lastStatus && <span style={{ marginLeft: 8, color: h.lastStatus < 400 ? 'var(--success)' : 'var(--danger)' }}>{h.lastStatus}</span>}
-                    </div>
-                  )}
-                  {h.failureCount >= 3 && (
-                    <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>⚠ {h.failureCount} consecutive failures</div>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <button className="btn btn-sm btn-secondary" onClick={() => test.mutate(h.id)} disabled={test.isPending}>Test</button>
-                  <button className="btn btn-sm btn-secondary" onClick={() => setSelectedHook(selectedHook === h.id ? null : h.id)}>Log</button>
-                  <button
-                    className={`btn btn-sm ${h.active ? 'btn-secondary' : 'btn-primary'}`}
-                    onClick={() => toggle.mutate({ id: h.id, active: !h.active })}
-                  >
-                    {h.active ? 'Disable' : 'Enable'}
-                  </button>
-                  <button className="btn btn-sm btn-secondary" style={{ color: 'var(--danger)' }} onClick={() => del.mutate(h.id)}>Delete</button>
-                </div>
-              </div>
-
-              {selectedHook === h.id && (
-                <div style={{ marginTop: 16, borderTop: '1px solid var(--card-border)', paddingTop: 12 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Delivery Log</div>
-                  {!deliveries.length ? (
-                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>No deliveries yet.</div>
-                  ) : (
-                    <table className="table">
-                      <thead><tr><th>Event</th><th>Status</th><th>Attempt</th><th>Time</th></tr></thead>
-                      <tbody>
-                        {deliveries.map((d) => (
-                          <tr key={d.id}>
-                            <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{d.event}</td>
-                            <td style={{ color: d.success ? 'var(--success)' : 'var(--danger)' }}>
-                              {d.success ? '✓' : '✗'} {d.statusCode ?? 'n/a'}
-                            </td>
-                            <td style={{ color: 'var(--text-muted)' }}>#{d.attempt}</td>
-                            <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>{new Date(d.createdAt).toLocaleString()}</td>
-                          </tr>
+            <div key={h.id} className="col-12">
+              <div className="card mb-3">
+                <div className="card-header">
+                  <div className="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                      <code className="fs--1">{h.url}</code>
+                      <div className="d-flex gap-1 flex-wrap mt-2">
+                        {(h.events ?? []).map((ev) => (
+                          <span key={ev} className="badge badge-soft-primary fs--2">{ev}</span>
                         ))}
-                      </tbody>
-                    </table>
-                  )}
+                      </div>
+                      {h.lastDelivery && (
+                        <div className="text-600 fs--2 mt-2">
+                          Last delivery: {new Date(h.lastDelivery).toLocaleString()}
+                          {h.lastStatus && (
+                            <span className={`ms-2 ${h.lastStatus < 400 ? 'text-success' : 'text-danger'}`}>
+                              {h.lastStatus}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {h.failureCount >= 3 && (
+                        <div className="text-danger fs--2 mt-1">⚠ {h.failureCount} consecutive failures</div>
+                      )}
+                    </div>
+                    <div className="d-flex gap-2 align-items-center flex-shrink-0">
+                      <button className="btn btn-falcon-default btn-sm" onClick={() => test.mutate(h.id)} disabled={test.isPending}>Test</button>
+                      <button
+                        className="btn btn-falcon-default btn-sm"
+                        onClick={() => setSelectedHook(selectedHook === h.id ? null : h.id)}
+                      >
+                        {selectedHook === h.id ? 'Hide Log' : 'Log'}
+                      </button>
+                      <button
+                        className={`btn btn-sm ${h.active ? 'btn-falcon-default' : 'btn-primary'}`}
+                        onClick={() => toggle.mutate({ id: h.id, active: !h.active })}
+                      >
+                        {h.active ? 'Disable' : 'Enable'}
+                      </button>
+                      <button className="btn btn-falcon-danger btn-sm" onClick={() => del.mutate(h.id)}>Delete</button>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {selectedHook === h.id && (
+                  <div className="card-body border-top pt-3">
+                    <h6 className="fw-semi-bold mb-3">Delivery Log</h6>
+                    {!deliveries.length ? (
+                      <div className="text-600 fs--1">No deliveries yet.</div>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="table table-hover table-sm fs--1 mb-0">
+                          <thead className="bg-200 text-900">
+                            <tr>
+                              <th>Event</th>
+                              <th>Status</th>
+                              <th>Attempt</th>
+                              <th>Time</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {deliveries.map((d) => (
+                              <tr key={d.id}>
+                                <td className="font-monospace fs--2 align-middle">{d.event}</td>
+                                <td className={`align-middle ${d.success ? 'text-success' : 'text-danger'}`}>
+                                  {d.success ? '✓' : '✗'} {d.statusCode ?? 'n/a'}
+                                </td>
+                                <td className="text-600 align-middle">#{d.attempt}</td>
+                                <td className="text-600 fs--2 align-middle">{new Date(d.createdAt).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           ))
         )}
@@ -168,27 +210,43 @@ export function WebhooksPage() {
               <h2 className="modal-title">Add Webhook</h2>
               <button className="modal-close" onClick={() => setShowCreate(false)}>×</button>
             </div>
-            <div className="form-group">
-              <label className="form-label">Endpoint URL</label>
-              <input className="form-control" type="url" value={form.url} onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))} placeholder="https://your-server.com/webhooks" />
+            <div className="mb-3">
+              <label className="form-label fw-semi-bold">Endpoint URL</label>
+              <input
+                className="form-control"
+                type="url"
+                value={form.url}
+                onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+                placeholder="https://your-server.com/webhooks"
+              />
             </div>
-            <div className="form-group">
-              <label className="form-label">Events</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="mb-3">
+              <label className="form-label fw-semi-bold">Events</label>
+              <div className="d-flex flex-column gap-2">
                 {ALL_EVENTS.map((ev) => (
-                  <label key={ev} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
-                    <input type="checkbox" checked={form.events.includes(ev)} onChange={() => toggleEvent(ev)} />
-                    {ev}
-                  </label>
+                  <div key={ev} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`ev-${ev}`}
+                      checked={form.events.includes(ev)}
+                      onChange={() => toggleEvent(ev)}
+                    />
+                    <label className="form-check-label fs--1" htmlFor={`ev-${ev}`}>{ev}</label>
+                  </div>
                 ))}
               </div>
             </div>
-            <div className="form-group" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            <small className="text-600 d-block mb-3">
               The webhook secret will be shown once after creation. Store it securely.
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
-              <button className="btn btn-primary" disabled={!form.url || !form.events.length || create.isPending} onClick={() => create.mutate(form)}>
+            </small>
+            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button className="btn btn-falcon-default" onClick={() => setShowCreate(false)}>Cancel</button>
+              <button
+                className="btn btn-primary"
+                disabled={!form.url || !form.events.length || create.isPending}
+                onClick={() => create.mutate(form)}
+              >
                 {create.isPending ? 'Creating…' : 'Create Webhook'}
               </button>
             </div>

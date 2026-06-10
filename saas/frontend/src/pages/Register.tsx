@@ -31,16 +31,20 @@ export function RegisterPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--body-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 420 }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>Career-Ops</div>
-          <div style={{ color: 'var(--text-muted)', marginTop: 8 }}>Create your account</div>
-        </div>
+    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100">
+      <div className="card w-100" style={{ maxWidth: 400 }}>
+        <div className="card-body p-4">
+          <div className="text-center mb-4">
+            <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
+            <p className="text-500">Create your account</p>
+          </div>
 
-        <div className="card">
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+            {error && (
+              <div className="alert alert-danger py-2 mb-3 fs--1">{error}</div>
+            )}
+
+            <div className="form-group mb-3">
               <label className="form-label">Full Name</label>
               <input
                 type="text"
@@ -52,7 +56,7 @@ export function RegisterPage() {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group mb-3">
               <label className="form-label">Email</label>
               <input
                 type="email"
@@ -63,7 +67,7 @@ export function RegisterPage() {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group mb-3">
               <label className="form-label">Password</label>
               <input
                 type="password"
@@ -73,21 +77,26 @@ export function RegisterPage() {
                 required
                 minLength={8}
               />
-              <div className="form-error" style={{ color: 'var(--text-muted)' }}>Minimum 8 characters</div>
+              <div className="form-text text-500 fs--1">Minimum 8 characters</div>
             </div>
 
-            {error && <div className="form-error" style={{ marginBottom: 12 }}>{error}</div>}
-
-            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={register.isPending}>
+            <button
+              type="submit"
+              className="btn btn-primary w-100 mt-3"
+              disabled={register.isPending}
+            >
               {register.isPending ? 'Creating account…' : 'Create account'}
             </button>
           </form>
-        </div>
 
-        <div style={{ textAlign: 'center', marginTop: 16, color: 'var(--text-muted)' }}>
-          Already have an account? <Link to="/login">Sign in</Link>
+          <p className="fs--1 text-center mt-3">
+            Already have an account? <Link to="/login">Sign in</Link>
+          </p>
         </div>
       </div>
+      <p className="mt-3 text-center text-500 fs--1">
+        © {new Date().getFullYear()} Career-Ops
+      </p>
     </div>
   );
 }

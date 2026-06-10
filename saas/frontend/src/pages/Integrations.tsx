@@ -70,45 +70,43 @@ function IntegrationModal({
     onError: (e) => toast.error(e.message),
   });
 
+  const displayName = name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-    }}>
-      <div className="card" style={{ width: 460, maxWidth: '90vw' }}>
-        <h3 style={{ marginTop: 0 }}>
-          {INTEGRATION_ICONS[name] ?? '🔌'} Configure {name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-        </h3>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <h2 className="modal-title">
+            {INTEGRATION_ICONS[name] ?? '🔌'} Configure {displayName}
+          </h2>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading…</div>
+          <div className="text-center py-5 text-600">Loading…</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Status indicators */}
+          <>
             {cfg?.apiKeyConfigured && (
-              <div style={{ fontSize: 12, color: 'var(--success)' }}>✓ API key configured</div>
+              <div className="alert alert-success fs--1 mb-3" role="alert">✓ API key configured</div>
             )}
             {cfg?.oauthConnected && (
-              <div style={{ fontSize: 12, color: 'var(--success)' }}>✓ OAuth connected</div>
+              <div className="alert alert-success fs--1 mb-3" role="alert">✓ OAuth connected</div>
             )}
 
-            {/* OAuth connect button */}
             {OAUTH_INTEGRATIONS.has(name) ? (
-              <div>
+              <div className="mb-3">
                 <a
                   href={`/api/v1/integrations/${name}/connect`}
                   className="btn btn-primary"
-                  style={{ display: 'inline-block', textDecoration: 'none', fontSize: 13 }}
                 >
                   {cfg?.oauthConnected ? 'Reconnect via OAuth' : 'Connect via OAuth'}
                 </a>
               </div>
             ) : (
               <>
-                {/* Webhook URL for Slack and ATS */}
                 {['slack', 'greenhouse', 'lever', 'ashby'].includes(name) && (
-                  <div className="form-group">
-                    <label className="form-label">
+                  <div className="mb-3">
+                    <label className="form-label fw-semi-bold">
                       {name === 'slack' ? 'Webhook URL' : 'Webhook URL (receive events)'}
                     </label>
                     <input
@@ -121,10 +119,9 @@ function IntegrationModal({
                   </div>
                 )}
 
-                {/* API Key for ATS and email providers */}
                 {['greenhouse', 'lever', 'ashby', 'sendgrid', 'resend'].includes(name) && (
-                  <div className="form-group">
-                    <label className="form-label">API Key</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semi-bold">API Key</label>
                     <input
                       className="form-control"
                       type="password"
@@ -136,10 +133,9 @@ function IntegrationModal({
                   </div>
                 )}
 
-                {/* Slack channel */}
                 {name === 'slack' && (
-                  <div className="form-group">
-                    <label className="form-label">Channel ID (optional)</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semi-bold">Channel ID (optional)</label>
                     <input
                       className="form-control"
                       placeholder="C1234567890"
@@ -149,10 +145,9 @@ function IntegrationModal({
                   </div>
                 )}
 
-                {/* ATS board token */}
                 {['greenhouse', 'lever', 'ashby'].includes(name) && (
-                  <div className="form-group">
-                    <label className="form-label">Board Token</label>
+                  <div className="mb-3">
+                    <label className="form-label fw-semi-bold">Board Token</label>
                     <input
                       className="form-control"
                       placeholder="Your job board token"
@@ -164,8 +159,8 @@ function IntegrationModal({
               </>
             )}
 
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-              <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button className="btn btn-falcon-default" onClick={onClose}>Cancel</button>
               {!OAUTH_INTEGRATIONS.has(name) && (
                 <button
                   className="btn btn-primary"
@@ -176,7 +171,7 @@ function IntegrationModal({
                 </button>
               )}
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
@@ -216,67 +211,81 @@ export function IntegrationsPage() {
         <IntegrationModal name={configuring} onClose={() => setConfiguring(null)} />
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Integrations</h5>
+                  <p className="text-600 fs--1 mb-0">Connect Career-Ops with your existing tools and workflows</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {isLoading && (
+          <div className="col-12 text-center text-600 py-5">Loading integrations…</div>
+        )}
+
         {CATEGORIES.map((cat) => {
           const items = (data ?? []).filter((i) => i.category === cat.id);
           if (items.length === 0) return null;
 
           return (
-            <div key={cat.id}>
-              <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 14, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                {cat.label}
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
-                {items.map((item) => (
-                  <div
-                    key={item.name}
-                    className="card"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 16,
-                      padding: '16px 20px',
-                    }}
-                  >
-                    <div style={{ fontSize: 28, flexShrink: 0 }}>{INTEGRATION_ICONS[item.name] ?? '🔌'}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 14 }}>
-                        {item.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.4 }}>
-                        {item.description}
-                      </div>
-                      {item.configured && (
-                        <div style={{ fontSize: 11, color: 'var(--success)', marginTop: 4 }}>✓ Configured</div>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end', flexShrink: 0 }}>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ fontSize: 11, padding: '3px 10px' }}
-                        onClick={() => setConfiguring(item.name)}
-                      >
-                        Configure
-                      </button>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12 }}>
-                        <input
-                          type="checkbox"
-                          checked={item.enabled}
-                          onChange={(e) => toggle.mutate({ name: item.name, enabled: e.target.checked })}
-                        />
-                        {item.enabled ? 'Enabled' : 'Disabled'}
-                      </label>
-                    </div>
+            <div key={cat.id} className="col-12">
+              <div className="card mb-3">
+                <div className="card-header">
+                  <h6 className="mb-0 text-600 text-uppercase" style={{ letterSpacing: 1 }}>{cat.label}</h6>
+                </div>
+                <div className="card-body">
+                  <div className="row g-3">
+                    {items.map((item) => {
+                      const displayName = item.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+                      return (
+                        <div key={item.name} className="col-md-6 col-xl-4">
+                          <div className="card border h-100">
+                            <div className="card-body d-flex align-items-start gap-3 p-3">
+                              <div className="fs-2 flex-shrink-0">{INTEGRATION_ICONS[item.name] ?? '🔌'}</div>
+                              <div className="flex-1 min-w-0">
+                                <div className="fw-semi-bold fs--1">{displayName}</div>
+                                <div className="text-600 fs--2 mt-1" style={{ lineHeight: 1.4 }}>{item.description}</div>
+                                {item.configured && (
+                                  <div className="text-success fs--2 mt-2">✓ Configured</div>
+                                )}
+                              </div>
+                              <div className="d-flex flex-column gap-2 align-items-end flex-shrink-0">
+                                <button
+                                  className="btn btn-falcon-default btn-sm"
+                                  onClick={() => setConfiguring(item.name)}
+                                >
+                                  Configure
+                                </button>
+                                <div className="form-check form-switch mb-0">
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id={`toggle-${item.name}`}
+                                    checked={item.enabled}
+                                    onChange={(e) => toggle.mutate({ name: item.name, enabled: e.target.checked })}
+                                  />
+                                  <label className="form-check-label fs--2" htmlFor={`toggle-${item.name}`}>
+                                    {item.enabled ? 'On' : 'Off'}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           );
         })}
-
-        {isLoading && (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40 }}>Loading integrations…</div>
-        )}
       </div>
     </Layout>
   );

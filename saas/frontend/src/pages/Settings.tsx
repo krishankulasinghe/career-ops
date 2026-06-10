@@ -69,90 +69,151 @@ export function SettingsPage() {
     },
   });
 
+  const evalPercent = usage.data
+    ? Math.min(100, (usage.data.evaluationsCount / (org?.maxEvaluationsMo ?? 20)) * 100)
+    : 0;
+
   return (
     <Layout title="Settings">
-      <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>Organization</h3>
-          <dl style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '8px 0', fontSize: 14, margin: 0 }}>
-            <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Name</dt>
-            <dd style={{ margin: 0 }}>{org?.name}</dd>
-            <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Slug</dt>
-            <dd style={{ margin: 0 }}>{org?.slug}</dd>
-            <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Plan</dt>
-            <dd style={{ margin: 0 }}><span className="badge badge-primary">{org?.plan}</span></dd>
-          </dl>
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Settings</h5>
+                  <p className="text-600 fs--1 mb-0">Manage your organization, API keys, and usage</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Organization */}
+        <div className="col-lg-6">
+          <div className="card mb-3 h-100">
+            <div className="card-header">
+              <h5 className="mb-0">Organization</h5>
+            </div>
+            <div className="card-body">
+              <dl className="row mb-0">
+                <dt className="col-5 text-600 fw-semi-bold">Name</dt>
+                <dd className="col-7 mb-2">{org?.name}</dd>
+                <dt className="col-5 text-600 fw-semi-bold">Slug</dt>
+                <dd className="col-7 mb-2">{org?.slug}</dd>
+                <dt className="col-5 text-600 fw-semi-bold">Plan</dt>
+                <dd className="col-7 mb-0">
+                  <span className="badge badge-soft-primary">{org?.plan}</span>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        {/* Usage */}
         {usage.data && (
-          <div className="card">
-            <h3 style={{ marginTop: 0 }}>Usage This Month</h3>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              <div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Evaluations</div>
-                <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--primary)' }}>
-                  {usage.data.evaluationsCount} <span style={{ fontSize: 14, color: 'var(--text-muted)', fontWeight: 400 }}>/ {org?.maxEvaluationsMo}</span>
+          <div className="col-lg-6">
+            <div className="card mb-3 h-100">
+              <div className="card-header">
+                <h5 className="mb-0">Usage This Month</h5>
+              </div>
+              <div className="card-body">
+                <div className="mb-1 d-flex justify-content-between align-items-baseline">
+                  <span className="text-600 fs--1 fw-semi-bold text-uppercase">Evaluations</span>
+                  <span className="fs--1 text-600">
+                    {usage.data.evaluationsCount} / {org?.maxEvaluationsMo}
+                  </span>
                 </div>
-                <div style={{ height: 6, background: 'var(--card-border)', borderRadius: 3, width: 200, marginTop: 8 }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${Math.min(100, (usage.data.evaluationsCount / (org?.maxEvaluationsMo ?? 20)) * 100)}%`,
-                    background: 'var(--primary)',
-                    borderRadius: 3,
-                  }} />
+                <div className="fs-2 fw-bold text-primary mb-2">
+                  {usage.data.evaluationsCount}
+                  <span className="fs--1 text-600 fw-normal ms-1">/ {org?.maxEvaluationsMo}</span>
+                </div>
+                <div className="progress" style={{ height: 6 }}>
+                  <div
+                    className="progress-bar"
+                    role="progressbar"
+                    style={{ width: `${evalPercent}%` }}
+                    aria-valuenow={evalPercent}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h3 style={{ margin: 0 }}>API Keys</h3>
-            <button className="btn btn-primary btn-sm" onClick={() => setShowNewKeyModal(true)}>+ Create Key</button>
-          </div>
-
-          {rawKey && (
-            <div style={{ background: 'rgba(72,207,173,0.1)', border: '1px solid var(--success)', borderRadius: 4, padding: 12, marginBottom: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--success)' }}>New API Key — copy now, shown only once</div>
-              <code style={{ fontSize: 13, wordBreak: 'break-all' }}>{rawKey}</code>
-              <button
-                className="btn btn-secondary btn-sm"
-                style={{ marginLeft: 8 }}
-                onClick={() => { navigator.clipboard.writeText(rawKey); toast.success('Copied!'); }}
-              >
-                Copy
-              </button>
-              <button className="btn btn-secondary btn-sm" style={{ marginLeft: 8 }} onClick={() => setRawKey('')}>Dismiss</button>
+        {/* API Keys */}
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">API Keys</h5>
+                </div>
+                <div className="col-auto">
+                  <button className="btn btn-primary btn-sm" onClick={() => setShowNewKeyModal(true)}>
+                    + Create Key
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
+            <div className="card-body">
+              {rawKey && (
+                <div className="alert alert-success d-flex align-items-start gap-2 mb-3" role="alert">
+                  <div className="flex-1">
+                    <div className="fw-semi-bold mb-1">New API Key — copy now, shown only once</div>
+                    <code className="fs--1 text-break">{rawKey}</code>
+                  </div>
+                  <div className="d-flex gap-2 flex-shrink-0 ms-2">
+                    <button
+                      className="btn btn-falcon-default btn-sm"
+                      onClick={() => { navigator.clipboard.writeText(rawKey); toast.success('Copied!'); }}
+                    >
+                      Copy
+                    </button>
+                    <button className="btn btn-falcon-default btn-sm" onClick={() => setRawKey('')}>Dismiss</button>
+                  </div>
+                </div>
+              )}
 
-          {keys?.length === 0 ? (
-            <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: 20 }}>No API keys yet</div>
-          ) : (
-            <table className="table">
-              <thead><tr><th>Name</th><th>Prefix</th><th>Created</th><th>Last Used</th><th></th></tr></thead>
-              <tbody>
-                {keys?.map((k) => (
-                  <tr key={k.id}>
-                    <td>{k.name ?? 'Unnamed'}</td>
-                    <td><code>{k.keyPrefix}…</code></td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(k.createdAt).toLocaleDateString()}</td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : '—'}</td>
-                    <td>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => { if (confirm('Revoke this key?')) revokeKey.mutateAsync(k.id); }}
-                      >
-                        Revoke
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+              {keys?.length === 0 ? (
+                <div className="text-center text-600 py-4">No API keys yet</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover table-sm fs--1 mb-0">
+                    <thead className="bg-200 text-900">
+                      <tr>
+                        <th>Name</th>
+                        <th>Prefix</th>
+                        <th>Created</th>
+                        <th>Last Used</th>
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {keys?.map((k) => (
+                        <tr key={k.id}>
+                          <td className="align-middle">{k.name ?? 'Unnamed'}</td>
+                          <td className="align-middle"><code>{k.keyPrefix}…</code></td>
+                          <td className="text-600 fs--2 align-middle">{new Date(k.createdAt).toLocaleDateString()}</td>
+                          <td className="text-600 fs--2 align-middle">{k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : '—'}</td>
+                          <td className="align-middle text-end">
+                            <button
+                              className="btn btn-falcon-danger btn-sm"
+                              onClick={() => { if (confirm('Revoke this key?')) revokeKey.mutateAsync(k.id); }}
+                            >
+                              Revoke
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -164,12 +225,17 @@ export function SettingsPage() {
               <button className="modal-close" onClick={() => setShowNewKeyModal(false)}>×</button>
             </div>
             <form onSubmit={handleCreateKey}>
-              <div className="form-group">
-                <label className="form-label">Key Name (optional)</label>
-                <input className="form-control" value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} placeholder="e.g. CI/CD, CLI tool…" />
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Key Name (optional)</label>
+                <input
+                  className="form-control"
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                  placeholder="e.g. CI/CD, CLI tool…"
+                />
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowNewKeyModal(false)}>Cancel</button>
+              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <button type="button" className="btn btn-falcon-default" onClick={() => setShowNewKeyModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={createKey.isPending}>
                   {createKey.isPending ? 'Creating…' : 'Create Key'}
                 </button>

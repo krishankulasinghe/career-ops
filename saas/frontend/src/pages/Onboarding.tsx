@@ -75,166 +75,174 @@ export function OnboardingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--body-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: 520 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>Welcome to Career-Ops!</div>
-          <div style={{ color: 'var(--text-muted)', marginTop: 4 }}>Let's get you set up in a few steps</div>
+    <div className="min-vh-100 bg-100">
+      <div className="container py-5">
+        <div className="text-center mb-4">
+          <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
+          <p className="text-500">Let's get you set up in a few steps</p>
         </div>
 
-        <div style={{ height: 6, background: 'var(--card-border)', borderRadius: 3, marginBottom: 28 }}>
-          <div style={{ height: '100%', width: `${progressPercent}%`, background: 'var(--primary)', borderRadius: 3, transition: 'width 0.3s' }} />
+        <div className="progress mb-4" style={{ height: 6 }}>
+          <div
+            className="progress-bar"
+            role="progressbar"
+            style={{ width: `${progressPercent}%`, transition: 'width 0.3s' }}
+            aria-valuenow={progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          />
         </div>
 
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: 16 }}>
-              Step {step} of {TOTAL_STEPS}
+          <div className="card-body p-4 p-md-5">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <span className="fw-semibold">Step {step} of {TOTAL_STEPS}</span>
+              {step < TOTAL_STEPS && step > 2 && (
+                <button className="btn btn-secondary btn-sm" onClick={nextStep}>
+                  Skip this step →
+                </button>
+              )}
             </div>
-            {step < TOTAL_STEPS && step > 2 && (
-              <button className="btn btn-secondary btn-sm" onClick={nextStep} style={{ color: 'var(--text-muted)' }}>
-                Skip this step →
-              </button>
+
+            {step === 1 && (
+              <div>
+                <h5 className="mb-3">Account Confirmed</h5>
+                <p className="text-700">You're registered as <strong>{user?.email}</strong>.</p>
+                <p className="text-700">Career-Ops will help you evaluate job opportunities, generate tailored CVs, and track your applications — all in one place.</p>
+                <button className="btn btn-primary" onClick={nextStep}>Get Started →</button>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div>
+                <h5 className="mb-3">Profile Basics</h5>
+                <div className="form-group mb-3">
+                  <label className="form-label">Full Name</label>
+                  <input className="form-control" value={profileData.fullName} onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })} />
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label">Location (city, country)</label>
+                  <input className="form-control" placeholder="e.g. New York, US" value={profileData.location} onChange={(e) => setProfileData({ ...profileData, location: e.target.value })} />
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label">LinkedIn URL (optional)</label>
+                  <input type="url" className="form-control" placeholder="https://linkedin.com/in/…" value={profileData.linkedinUrl} onChange={(e) => setProfileData({ ...profileData, linkedinUrl: e.target.value })} />
+                </div>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
+                  <button className="btn btn-primary" onClick={handleProfileSave} disabled={updateProfile.isPending}>
+                    {updateProfile.isPending ? 'Saving…' : 'Save & Continue →'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div>
+                <h5 className="mb-3">Upload Your CV</h5>
+                <p className="text-700 mb-3">Paste your CV in Markdown format:</p>
+                <textarea
+                  className="form-control font-monospace fs--1"
+                  rows={12}
+                  value={cvContent}
+                  onChange={(e) => setCvContent(e.target.value)}
+                  placeholder={'# Your Name\n## Summary\nExperienced engineer with…\n\n## Experience\n**Company** — Role (2020–present)\n- Achievement 1'}
+                />
+                <div className="d-flex gap-2 mt-3">
+                  <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
+                  <button className="btn btn-primary" onClick={handleCvSave} disabled={createCv.isPending}>
+                    {createCv.isPending ? 'Saving…' : cvContent.trim() ? 'Save CV & Continue →' : 'Skip →'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div>
+                <h5 className="mb-3">Target Roles & Compensation</h5>
+                <div className="form-group mb-3">
+                  <label className="form-label">Target Roles (one per line)</label>
+                  <textarea
+                    className="form-control"
+                    rows={4}
+                    value={roles}
+                    onChange={(e) => setRoles(e.target.value)}
+                    placeholder={'Senior Software Engineer\nStaff Engineer\nEngineering Manager'}
+                  />
+                </div>
+                <div className="form-group mb-3">
+                  <label className="form-label">Minimum Salary Target (USD/year)</label>
+                  <input type="number" className="form-control" style={{ maxWidth: 200 }} value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} placeholder="150000" />
+                </div>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
+                  <button className="btn btn-primary" onClick={handleRolesSave}>Save & Continue →</button>
+                </div>
+              </div>
+            )}
+
+            {step === 5 && (
+              <div>
+                <h5 className="mb-3">Archetypes (Optional)</h5>
+                <p className="text-700">Archetypes help classify job offers. The defaults work great:</p>
+                <div className="d-flex flex-wrap gap-2 mb-4">
+                  {['IC Technical', 'Tech Lead', 'Engineering Manager', 'Product Engineer', 'AI/ML Engineer'].map((a) => (
+                    <span key={a} className="badge bg-info fs--1">{a}</span>
+                  ))}
+                </div>
+                <p className="text-500 fs--1">You can customize these anytime from your Profile page.</p>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
+                  <button className="btn btn-primary" onClick={nextStep}>Use Defaults & Continue →</button>
+                </div>
+              </div>
+            )}
+
+            {step === 6 && (
+              <div>
+                <h5 className="mb-3">Your First Evaluation</h5>
+                <p className="text-700">Paste a job URL to see Career-Ops in action!</p>
+                <div className="form-group mb-3">
+                  <label className="form-label">Job Posting URL (optional)</label>
+                  <input
+                    type="url"
+                    className="form-control"
+                    value={evalUrl}
+                    onChange={(e) => setEvalUrl(e.target.value)}
+                    placeholder="https://jobs.ashbyhq.com/…"
+                  />
+                </div>
+
+                {evalTaskId && !evalDone && (
+                  <div className="d-flex align-items-center gap-3 text-700 mb-3">
+                    <div className="spinner-border spinner-border-sm text-primary" role="status">
+                      <span className="visually-hidden">Loading…</span>
+                    </div>
+                    <span>Evaluating job posting…</span>
+                  </div>
+                )}
+
+                {evalDone && (
+                  <div className="alert alert-success py-2 mb-3 fs--1 fw-semibold">
+                    Evaluation complete! View your results on the dashboard.
+                  </div>
+                )}
+
+                <div className="d-flex gap-2">
+                  <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
+                  {!evalTaskId ? (
+                    <button className="btn btn-primary" onClick={handleStartEval} disabled={createEval.isPending}>
+                      {createEval.isPending ? 'Starting…' : evalUrl.trim() ? '▶ Run Evaluation' : 'Skip →'}
+                    </button>
+                  ) : (
+                    <button className="btn btn-primary" onClick={handleFinish}>
+                      {evalDone ? 'Go to Dashboard →' : 'Continue to Dashboard →'}
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
-
-          {step === 1 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Account Confirmed</h3>
-              <p style={{ color: 'var(--text-secondary)' }}>You're registered as <strong>{user?.email}</strong>.</p>
-              <p style={{ color: 'var(--text-secondary)' }}>Career-Ops will help you evaluate job opportunities, generate tailored CVs, and track your applications — all in one place.</p>
-              <button className="btn btn-primary" onClick={nextStep}>Get Started →</button>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Profile Basics</h3>
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <input className="form-control" value={profileData.fullName} onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Location (city, country)</label>
-                <input className="form-control" placeholder="e.g. New York, US" value={profileData.location} onChange={(e) => setProfileData({ ...profileData, location: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">LinkedIn URL (optional)</label>
-                <input type="url" className="form-control" placeholder="https://linkedin.com/in/…" value={profileData.linkedinUrl} onChange={(e) => setProfileData({ ...profileData, linkedinUrl: e.target.value })} />
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" onClick={handleProfileSave} disabled={updateProfile.isPending}>
-                  {updateProfile.isPending ? 'Saving…' : 'Save & Continue →'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Upload Your CV</h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>Paste your CV in Markdown format:</p>
-              <textarea
-                className="form-control"
-                rows={12}
-                value={cvContent}
-                onChange={(e) => setCvContent(e.target.value)}
-                placeholder="# Your Name&#10;## Summary&#10;Experienced engineer with…&#10;&#10;## Experience&#10;**Company** — Role (2020–present)&#10;- Achievement 1"
-                style={{ fontFamily: 'monospace', fontSize: 13 }}
-              />
-              <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" onClick={handleCvSave} disabled={createCv.isPending}>
-                  {createCv.isPending ? 'Saving…' : cvContent.trim() ? 'Save CV & Continue →' : 'Skip →'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Target Roles & Compensation</h3>
-              <div className="form-group">
-                <label className="form-label">Target Roles (one per line)</label>
-                <textarea
-                  className="form-control"
-                  rows={4}
-                  value={roles}
-                  onChange={(e) => setRoles(e.target.value)}
-                  placeholder="Senior Software Engineer&#10;Staff Engineer&#10;Engineering Manager"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Minimum Salary Target (USD/year)</label>
-                <input type="number" className="form-control" value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} placeholder="150000" style={{ maxWidth: 200 }} />
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" onClick={handleRolesSave}>Save & Continue →</button>
-              </div>
-            </div>
-          )}
-
-          {step === 5 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Archetypes (Optional)</h3>
-              <p style={{ color: 'var(--text-secondary)' }}>Archetypes help classify job offers. The defaults work great:</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-                {['IC Technical', 'Tech Lead', 'Engineering Manager', 'Product Engineer', 'AI/ML Engineer'].map((a) => (
-                  <span key={a} className="badge badge-info" style={{ fontSize: 13 }}>{a}</span>
-                ))}
-              </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>You can customize these anytime from your Profile page.</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" onClick={nextStep}>Use Defaults & Continue →</button>
-              </div>
-            </div>
-          )}
-
-          {step === 6 && (
-            <div>
-              <h3 style={{ marginTop: 0 }}>Your First Evaluation</h3>
-              <p style={{ color: 'var(--text-secondary)' }}>Paste a job URL to see Career-Ops in action!</p>
-              <div className="form-group">
-                <label className="form-label">Job Posting URL (optional)</label>
-                <input
-                  type="url"
-                  className="form-control"
-                  value={evalUrl}
-                  onChange={(e) => setEvalUrl(e.target.value)}
-                  placeholder="https://jobs.ashbyhq.com/…"
-                />
-              </div>
-
-              {evalTaskId && !evalDone && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
-                  <div className="spinner" />
-                  <span>Evaluating job posting…</span>
-                </div>
-              )}
-
-              {evalDone && (
-                <div style={{ color: 'var(--success)', marginBottom: 12, fontWeight: 500 }}>
-                  ✅ Evaluation complete! View your results on the dashboard.
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
-                {!evalTaskId ? (
-                  <button className="btn btn-primary" onClick={handleStartEval} disabled={createEval.isPending}>
-                    {createEval.isPending ? 'Starting…' : evalUrl.trim() ? '▶ Run Evaluation' : 'Skip →'}
-                  </button>
-                ) : (
-                  <button className="btn btn-primary" onClick={handleFinish}>
-                    {evalDone ? 'Go to Dashboard →' : 'Continue to Dashboard →'}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -34,6 +34,12 @@ function useRemoveMember() {
   });
 }
 
+function roleBadgeClass(role: string): string {
+  if (role === 'owner') return 'badge badge-soft-warning';
+  if (role === 'admin') return 'badge badge-soft-primary';
+  return 'badge badge-soft-secondary';
+}
+
 export function TeamPage() {
   const { data: members } = useMembers();
   const inviteMember = useInviteMember();
@@ -55,37 +61,70 @@ export function TeamPage() {
 
   return (
     <Layout title="Team">
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h3 style={{ margin: 0 }}>Members ({members?.length ?? 0})</h3>
-          <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>Invite Member</button>
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Team Members</h5>
+                  <p className="text-600 fs--1 mb-0">Manage your organization's members and roles</p>
+                </div>
+                <div className="col-auto">
+                  <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>
+                    <span className="fas fa-user-plus me-1" />
+                    Invite Member
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <table className="table">
-          <thead>
-            <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th></th></tr>
-          </thead>
-          <tbody>
-            {members?.map((m) => (
-              <tr key={m.id}>
-                <td style={{ fontWeight: 600 }}>{m.fullName}</td>
-                <td style={{ fontSize: 13 }}>{m.email}</td>
-                <td><span className={`badge ${m.role === 'owner' ? 'badge-warning' : m.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>{m.role}</span></td>
-                <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(m.joinedAt).toLocaleDateString()}</td>
-                <td>
-                  {m.role !== 'owner' && (
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => { if (confirm('Remove this member?')) removeMember.mutateAsync(m.userId); }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <h5 className="mb-0">Members ({members?.length ?? 0})</h5>
+            </div>
+            <div className="card-body p-0">
+              <div className="table-responsive">
+                <table className="table table-hover table-sm fs--1 mb-0">
+                  <thead className="bg-200 text-900">
+                    <tr>
+                      <th className="py-2">Name</th>
+                      <th className="py-2">Email</th>
+                      <th className="py-2">Role</th>
+                      <th className="py-2">Joined</th>
+                      <th className="py-2" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {members?.map((m) => (
+                      <tr key={m.id}>
+                        <td className="fw-semi-bold align-middle">{m.fullName}</td>
+                        <td className="text-600 align-middle">{m.email}</td>
+                        <td className="align-middle">
+                          <span className={roleBadgeClass(m.role)}>{m.role}</span>
+                        </td>
+                        <td className="text-600 fs--2 align-middle">{new Date(m.joinedAt).toLocaleDateString()}</td>
+                        <td className="align-middle text-end">
+                          {m.role !== 'owner' && (
+                            <button
+                              className="btn btn-falcon-danger btn-sm"
+                              onClick={() => { if (confirm('Remove this member?')) removeMember.mutateAsync(m.userId); }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {showModal && (
@@ -96,19 +135,30 @@ export function TeamPage() {
               <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleInvite}>
-              <div className="form-group">
-                <label className="form-label">Email *</label>
-                <input required type="email" className="form-control" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="colleague@example.com" />
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Email *</label>
+                <input
+                  required
+                  type="email"
+                  className="form-control"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="colleague@example.com"
+                />
               </div>
-              <div className="form-group">
-                <label className="form-label">Role</label>
-                <select className="form-control" value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}>
+              <div className="mb-3">
+                <label className="form-label fw-semi-bold">Role</label>
+                <select
+                  className="form-select"
+                  value={form.role}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                >
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <button type="button" className="btn btn-falcon-default" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={inviteMember.isPending}>
                   {inviteMember.isPending ? 'Sending…' : 'Send Invitation'}
                 </button>

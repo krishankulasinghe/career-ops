@@ -14,23 +14,34 @@ function SimpleDiff({ a, b }: { a: string; b: string }) {
   const maxLen = Math.max(aLines.length, bLines.length);
 
   return (
-    <div style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, overflowX: 'auto' }}>
+    <div className="font-monospace fs--2 overflow-auto">
       {Array.from({ length: maxLen }, (_, i) => {
         const aLine = aLines[i] ?? '';
         const bLine = bLines[i] ?? '';
         const changed = aLine !== bLine;
         return (
-          <div key={i} style={{ display: 'flex', gap: 0 }}>
-            <div style={{
-              width: '50%', padding: '1px 8px', borderRight: '1px solid var(--card-border)',
-              background: changed ? 'rgba(239,68,68,0.1)' : 'transparent',
-              color: changed ? '#ef4444' : 'var(--text)',
-            }}>{aLine || ' '}</div>
-            <div style={{
-              width: '50%', padding: '1px 8px',
-              background: changed ? 'rgba(34,197,94,0.1)' : 'transparent',
-              color: changed ? '#22c55e' : 'var(--text)',
-            }}>{bLine || ' '}</div>
+          <div key={i} className="d-flex">
+            <div
+              className="w-50 px-2 py-0"
+              style={{
+                borderRight: '1px solid var(--falcon-border-color)',
+                background: changed ? 'rgba(239,68,68,0.1)' : 'transparent',
+                color: changed ? '#ef4444' : undefined,
+                lineHeight: 1.6,
+              }}
+            >
+              {aLine || ' '}
+            </div>
+            <div
+              className="w-50 px-2 py-0"
+              style={{
+                background: changed ? 'rgba(34,197,94,0.1)' : 'transparent',
+                color: changed ? '#22c55e' : undefined,
+                lineHeight: 1.6,
+              }}
+            >
+              {bLine || ' '}
+            </div>
           </div>
         );
       })}
@@ -99,178 +110,210 @@ export function PromptSettingsPage() {
 
   return (
     <Layout title="Prompt Templates">
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 20, height: '100%' }}>
-
-        {/* Left panel — template list */}
-        <div className="card" style={{ padding: 0, overflowY: 'auto' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--card-border)', fontWeight: 600, fontSize: 13 }}>
-            Templates
-          </div>
-          {uniqueNames.map((name) => {
-            const active = allTemplates.find((t) => t.name === name && t.isActive);
-            const hasOverride = data?.orgTemplates?.some((t) => t.name === name);
-            return (
-              <div
-                key={name}
-                onClick={() => active && handleSelect(active)}
-                style={{
-                  padding: '10px 16px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid var(--card-border)',
-                  background: selected?.name === name ? 'rgba(93,156,236,0.12)' : 'transparent',
-                  fontSize: 13,
-                }}
-              >
-                <div style={{ fontWeight: selected?.name === name ? 600 : 400 }}>{name}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                  {hasOverride ? '✎ Custom override' : '● System default'}
-                  {active && ` · v${active.version}`}
+      <div className="row g-3">
+        <div className="col-12">
+          <div className="card mb-3">
+            <div className="card-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <h5 className="mb-0">Prompt Templates</h5>
+                  <p className="text-600 fs--1 mb-0">View and customize AI evaluation prompt templates</p>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          </div>
+        </div>
+
+        {/* Left panel — template list */}
+        <div className="col-lg-3">
+          <div className="card sticky-top" style={{ top: 72 }}>
+            <div className="card-header py-2">
+              <h6 className="mb-0 fw-semi-bold">Templates</h6>
+            </div>
+            <div className="card-body p-0">
+              <nav className="nav flex-column">
+                {uniqueNames.map((name) => {
+                  const active = allTemplates.find((t) => t.name === name && t.isActive);
+                  const hasOverride = data?.orgTemplates?.some((t) => t.name === name);
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => active && handleSelect(active)}
+                      className={`nav-link text-start border-bottom px-3 py-2 ${selected?.name === name ? 'active bg-soft-primary' : ''}`}
+                    >
+                      <div className={`fs--1 ${selected?.name === name ? 'fw-semi-bold' : ''}`}>{name}</div>
+                      <div className="fs--2 text-600 mt-1">
+                        {hasOverride ? '✎ Custom override' : '● System default'}
+                        {active && ` · v${active.version}`}
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
         </div>
 
         {/* Right panel — editor */}
-        {selected ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="col-lg-9">
+          {selected ? (
+            <div className="d-flex flex-column gap-3">
 
-            {/* A/B test banner */}
-            {abStats?.active && abStats.challengerName === selected.name && (
-              <div style={{ padding: '10px 14px', borderRadius: 6, background: 'rgba(234,179,8,0.1)', border: '1px solid var(--warning)', fontSize: 13 }}>
-                <strong style={{ color: 'var(--warning)' }}>⚡ A/B test active</strong> — challenger version {abStats.challengerId} vs control
-                <button className="btn btn-sm btn-secondary" style={{ marginLeft: 12 }} onClick={() => disableAB.mutate()}>
-                  Stop A/B Test
-                </button>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 8 }}>
-              {['view', 'edit', 'diff', 'test'].map((m) => (
-                <button
-                  key={m}
-                  className={`btn btn-sm ${editMode === m ? 'btn-primary' : 'btn-secondary'}`}
-                  onClick={() => setEditMode(m as typeof editMode)}
-                >
-                  {m.charAt(0).toUpperCase() + m.slice(1)}
-                </button>
-              ))}
-            </div>
-
-            {editMode === 'view' && (
-              <div className="card" style={{ padding: 16 }}>
-                <div style={{ fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap', maxHeight: 500, overflowY: 'auto' }}>
-                  {selected.content}
-                </div>
-                <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
-                  {selected.orgId ? `Custom override` : 'System default'} · v{selected.version}
-                </div>
-              </div>
-            )}
-
-            {editMode === 'edit' && (
-              <div className="card">
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  style={{ width: '100%', minHeight: 400, fontFamily: 'monospace', fontSize: 12, background: 'transparent', color: 'var(--text)', border: 'none', resize: 'vertical', outline: 'none', padding: 8 }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, padding: '8px 0 0' }}>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setEditContent(selected.content)}>Reset</button>
-                  <button className="btn btn-primary btn-sm" disabled={saveOverride.isPending} onClick={handleSave}>
-                    {saveOverride.isPending ? 'Saving…' : 'Save as New Version'}
+              {/* A/B test banner */}
+              {abStats?.active && abStats.challengerName === selected.name && (
+                <div className="alert alert-warning d-flex align-items-center gap-3 mb-0" role="alert">
+                  <span><strong>⚡ A/B test active</strong> — challenger version {abStats.challengerId} vs control</span>
+                  <button className="btn btn-sm btn-falcon-default ms-auto" onClick={() => disableAB.mutate()}>
+                    Stop A/B Test
                   </button>
                 </div>
-              </div>
-            )}
+              )}
 
-            {editMode === 'diff' && (
-              <div className="card">
-                <div style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <label className="form-label" style={{ marginBottom: 0 }}>Compare with version:</label>
-                  <select
-                    className="form-control"
-                    style={{ width: 'auto', padding: '4px 8px' }}
-                    value={diffBase?.id ?? ''}
-                    onChange={(e) => setDiffBase(versions?.find((v) => v.id === e.target.value) ?? null)}
+              {/* Mode tabs */}
+              <div className="btn-group btn-group-sm" role="group">
+                {(['view', 'edit', 'diff', 'test'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className={`btn ${editMode === m ? 'btn-primary' : 'btn-falcon-default'}`}
+                    onClick={() => setEditMode(m)}
                   >
-                    <option value="">Select version…</option>
-                    {(versions ?? []).map((v) => (
-                      <option key={v.id} value={v.id}>
-                        v{v.version} — {v.orgId ? 'custom' : 'system'} {v.isActive ? '(active)' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {diffBase ? (
-                  <>
-                    <div style={{ display: 'flex', gap: 0, marginBottom: 4, fontSize: 11, color: 'var(--text-muted)' }}>
-                      <div style={{ width: '50%', padding: '0 8px' }}>v{diffBase.version} (base)</div>
-                      <div style={{ width: '50%', padding: '0 8px' }}>v{selected.version} (current)</div>
-                    </div>
-                    <SimpleDiff a={diffBase.content} b={selected.content} />
-                    <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                      <button className="btn btn-sm btn-secondary" onClick={() => handleRollback(diffBase.id)} disabled={rollback.isPending}>
-                        Rollback to v{diffBase.version}
-                      </button>
-                      {!abStats?.active && (
-                        <button className="btn btn-sm btn-secondary" onClick={() => enableAB.mutate(diffBase.id)} disabled={enableAB.isPending}>
-                          Start A/B Test (v{diffBase.version} as challenger)
-                        </button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Select a version above to compare</div>
-                )}
+                    {m.charAt(0).toUpperCase() + m.slice(1)}
+                  </button>
+                ))}
               </div>
-            )}
 
-            {editMode === 'test' && (
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div className="form-group">
-                    <label className="form-label">Sample CV (optional)</label>
-                    <textarea
-                      className="form-control"
-                      rows={6}
-                      value={testCV}
-                      onChange={(e) => setTestCV(e.target.value)}
-                      placeholder="Paste CV markdown here…"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Sample JD (optional)</label>
-                    <textarea
-                      className="form-control"
-                      rows={6}
-                      value={testJD}
-                      onChange={(e) => setTestJD(e.target.value)}
-                      placeholder="Paste job description here…"
-                    />
+              {editMode === 'view' && (
+                <div className="card mb-3">
+                  <div className="card-body">
+                    <pre className="fs--2 mb-0" style={{ whiteSpace: 'pre-wrap', maxHeight: 500, overflowY: 'auto' }}>
+                      {selected.content}
+                    </pre>
+                    <div className="mt-3 fs--2 text-600">
+                      {selected.orgId ? 'Custom override' : 'System default'} · v{selected.version}
+                    </div>
                   </div>
                 </div>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleTest}
-                  disabled={testPrompt.isPending}
-                >
-                  {testPrompt.isPending ? 'Running…' : 'Run Test Evaluation'}
-                </button>
-                {testOutput && (
-                  <div style={{ padding: 12, background: 'rgba(0,0,0,0.2)', borderRadius: 6, fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap', maxHeight: 400, overflowY: 'auto' }}>
-                    {testOutput}
-                  </div>
-                )}
-              </div>
-            )}
+              )}
 
-          </div>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
-            Select a template to view or edit
-          </div>
-        )}
+              {editMode === 'edit' && (
+                <div className="card mb-3">
+                  <div className="card-body p-0">
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="form-control border-0 rounded font-monospace fs--2"
+                      rows={20}
+                      style={{ resize: 'vertical', minHeight: 400 }}
+                    />
+                  </div>
+                  <div className="card-footer d-flex justify-content-end gap-2">
+                    <button className="btn btn-falcon-default btn-sm" onClick={() => setEditContent(selected.content)}>Reset</button>
+                    <button className="btn btn-primary btn-sm" disabled={saveOverride.isPending} onClick={handleSave}>
+                      {saveOverride.isPending ? 'Saving…' : 'Save as New Version'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {editMode === 'diff' && (
+                <div className="card mb-3">
+                  <div className="card-header">
+                    <div className="d-flex align-items-center gap-3">
+                      <label className="form-label mb-0 fw-semi-bold">Compare with version:</label>
+                      <select
+                        className="form-select form-select-sm w-auto"
+                        value={diffBase?.id ?? ''}
+                        onChange={(e) => setDiffBase(versions?.find((v) => v.id === e.target.value) ?? null)}
+                      >
+                        <option value="">Select version…</option>
+                        {(versions ?? []).map((v) => (
+                          <option key={v.id} value={v.id}>
+                            v{v.version} — {v.orgId ? 'custom' : 'system'} {v.isActive ? '(active)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="card-body p-0">
+                    {diffBase ? (
+                      <>
+                        <div className="d-flex fs--2 text-600 border-bottom">
+                          <div className="w-50 px-3 py-1 border-end">v{diffBase.version} (base)</div>
+                          <div className="w-50 px-3 py-1">v{selected.version} (current)</div>
+                        </div>
+                        <SimpleDiff a={diffBase.content} b={selected.content} />
+                        <div className="card-footer d-flex gap-2">
+                          <button className="btn btn-sm btn-falcon-default" onClick={() => handleRollback(diffBase.id)} disabled={rollback.isPending}>
+                            Rollback to v{diffBase.version}
+                          </button>
+                          {!abStats?.active && (
+                            <button className="btn btn-sm btn-falcon-default" onClick={() => enableAB.mutate(diffBase.id)} disabled={enableAB.isPending}>
+                              Start A/B Test (v{diffBase.version} as challenger)
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-600 fs--1 p-3">Select a version above to compare</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {editMode === 'test' && (
+                <div className="card mb-3">
+                  <div className="card-header">
+                    <h6 className="mb-0">Test Evaluation</h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="row g-3 mb-3">
+                      <div className="col-md-6">
+                        <label className="form-label fw-semi-bold">Sample CV (optional)</label>
+                        <textarea
+                          className="form-control"
+                          rows={6}
+                          value={testCV}
+                          onChange={(e) => setTestCV(e.target.value)}
+                          placeholder="Paste CV markdown here…"
+                        />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label fw-semi-bold">Sample JD (optional)</label>
+                        <textarea
+                          className="form-control"
+                          rows={6}
+                          value={testJD}
+                          onChange={(e) => setTestJD(e.target.value)}
+                          placeholder="Paste job description here…"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleTest}
+                      disabled={testPrompt.isPending}
+                    >
+                      {testPrompt.isPending ? 'Running…' : 'Run Test Evaluation'}
+                    </button>
+                    {testOutput && (
+                      <pre className="mt-3 p-3 bg-200 rounded fs--2" style={{ maxHeight: 400, overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
+                        {testOutput}
+                      </pre>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="card mb-3">
+              <div className="card-body d-flex align-items-center justify-content-center py-6 text-600">
+                Select a template to view or edit
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

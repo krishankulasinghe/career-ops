@@ -1,0 +1,37 @@
+/*
+ * Career-Ops SaaS — Falcon theme overrides
+ * Falcon's theme.min.css owns the full design system.
+ * This file only adds SaaS-specific tweaks and compat shims.
+ */
+
+:root {
+  /* Map legacy variable names used by inline styles to Falcon equivalents */
+  --sidebar-width: 260px; /* matches Falcon's --falcon-navbar-vertical-width */
+  --primary: var(--falcon-primary, #2c7be5);
+  --danger: var(--falcon-danger, #e63757);
+  --success: var(--falcon-success, #00d27a);
+  --warning: var(--falcon-warning, #f5803e);
+  --info: var(--falcon-info, #27bcfd);
+}
+
+/* Ensure full-height layout */
+html, body, #root {
+  height: 100%;
+}
+
+/* Score gauge canvas sizing */
+.score-gauge-canvas {
+  width: 100% !important;
+  height: 200px !important;
+}
+
+/* Markdown prose in evaluation reports */
+.prose h1, .prose h2, .prose h3 { margin-top: 1.25em; margin-bottom: 0.5em; }
+.prose p { margin-bottom: 0.75em; line-height: 1.65; }
+.prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 0.75em; }
+.prose code { background: rgba(0,0,0,.05); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.875em; }
+.prose pre { background: rgba(0,0,0,.05); padding: 1em; border-radius: 4px; overflow-x: auto; }
+.prose blockquote { border-left: 3px solid var(--falcon-primary, #2c7be5); padding-left: 1rem; color: #748194; }
+.prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+.prose th, .prose td { padding: 6px 12px; border: 1px solid #e2e8f0; }
+.prose th { background: #f9fafc; font-weight: 600; }
