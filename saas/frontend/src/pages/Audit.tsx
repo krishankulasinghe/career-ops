@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconDownload, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 interface AuditEntry {
   id: string;
@@ -76,7 +76,7 @@ export function AuditPage() {
     <Layout title="Audit Log">
       <div className="card mb-3">
         <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <h5 className="mb-0">Activity Log</h5>
+          <h5 className="card-title mb-0">Activity Log</h5>
           <div className="d-flex gap-2 align-items-center">
             <input
               type="search"
@@ -86,8 +86,8 @@ export function AuditPage() {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setLocalPage(0); }}
             />
-            <button className="btn btn-sm btn-falcon-default" onClick={handleExport}>
-              <span className="fas fa-download me-1"></span>Export CSV
+            <button className="btn btn-sm btn-outline-secondary" onClick={handleExport}>
+              <IconDownload size={14} className="me-1" />Export CSV
             </button>
           </div>
         </div>
@@ -105,8 +105,8 @@ export function AuditPage() {
             />
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover table-sm fs--1 mb-0 overflow-hidden">
-                <thead className="bg-200 text-900">
+              <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                <thead>
                   <tr>
                     <th style={{ width: 170 }}>Time</th>
                     <th>Action</th>
@@ -118,26 +118,26 @@ export function AuditPage() {
                 <tbody>
                   {paged.map((e) => (
                     <tr key={e.id}>
-                      <td className="text-500" style={{ whiteSpace: 'nowrap' }}>
+                      <td className="text-secondary" style={{ whiteSpace: 'nowrap' }}>
                         {new Date(e.createdAt).toLocaleString()}
                       </td>
                       <td>
-                        <code className="fs--2 text-700">{e.action}</code>
+                        <code className="small text-body">{e.action}</code>
                       </td>
                       <td>
                         {e.entityType && (
-                          <span className="badge badge-soft-secondary rounded-pill me-1 fs--2">
+                          <span className="badge bg-secondary-lt rounded-pill me-1 small">
                             {e.entityType}
                           </span>
                         )}
                         {e.entityId && (
-                          <span className="text-500 fs--2">{e.entityId.slice(0, 8)}…</span>
+                          <span className="text-secondary small">{e.entityId.slice(0, 8)}…</span>
                         )}
                       </td>
-                      <td className="text-500">{e.ipAddress ?? '—'}</td>
-                      <td className="text-500">
+                      <td className="text-secondary">{e.ipAddress ?? '—'}</td>
+                      <td className="text-secondary">
                         {e.userId && (
-                          <span className="fs--2">uid:{e.userId.slice(0, 8)}…</span>
+                          <span className="small">uid:{e.userId.slice(0, 8)}…</span>
                         )}
                       </td>
                     </tr>
@@ -150,20 +150,20 @@ export function AuditPage() {
 
         {total > PAGE_SIZE && (
           <div className="card-footer d-flex justify-content-end align-items-center gap-2">
-            <span className="fs--1 text-600">{startItem}–{endItem} of {total}</span>
+            <span className="small text-secondary">{startItem}–{endItem} of {total}</span>
             <button
-              className="btn btn-sm btn-falcon-default"
+              className="btn btn-sm btn-outline-secondary"
               disabled={localPage === 0}
               onClick={() => setLocalPage((p) => p - 1)}
             >
-              <span className="fas fa-chevron-left"></span>
+              <IconChevronLeft size={14} />
             </button>
             <button
-              className="btn btn-sm btn-falcon-default"
+              className="btn btn-sm btn-outline-secondary"
               disabled={endItem >= total}
               onClick={() => setLocalPage((p) => p + 1)}
             >
-              <span className="fas fa-chevron-right"></span>
+              <IconChevronRight size={14} />
             </button>
           </div>
         )}

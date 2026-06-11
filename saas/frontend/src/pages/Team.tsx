@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout/Layout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import toast from 'react-hot-toast';
+import { IconUserPlus, IconX } from '@tabler/icons-react';
 
 interface Member {
   id: string;
@@ -35,9 +36,13 @@ function useRemoveMember() {
 }
 
 function roleBadgeClass(role: string): string {
-  if (role === 'owner') return 'badge badge-soft-warning';
-  if (role === 'admin') return 'badge badge-soft-primary';
-  return 'badge badge-soft-secondary';
+  if (role === 'owner') return 'badge bg-warning-lt';
+  if (role === 'admin') return 'badge bg-primary-lt';
+  return 'badge bg-secondary-lt';
+}
+
+function getInitial(name: string): string {
+  return name ? name.charAt(0).toUpperCase() : '?';
 }
 
 export function TeamPage() {
@@ -67,12 +72,12 @@ export function TeamPage() {
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
-                  <h5 className="mb-0">Team Members</h5>
-                  <p className="text-600 fs--1 mb-0">Manage your organization's members and roles</p>
+                  <h5 className="card-title mb-0">Team Members</h5>
+                  <p className="text-secondary small mb-0">Manage your organization's members and roles</p>
                 </div>
                 <div className="col-auto">
                   <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>
-                    <span className="fas fa-user-plus me-1" />
+                    <IconUserPlus size={16} className="me-1" />
                     Invite Member
                   </button>
                 </div>
@@ -84,12 +89,12 @@ export function TeamPage() {
         <div className="col-12">
           <div className="card mb-3">
             <div className="card-header">
-              <h5 className="mb-0">Members ({members?.length ?? 0})</h5>
+              <h5 className="card-title mb-0">Members ({members?.length ?? 0})</h5>
             </div>
             <div className="card-body p-0">
               <div className="table-responsive">
-                <table className="table table-hover table-sm fs--1 mb-0">
-                  <thead className="bg-200 text-900">
+                <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                  <thead>
                     <tr>
                       <th className="py-2">Name</th>
                       <th className="py-2">Email</th>
@@ -101,16 +106,21 @@ export function TeamPage() {
                   <tbody>
                     {members?.map((m) => (
                       <tr key={m.id}>
-                        <td className="fw-semi-bold align-middle">{m.fullName}</td>
-                        <td className="text-600 align-middle">{m.email}</td>
+                        <td className="align-middle">
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="avatar avatar-sm">{getInitial(m.fullName)}</span>
+                            <span className="fw-semibold">{m.fullName}</span>
+                          </div>
+                        </td>
+                        <td className="text-secondary align-middle">{m.email}</td>
                         <td className="align-middle">
                           <span className={roleBadgeClass(m.role)}>{m.role}</span>
                         </td>
-                        <td className="text-600 fs--2 align-middle">{new Date(m.joinedAt).toLocaleDateString()}</td>
+                        <td className="text-secondary small align-middle">{new Date(m.joinedAt).toLocaleDateString()}</td>
                         <td className="align-middle text-end">
                           {m.role !== 'owner' && (
                             <button
-                              className="btn btn-falcon-danger btn-sm"
+                              className="btn btn-outline-danger btn-sm"
                               onClick={() => { if (confirm('Remove this member?')) removeMember.mutateAsync(m.userId); }}
                             >
                               Remove
@@ -127,43 +137,63 @@ export function TeamPage() {
         </div>
       </div>
 
+      {/* Invite modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Invite Member</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleInvite}>
-              <div className="mb-3">
-                <label className="form-label fw-semi-bold">Email *</label>
-                <input
-                  required
-                  type="email"
-                  className="form-control"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="colleague@example.com"
+        <div
+          className="modal modal-blur fade show d-block"
+          tabIndex={-1}
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            role="document"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Invite Member</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                  aria-label="Close"
                 />
               </div>
-              <div className="mb-3">
-                <label className="form-label fw-semi-bold">Role</label>
-                <select
-                  className="form-select"
-                  value={form.role}
-                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                >
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                <button type="button" className="btn btn-falcon-default" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={inviteMember.isPending}>
-                  {inviteMember.isPending ? 'Sending…' : 'Send Invitation'}
-                </button>
-              </div>
-            </form>
+              <form onSubmit={handleInvite}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Email *</label>
+                    <input
+                      required
+                      type="email"
+                      className="form-control"
+                      value={form.email}
+                      onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                      placeholder="colleague@example.com"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">Role</label>
+                    <select
+                      className="form-select"
+                      value={form.role}
+                      onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                    >
+                      <option value="member">Member</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary" disabled={inviteMember.isPending}>
+                    {inviteMember.isPending ? 'Sending…' : 'Send Invitation'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

@@ -14,6 +14,9 @@ import {
   IconCpu,
   IconChartLine,
   IconCoins,
+  IconAlertTriangle,
+  IconChevronLeft,
+  IconChevronRight,
 } from '@tabler/icons-react';
 
 const PIE_COLORS = ['#5d9cec', '#f97316', '#22c55e', '#a855f7', '#ef4444', '#eab308'];
@@ -65,8 +68,8 @@ export function AdminCostsPage() {
                 className="alert alert-danger d-flex align-items-center gap-2 mb-0"
                 role="alert"
               >
-                <span className="fas fa-exclamation-triangle text-danger"></span>
-                <span className="fs--1">
+                <IconAlertTriangle size={16} className="text-danger flex-shrink-0" />
+                <span className="small">
                   <strong>Cost anomaly:</strong>{' '}
                   <strong>{a.orgName}</strong> spent {fmt$(a.thisWeekCost)} this week vs{' '}
                   {fmt$(a.lastWeekCost)} last week (
@@ -118,7 +121,7 @@ export function AdminCostsPage() {
           {[7, 30, 90].map((d) => (
             <button
               key={d}
-              className={`btn btn-sm ${days === d ? 'btn-falcon-primary' : 'btn-falcon-default'}`}
+              className={`btn btn-sm ${days === d ? 'btn-primary' : 'btn-outline-secondary'}`}
               onClick={() => setDays(d)}
             >
               {d}d
@@ -129,7 +132,7 @@ export function AdminCostsPage() {
         {/* Daily spend chart */}
         <div className="card">
           <div className="card-header">
-            <h5 className="mb-0">Daily Spend (last 90 days)</h5>
+            <h5 className="card-title mb-0">Daily Spend (last 90 days)</h5>
           </div>
           <div className="card-body">
             {dailyLoading ? (
@@ -140,8 +143,8 @@ export function AdminCostsPage() {
                   <LineChart data={daily?.series ?? []}>
                     <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
                     <YAxis tickFormatter={(v: number) => `$${v.toFixed(2)}`} tick={{ fontSize: 11 }} />
-                    <Tooltip formatter={(v: number) => [`$${Number(v).toFixed(4)}`, 'Cost']} />
-                    <Line type="monotone" dataKey="costUsd" stroke="var(--falcon-primary)" dot={false} strokeWidth={2} />
+                    <Tooltip formatter={(v) => [`$${Number(v).toFixed(4)}`, 'Cost']} />
+                    <Line type="monotone" dataKey="costUsd" stroke="var(--tblr-primary)" dot={false} strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -154,7 +157,7 @@ export function AdminCostsPage() {
           <div className="col-lg-6">
             <div className="card h-100">
               <div className="card-header">
-                <h5 className="mb-0">Provider Breakdown</h5>
+                <h5 className="card-title mb-0">Provider Breakdown</h5>
               </div>
               <div className="card-body">
                 <div style={{ height: 200 }}>
@@ -167,7 +170,7 @@ export function AdminCostsPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
-                        label={({ name, percent }: { name: string; percent: number }) =>
+                        label={({ name, percent }: { name?: string; percent?: number }) =>
                           `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`
                         }
                       >
@@ -175,7 +178,7 @@ export function AdminCostsPage() {
                           <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v: number) => fmt$(Number(v))} />
+                      <Tooltip formatter={(v) => fmt$(Number(v))} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -187,7 +190,7 @@ export function AdminCostsPage() {
           <div className="col-lg-6">
             <div className="card h-100">
               <div className="card-header">
-                <h5 className="mb-0">Model Breakdown</h5>
+                <h5 className="card-title mb-0">Model Breakdown</h5>
               </div>
               <div className="card-body">
                 <div style={{ height: 200 }}>
@@ -195,8 +198,8 @@ export function AdminCostsPage() {
                     <BarChart data={(models ?? []).slice(0, 8)} layout="vertical">
                       <XAxis type="number" tickFormatter={(v: number) => `$${v.toFixed(3)}`} tick={{ fontSize: 10 }} />
                       <YAxis type="category" dataKey="model" width={130} tick={{ fontSize: 10 }} />
-                      <Tooltip formatter={(v: number) => fmt$(Number(v))} />
-                      <Bar dataKey="costUsd" fill="var(--falcon-primary)" radius={[0, 4, 4, 0]} />
+                      <Tooltip formatter={(v) => fmt$(Number(v))} />
+                      <Bar dataKey="costUsd" fill="var(--tblr-primary)" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -208,7 +211,7 @@ export function AdminCostsPage() {
         {/* Per-org table */}
         <div className="card">
           <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <h5 className="mb-0">Cost by Organization (last {days}d)</h5>
+            <h5 className="card-title mb-0">Cost by Organization (last {days}d)</h5>
             <input
               type="search"
               className="form-control form-control-sm"
@@ -231,8 +234,8 @@ export function AdminCostsPage() {
               />
             ) : (
               <div className="table-responsive">
-                <table className="table table-hover table-sm fs--1 mb-0 overflow-hidden">
-                  <thead className="bg-200 text-900">
+                <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                  <thead>
                     <tr>
                       <th>Organization</th>
                       <th>Plan</th>
@@ -246,21 +249,21 @@ export function AdminCostsPage() {
                   <tbody>
                     {paged.map((o) => (
                       <tr key={o.orgId}>
-                        <td className="fw-semi-bold">{o.orgName}</td>
+                        <td className="fw-semibold">{o.orgName}</td>
                         <td>
-                          <span className="badge badge-soft-secondary rounded-pill text-uppercase fs--2">
+                          <span className="badge bg-secondary-lt text-uppercase small">
                             {o.plan}
                           </span>
                         </td>
                         <td className="text-end">{o.evaluations.toLocaleString()}</td>
-                        <td className="text-end text-500">{o.tokensIn.toLocaleString()}</td>
-                        <td className="text-end text-500">{o.tokensOut.toLocaleString()}</td>
-                        <td className="text-end fw-semi-bold">{fmt$(o.costUsd)}</td>
-                        <td className="text-end text-500">{fmt$(o.costPerEval)}</td>
+                        <td className="text-end text-secondary">{o.tokensIn.toLocaleString()}</td>
+                        <td className="text-end text-secondary">{o.tokensOut.toLocaleString()}</td>
+                        <td className="text-end fw-semibold">{fmt$(o.costUsd)}</td>
+                        <td className="text-end text-secondary">{fmt$(o.costPerEval)}</td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-100 fw-bold text-900">
+                  <tfoot className="fw-bold">
                     <tr>
                       <td colSpan={2}>Total</td>
                       <td className="text-end">{totalEvals.toLocaleString()}</td>
@@ -279,20 +282,20 @@ export function AdminCostsPage() {
 
           {total > PAGE_SIZE && (
             <div className="card-footer d-flex justify-content-end align-items-center gap-2">
-              <span className="fs--1 text-600">{startItem}–{endItem} of {total}</span>
+              <span className="small text-secondary">{startItem}–{endItem} of {total}</span>
               <button
-                className="btn btn-sm btn-falcon-default"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={localPage === 0}
                 onClick={() => setLocalPage((p) => p - 1)}
               >
-                <span className="fas fa-chevron-left"></span>
+                <IconChevronLeft size={14} />
               </button>
               <button
-                className="btn btn-sm btn-falcon-default"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={endItem >= total}
                 onClick={() => setLocalPage((p) => p + 1)}
               >
-                <span className="fas fa-chevron-right"></span>
+                <IconChevronRight size={14} />
               </button>
             </div>
           )}

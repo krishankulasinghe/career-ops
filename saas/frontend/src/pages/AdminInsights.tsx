@@ -16,8 +16,8 @@ export function AdminInsightsPage() {
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
-                  <h5 className="mb-0">AI Admin Insights</h5>
-                  <p className="text-600 fs--1 mb-0">Scan anomalies, evaluation calibration, and batch optimization</p>
+                  <h5 className="card-title mb-0">AI Admin Insights</h5>
+                  <p className="text-secondary small mb-0">Scan anomalies, evaluation calibration, and batch optimization</p>
                 </div>
               </div>
             </div>
@@ -28,13 +28,13 @@ export function AdminInsightsPage() {
         {(scanAnomalies ?? []).length > 0 && (
           <div className="col-12">
             <div className="card mb-3 border-danger">
-              <div className="card-header bg-soft-danger">
-                <h5 className="mb-0 text-danger">⚠ Portal Scan Anomalies</h5>
+              <div className="card-header bg-danger-lt">
+                <h5 className="card-title mb-0 text-danger">Portal Scan Anomalies</h5>
               </div>
               <div className="card-body p-0">
                 <div className="table-responsive">
-                  <table className="table table-hover table-sm fs--1 mb-0">
-                    <thead className="bg-200 text-900">
+                  <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                    <thead>
                       <tr>
                         <th>Portal</th>
                         <th>Today</th>
@@ -45,10 +45,10 @@ export function AdminInsightsPage() {
                     <tbody>
                       {scanAnomalies!.map((a) => (
                         <tr key={a.portalId}>
-                          <td className="fw-semi-bold align-middle">{a.portalName}</td>
+                          <td className="fw-semibold align-middle">{a.portalName}</td>
                           <td className="text-danger align-middle">{a.todayCount}</td>
-                          <td className="text-600 align-middle">{a.movingAvg}</td>
-                          <td className="text-danger fw-semi-bold align-middle">−{a.dropPercent}%</td>
+                          <td className="text-secondary align-middle">{a.movingAvg}</td>
+                          <td className="text-danger fw-semibold align-middle">−{a.dropPercent}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -63,18 +63,18 @@ export function AdminInsightsPage() {
         <div className="col-12">
           <div className="card mb-3">
             <div className="card-header">
-              <h5 className="mb-0">Smart Dedup Suggestions</h5>
-              <p className="text-600 fs--2 mb-0">Applications with ≥85% company+role similarity</p>
+              <h5 className="card-title mb-0">Smart Dedup Suggestions</h5>
+              <p className="text-secondary small mb-0">Applications with ≥85% company+role similarity</p>
             </div>
             <div className="card-body p-0">
               {dedupLoading ? (
                 <div className="p-3"><LoadingSpinner /></div>
               ) : !(dedup ?? []).length ? (
-                <div className="text-center text-600 py-4 fs--1">No duplicates detected.</div>
+                <div className="text-center text-secondary py-4 small">No duplicates detected.</div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-hover table-sm fs--1 mb-0">
-                    <thead className="bg-200 text-900">
+                  <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                    <thead>
                       <tr>
                         <th>Application 1</th>
                         <th>Application 2</th>
@@ -85,15 +85,15 @@ export function AdminInsightsPage() {
                       {dedup!.map((d, i) => (
                         <tr key={i}>
                           <td className="align-middle">
-                            <div className="fw-semi-bold">{d.company1}</div>
-                            <div className="text-600 fs--2">{d.role1}</div>
+                            <div className="fw-semibold">{d.company1}</div>
+                            <div className="text-secondary small">{d.role1}</div>
                           </td>
                           <td className="align-middle">
-                            <div className="fw-semi-bold">{d.company2}</div>
-                            <div className="text-600 fs--2">{d.role2}</div>
+                            <div className="fw-semibold">{d.company2}</div>
+                            <div className="text-secondary small">{d.role2}</div>
                           </td>
                           <td className="align-middle">
-                            <span className={`badge ${d.similarity >= 0.95 ? 'badge-soft-danger' : 'badge-soft-warning'}`}>
+                            <span className={`badge ${d.similarity >= 0.95 ? 'bg-danger-lt' : 'bg-warning-lt'}`}>
                               {(d.similarity * 100).toFixed(0)}%
                             </span>
                           </td>
@@ -111,8 +111,8 @@ export function AdminInsightsPage() {
         <div className="col-12">
           <div className="card mb-3">
             <div className="card-header">
-              <h5 className="mb-0">Evaluation Quality Calibration</h5>
-              <p className="text-600 fs--2 mb-0">
+              <h5 className="card-title mb-0">Evaluation Quality Calibration</h5>
+              <p className="text-secondary small mb-0">
                 Correlation between AI scores and actual interview/offer outcomes. Flagged = calibration score &lt; 70%.
               </p>
             </div>
@@ -120,13 +120,13 @@ export function AdminInsightsPage() {
               {calLoading ? (
                 <div className="p-3"><LoadingSpinner /></div>
               ) : !(calibration ?? []).length ? (
-                <div className="text-center text-600 py-4 fs--1">
+                <div className="text-center text-secondary py-4 small">
                   Not enough data yet (need ≥3 evaluations per archetype with outcomes).
                 </div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-hover table-sm fs--1 mb-0">
-                    <thead className="bg-200 text-900">
+                  <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                    <thead>
                       <tr>
                         <th>Archetype</th>
                         <th>Evals</th>
@@ -139,7 +139,7 @@ export function AdminInsightsPage() {
                     <tbody>
                       {calibration!.map((c) => (
                         <tr key={c.archetype}>
-                          <td className="fw-semi-bold align-middle">
+                          <td className="fw-semibold align-middle">
                             {c.flag && <span className="text-danger me-1">⚑</span>}
                             {c.archetype}
                           </td>
@@ -147,7 +147,7 @@ export function AdminInsightsPage() {
                           <td className="align-middle">{c.avgScore}/5</td>
                           <td className="align-middle">{c.interviewRate}%</td>
                           <td className="align-middle">{c.offerRate}%</td>
-                          <td className={`align-middle fw-semi-bold ${c.calibrationScore >= 0.7 ? 'text-success' : 'text-danger'}`}>
+                          <td className={`align-middle fw-semibold ${c.calibrationScore >= 0.7 ? 'text-success' : 'text-danger'}`}>
                             {(c.calibrationScore * 100).toFixed(0)}%
                           </td>
                         </tr>
@@ -164,15 +164,15 @@ export function AdminInsightsPage() {
         <div className="col-12">
           <div className="card mb-3">
             <div className="card-header">
-              <h5 className="mb-0">Batch Size Recommendations</h5>
+              <h5 className="card-title mb-0">Batch Size Recommendations</h5>
             </div>
             <div className="card-body p-0">
               {!(batchOpt ?? []).length ? (
-                <div className="text-600 fs--1 p-3">No historical task data yet.</div>
+                <div className="text-secondary small p-3">No historical task data yet.</div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-hover table-sm fs--1 mb-0">
-                    <thead className="bg-200 text-900">
+                  <table className="table table-vcenter card-table table-hover table-sm small mb-0">
+                    <thead>
                       <tr>
                         <th>Provider</th>
                         <th>Recommended Batch</th>
@@ -184,10 +184,10 @@ export function AdminInsightsPage() {
                     <tbody>
                       {batchOpt!.map((b) => (
                         <tr key={b.provider}>
-                          <td className="fw-semi-bold align-middle">{b.provider}</td>
+                          <td className="fw-semibold align-middle">{b.provider}</td>
                           <td className="fw-bold text-primary align-middle">{b.recommendedBatchSize}</td>
                           <td className="align-middle">{b.observedAvgLatencyMs.toLocaleString()}ms</td>
-                          <td className="text-600 align-middle">{b.observedP95LatencyMs.toLocaleString()}ms</td>
+                          <td className="text-secondary align-middle">{b.observedP95LatencyMs.toLocaleString()}ms</td>
                           <td className="align-middle">{b.estimatedTPM}</td>
                         </tr>
                       ))}
