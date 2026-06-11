@@ -1,156 +1,91 @@
+import { Link } from 'react-router-dom';
+import { IconBell } from '@tabler/icons-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLogout } from '@/api/auth';
 
-interface HeaderProps {
-  title?: string;
-}
-
-export function Header({ title }: HeaderProps) {
-  const { user } = useAuthStore();
+export function Header() {
+  const { user, org } = useAuthStore();
   const logout = useLogout();
 
   return (
-    <>
-      <nav
-        className="navbar navbar-light navbar-glass fs--1 navbar-top sticky-kit navbar-expand"
-        id="navbarDefault"
-      >
+    <header className="navbar navbar-expand-md d-print-none">
+      <div className="container-xl">
         <button
-          className="btn navbar-toggler-humburger-icon me-1 mb-1 mt-1"
+          className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarVerticalCollapse"
-          aria-controls="navbarVerticalCollapse"
+          data-bs-target="#navbar-menu"
+          aria-controls="navbar-menu"
           aria-expanded="false"
-          aria-label="Toggle Navigation"
+          aria-label="Toggle navigation"
         >
-          <span className="navbar-toggle-icon">
-            <span className="toggle-line"></span>
-          </span>
+          <span className="navbar-toggler-icon"></span>
         </button>
 
-        <a className="navbar-brand me-1 me-sm-3" href="/">
-          <div className="d-flex align-items-center">
-            <span className="font-sans-serif">Career-Ops</span>
+        <h1 className="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+          <Link to="/" className="app-brand">
+            Career-Ops
+          </Link>
+          {org && (
+            <span className="ms-2 text-secondary small fw-normal">
+              {org.name}
+            </span>
+          )}
+        </h1>
+
+        <div className="navbar-nav flex-row order-md-last">
+          {/* Notifications */}
+          <div className="nav-item dropdown d-none d-md-flex me-3">
+            <a
+              href="#"
+              className="nav-link px-0"
+              data-bs-toggle="dropdown"
+              tabIndex={-1}
+              aria-label="Show notifications"
+              onClick={(e) => e.preventDefault()}
+            >
+              <IconBell size={20} />
+            </a>
+            <div className="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+              <div className="card-body">
+                <p className="text-secondary text-center mb-0 small">No notifications</p>
+              </div>
+            </div>
           </div>
-        </a>
 
-        <div className="collapse navbar-collapse scrollbar" id="navbarTopCollapse">
-          <ul className="navbar-nav scrollbar"></ul>
-
-          <ul className="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
-            {/* Dark mode toggle */}
-            <li className="nav-item">
-              <div className="theme-control-toggle fa-icon-wait px-2">
-                <input
-                  className="form-check-input ms-0 theme-control-toggle-input"
-                  id="themeControlToggle"
-                  type="checkbox"
-                  data-theme-control="theme"
-                  value="dark"
-                />
-                <label
-                  className="mb-0 theme-control-toggle-label theme-control-toggle-light"
-                  htmlFor="themeControlToggle"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="left"
-                  title="Switch to dark theme"
-                >
-                  <span className="fas fa-sun fs-0"></span>
-                </label>
-                <label
-                  className="mb-0 theme-control-toggle-label theme-control-toggle-dark"
-                  htmlFor="themeControlToggle"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="left"
-                  title="Switch to light theme"
-                >
-                  <span className="fas fa-moon fs-0"></span>
-                </label>
+          {/* User menu */}
+          <div className="nav-item dropdown">
+            <a
+              href="#"
+              className="nav-link d-flex lh-1 text-reset p-0"
+              data-bs-toggle="dropdown"
+              aria-label="Open user menu"
+              onClick={(e) => e.preventDefault()}
+            >
+              <span className="avatar avatar-sm">
+                {user?.fullName
+                  ? user.fullName.charAt(0).toUpperCase()
+                  : '?'}
+              </span>
+              <div className="d-none d-xl-block ps-2">
+                <div>{user?.fullName ?? 'User'}</div>
+                <div className="mt-1 small text-secondary">{user?.email}</div>
               </div>
-            </li>
-
-            {/* Notification bell */}
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link notification-indicator notification-indicator-primary px-0 fa-icon-wait"
-                id="navbarDropdownNotification"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
+            </a>
+            <div className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              <Link to="/profile" className="dropdown-item">Profile</Link>
+              <Link to="/settings" className="dropdown-item">Settings</Link>
+              <div className="dropdown-divider"></div>
+              <button
+                className="dropdown-item"
+                onClick={() => logout.mutate()}
               >
-                <span
-                  className="fas fa-bell"
-                  data-fa-transform="shrink-6"
-                  style={{ fontSize: '1.667em' }}
-                ></span>
-              </a>
-              <div
-                className="dropdown-menu dropdown-caret dropdown-menu-end dropdown-menu-card"
-                aria-labelledby="navbarDropdownNotification"
-              >
-                <div className="card card-body shadow-none">
-                  <p className="text-center mb-0">No notifications</p>
-                </div>
-              </div>
-            </li>
-
-            {/* User avatar dropdown */}
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link pe-0 ps-2"
-                id="navbarDropdownUser"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <div className="avatar avatar-xl">
-                  <img
-                    className="rounded-circle"
-                    src="/falcon/assets/img/team/avatar.png"
-                    alt={user?.fullName ?? 'User avatar'}
-                  />
-                </div>
-              </a>
-              <div
-                className="dropdown-menu dropdown-caret dropdown-menu-end py-0"
-                aria-labelledby="navbarDropdownUser"
-              >
-                <div className="bg-white dark__bg-1000 rounded-2 py-2">
-                  {user && (
-                    <div className="dropdown-item text-muted small">
-                      {user.fullName || user.email}
-                    </div>
-                  )}
-                  <a className="dropdown-item" href="/profile">
-                    Profile
-                  </a>
-                  <a className="dropdown-item" href="/settings">
-                    Settings
-                  </a>
-                  <div className="dropdown-divider"></div>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => logout.mutate()}
-                  >
-                    Sign out
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      {title && (
-        <div className="row g-3 mb-3">
-          <div className="col">
-            <h5 className="mb-0">{title}</h5>
+                Sign out
+              </button>
+            </div>
           </div>
         </div>
-      )}
-    </>
+      </div>
+    </header>
   );
 }
