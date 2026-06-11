@@ -1,31 +1,39 @@
+import type { ComponentType } from 'react';
+import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
+
 interface KPICardProps {
   title: string;
   value: string | number;
   change?: { value: number; positive: boolean };
-  icon?: string;
-  color?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  Icon?: ComponentType<{ size?: number; stroke?: number; className?: string }>;
+  color?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'green' | 'red' | 'yellow' | 'blue';
 }
 
-export function KPICard({ title, value, change, icon, color = 'primary' }: KPICardProps) {
+export function KPICard({ title, value, change, Icon, color = 'primary' }: KPICardProps) {
   return (
-    <div className="card h-100">
+    <div className="card card-sm">
       <div className="card-body">
-        <div className="row align-items-center g-0">
-          <div className="col">
-            <h6 className="text-700 mb-1">{title}</h6>
-            <h4 className="fw-bold mb-2">{value}</h4>
-            {change && (
-              <span className={`badge badge-soft-${change.positive ? 'success' : 'danger'} rounded-pill`}>
-                <span className={`fas fa-caret-${change.positive ? 'up' : 'down'} me-1`}></span>
-                {Math.abs(change.value)}%
+        <div className="row align-items-center">
+          <div className="col-auto">
+            {Icon && (
+              <span className={`avatar bg-${color}-lt text-${color}`}>
+                <Icon size={20} stroke={2} />
               </span>
             )}
           </div>
-          {icon && (
-            <div className="col-auto ps-3">
-              <div className={`icon-circle icon-circle-${color}`}>
-                <span className={`${icon} text-${color}`}></span>
-              </div>
+          <div className="col">
+            <div className="font-weight-medium">{value}</div>
+            <div className="text-secondary">{title}</div>
+          </div>
+          {change && (
+            <div className="col-auto">
+              <span className={`text-${change.positive ? 'green' : 'red'} d-inline-flex align-items-center lh-1`}>
+                {change.positive
+                  ? <IconTrendingUp size={16} stroke={2} className="me-1" />
+                  : <IconTrendingDown size={16} stroke={2} className="me-1" />
+                }
+                {Math.abs(change.value)}%
+              </span>
             </div>
           )}
         </div>

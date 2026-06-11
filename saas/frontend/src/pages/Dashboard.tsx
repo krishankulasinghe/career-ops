@@ -7,6 +7,14 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { useDashboardStats } from '@/api/evaluations';
 import { useApplications } from '@/api/applications';
 import { useFunnel } from '@/api/analytics';
+import {
+  IconBriefcase,
+  IconStar,
+  IconChartLine,
+  IconLayoutKanban,
+  IconChartBar,
+  IconChartDonut,
+} from '@tabler/icons-react';
 
 const STATUS_ORDER = ['Evaluated', 'Applied', 'Interview', 'Offer', 'Rejected'];
 
@@ -83,7 +91,7 @@ export function DashboardPage() {
               <KPICard
                 title="Total Applications"
                 value={stats?.total ?? 0}
-                icon="fas fa-briefcase"
+                Icon={IconBriefcase}
                 color="primary"
               />
             </div>
@@ -91,7 +99,7 @@ export function DashboardPage() {
               <KPICard
                 title="Evaluations Done"
                 value={stats?.pendingEvals ?? 0}
-                icon="fas fa-star"
+                Icon={IconStar}
                 color="success"
               />
             </div>
@@ -99,7 +107,7 @@ export function DashboardPage() {
               <KPICard
                 title="Avg Score"
                 value={stats?.avgScore ? `${stats.avgScore}/5` : '—'}
-                icon="fas fa-chart-line"
+                Icon={IconChartLine}
                 color="info"
               />
             </div>
@@ -107,7 +115,7 @@ export function DashboardPage() {
               <KPICard
                 title="Active Pipeline"
                 value={stats?.conversionRate !== undefined ? `${stats.conversionRate}%` : '—'}
-                icon="fas fa-stream"
+                Icon={IconLayoutKanban}
                 color="warning"
               />
             </div>
@@ -125,7 +133,7 @@ export function DashboardPage() {
                     <EmptyState
                       title="No data yet"
                       description="Start evaluating offers to see your pipeline."
-                      icon="fas fa-chart-bar"
+                      Icon={IconChartBar}
                     />
                   ) : (
                     <ReactECharts option={barOption} style={{ height: 300 }} />
@@ -144,7 +152,7 @@ export function DashboardPage() {
                     <EmptyState
                       title="No scores yet"
                       description="Evaluated applications will appear here."
-                      icon="fas fa-chart-pie"
+                      Icon={IconChartDonut}
                     />
                   ) : (
                     <ReactECharts option={pieOption} style={{ height: 300 }} />
@@ -181,15 +189,15 @@ export function DashboardPage() {
                         <td className="text-700">{app.role}</td>
                         <td>
                           {app.score ? (
-                            <span className="badge badge-soft-primary rounded-pill">{app.score}/5</span>
+                            <span className="badge bg-primary-lt">{app.score}/5</span>
                           ) : (
-                            <span className="text-500">—</span>
+                            <span className="text-secondary">—</span>
                           )}
                         </td>
                         <td>
                           <StatusBadge status={app.status} />
                         </td>
-                        <td className="text-500 fs--2">{app.date}</td>
+                        <td className="text-secondary">{app.date}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -198,7 +206,7 @@ export function DashboardPage() {
                 <EmptyState
                   title="No applications yet"
                   description="Paste a job URL to start your first evaluation."
-                  icon="fas fa-briefcase"
+                  Icon={IconBriefcase}
                 />
               )}
             </div>

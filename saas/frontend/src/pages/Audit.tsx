@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { IconSearch } from '@tabler/icons-react';
 
 interface AuditEntry {
   id: string;
@@ -98,7 +99,7 @@ export function AuditPage() {
             </div>
           ) : total === 0 ? (
             <EmptyState
-              icon="🔍"
+              Icon={IconSearch}
               title="No audit entries"
               description="Audit events will appear here as actions are performed."
             />

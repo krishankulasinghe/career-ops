@@ -8,6 +8,13 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { useDailySpend, useOrgCosts, useProviderBreakdown, useModelBreakdown, useAnomalies } from '@/api/adminCosts';
+import {
+  IconCurrencyDollar,
+  IconRobot,
+  IconCpu,
+  IconChartLine,
+  IconCoins,
+} from '@tabler/icons-react';
 
 const PIE_COLORS = ['#5d9cec', '#f97316', '#22c55e', '#a855f7', '#ef4444', '#eab308'];
 const PAGE_SIZE = 25;
@@ -76,7 +83,7 @@ export function AdminCostsPage() {
             <KPICard
               title="Total Spend"
               value={fmt$(totalSpend)}
-              icon="fas fa-dollar-sign"
+              Icon={IconCurrencyDollar}
               color="danger"
             />
           </div>
@@ -84,7 +91,7 @@ export function AdminCostsPage() {
             <KPICard
               title="Evaluations"
               value={totalEvals.toLocaleString()}
-              icon="fas fa-robot"
+              Icon={IconRobot}
               color="primary"
             />
           </div>
@@ -92,7 +99,7 @@ export function AdminCostsPage() {
             <KPICard
               title="Total Tokens"
               value={(totalTokensIn + totalTokensOut).toLocaleString()}
-              icon="fas fa-microchip"
+              Icon={IconCpu}
               color="info"
             />
           </div>
@@ -100,7 +107,7 @@ export function AdminCostsPage() {
             <KPICard
               title="Forecast EOM"
               value={fmt$(daily?.forecastEOM ?? 0)}
-              icon="fas fa-chart-line"
+              Icon={IconChartLine}
               color="warning"
             />
           </div>
@@ -218,7 +225,7 @@ export function AdminCostsPage() {
               </div>
             ) : total === 0 ? (
               <EmptyState
-                icon="💰"
+                Icon={IconCoins}
                 title="No cost data"
                 description="AI usage costs will appear here once evaluations are run."
               />

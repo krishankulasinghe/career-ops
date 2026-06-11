@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useApplications, useDeleteApplication, useImportApplications, useCreateApplication } from '@/api/applications';
 import toast from 'react-hot-toast';
+import { IconList } from '@tabler/icons-react';
 
 const STATUSES = ['Evaluated', 'Applied', 'Responded', 'Interview', 'Offer', 'Rejected', 'Discarded', 'SKIP'];
 const PAGE_SIZE = 25;
@@ -92,7 +93,7 @@ export function ApplicationsPage() {
         <LoadingSpinner />
       ) : total === 0 && !search && !status ? (
         <EmptyState
-          icon="📋"
+          Icon={IconList}
           title="No applications yet"
           description="Start by evaluating a job posting or importing your existing data."
           action={<button className="btn btn-primary" onClick={() => setShowImport(true)}>Import applications.md</button>}

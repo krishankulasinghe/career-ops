@@ -6,7 +6,7 @@ interface ScoreGaugeProps {
 }
 
 export function ScoreGauge({ score, size = 200 }: ScoreGaugeProps) {
-  const color = score >= 4 ? '#00d27a' : score >= 2.5 ? '#f5803e' : '#e63757';
+  const color = score >= 4 ? '#2fb344' : score >= 2.5 ? '#f76707' : '#d63939';
 
   const option = {
     series: [

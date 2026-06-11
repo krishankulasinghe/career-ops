@@ -1,21 +1,27 @@
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+import { IconInbox } from '@tabler/icons-react';
 
 interface EmptyStateProps {
   title: string;
   description?: string;
-  icon?: string;
+  Icon?: ComponentType<{ size?: number; stroke?: number; className?: string }>;
   action?: ReactNode;
 }
 
-export function EmptyState({ title, description, icon = 'fas fa-box-open', action }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  Icon = IconInbox,
+  action,
+}: EmptyStateProps) {
   return (
-    <div className="text-center py-6">
-      <div className="mb-3">
-        <span className={`${icon} fs-2 text-300`}></span>
+    <div className="empty">
+      <div className="empty-icon">
+        <Icon size={48} stroke={1} className="text-secondary" />
       </div>
-      <h5 className="text-700">{title}</h5>
-      {description && <p className="text-500 fs--1 mb-3">{description}</p>}
-      {action}
+      <p className="empty-title">{title}</p>
+      {description && <p className="empty-subtitle text-secondary">{description}</p>}
+      {action && <div className="empty-action">{action}</div>}
     </div>
   );
 }

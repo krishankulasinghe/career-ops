@@ -3,17 +3,17 @@ interface StatusBadgeProps {
 }
 
 const statusBadgeClasses: Record<string, string> = {
-  Evaluated: 'badge-soft-secondary',
-  Applied: 'badge-soft-info',
-  Responded: 'badge-soft-primary',
-  Interview: 'badge-soft-warning',
-  Offer: 'badge-soft-success',
-  Rejected: 'badge-soft-danger',
-  Discarded: 'badge-soft-secondary',
-  SKIP: 'badge-soft-light',
+  Evaluated:  'bg-secondary-lt',
+  Applied:    'bg-blue-lt text-blue',
+  Responded:  'bg-teal-lt text-teal',
+  Interview:  'bg-yellow-lt text-yellow',
+  Offer:      'bg-green-lt text-green',
+  Rejected:   'bg-red-lt text-red',
+  Discarded:  'bg-secondary-lt',
+  SKIP:       'bg-secondary-lt',
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const badgeClass = statusBadgeClasses[status] ?? 'badge-soft-secondary';
-  return <span className={`badge rounded-pill ${badgeClass}`}>{status}</span>;
+  const badgeClass = statusBadgeClasses[status] ?? 'bg-secondary-lt';
+  return <span className={`badge ${badgeClass}`}>{status}</span>;
 }
