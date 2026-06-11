@@ -22,7 +22,7 @@ export function Header() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <h1 className="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+        <div className="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
           <Link to="/" className="app-brand">
             Career-Ops
           </Link>
@@ -31,7 +31,7 @@ export function Header() {
               {org.name}
             </span>
           )}
-        </h1>
+        </div>
 
         <div className="navbar-nav flex-row order-md-last">
           {/* Notifications */}
@@ -40,7 +40,6 @@ export function Header() {
               href="#"
               className="nav-link px-0"
               data-bs-toggle="dropdown"
-              tabIndex={-1}
               aria-label="Show notifications"
               onClick={(e) => e.preventDefault()}
             >
