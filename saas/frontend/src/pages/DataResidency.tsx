@@ -62,7 +62,7 @@ export function DataResidencyPage() {
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">Data Residency</h5>
-                  <p className="text-600 fs--1 mb-0">Choose the region where your organization's data is stored and processed</p>
+                  <p className="text-secondary small mb-0">Choose the region where your organization's data is stored and processed</p>
                 </div>
               </div>
             </div>
@@ -75,20 +75,20 @@ export function DataResidencyPage() {
               <h5 className="mb-0">Region Selection</h5>
             </div>
             <div className="card-body">
-              <p className="text-600 fs--1 mb-3">
+              <p className="text-secondary small mb-3">
                 Choose the AWS region where your organization's data is stored and processed.
                 This affects your database, Redis, and file storage locations.
                 Requires <strong>Team or Enterprise</strong> plan.
               </p>
 
               {isLoading ? (
-                <div className="text-center text-600 py-4">Loading…</div>
+                <div className="text-center text-secondary py-4">Loading…</div>
               ) : (
                 <div className="d-flex flex-column gap-3">
                   {(data?.availableRegions ?? []).map((r) => (
                     <label
                       key={r.value}
-                      className={`d-flex align-items-center gap-3 p-3 rounded border-2 border cursor-pointer ${selected === r.value ? 'border-primary bg-soft-primary' : 'border'}`}
+                      className={`d-flex align-items-center gap-3 p-3 rounded border cursor-pointer ${selected === r.value ? 'border-primary bg-primary-lt' : ''}`}
                       style={{ cursor: 'pointer', transition: 'border-color 0.15s' }}
                     >
                       <input
@@ -101,22 +101,22 @@ export function DataResidencyPage() {
                       />
                       <span style={{ fontSize: 22 }}>{REGION_FLAGS[r.value] ?? '🌐'}</span>
                       <div className="flex-1">
-                        <div className="fw-semi-bold">{r.label}</div>
-                        <div className="font-monospace text-600 fs--2">{r.value}</div>
+                        <div className="fw-medium">{r.label}</div>
+                        <div className="font-monospace text-secondary small">{r.value}</div>
                         {r.value === 'eu-west-1' && (
-                          <div className="text-success fs--2 mt-1">GDPR compliant — data never leaves the EU</div>
+                          <div className="text-success small mt-1">GDPR compliant — data never leaves the EU</div>
                         )}
                       </div>
                       {data?.region === r.value && (
-                        <span className="badge badge-soft-success ms-auto">Current</span>
+                        <span className="badge bg-success-lt ms-auto">Current</span>
                       )}
                     </label>
                   ))}
 
                   {hasChanged && (
                     <div className="alert alert-warning mb-0" role="alert">
-                      <div className="fw-semi-bold mb-2">⚠ Region change requires data migration</div>
-                      <p className="fs--1 mb-3">
+                      <div className="fw-medium mb-2">⚠ Region change requires data migration</div>
+                      <p className="small mb-3">
                         Changing your data residency region will migrate all your data to the new region.
                         This process takes 1–4 hours and requires a maintenance window.
                         Your team will receive an email confirmation before migration begins.
@@ -129,7 +129,7 @@ export function DataResidencyPage() {
                           checked={confirmed}
                           onChange={(e) => setConfirmed(e.target.checked)}
                         />
-                        <label className="form-check-label fs--1" htmlFor="confirmMigration">
+                        <label className="form-check-label small" htmlFor="confirmMigration">
                           I understand data migration is required and have informed my team
                         </label>
                       </div>
@@ -157,7 +157,7 @@ export function DataResidencyPage() {
                 <h5 className="mb-0">Current Configuration</h5>
               </div>
               <div className="card-body p-0">
-                <table className="table table-sm fs--1 mb-0">
+                <table className="table table-sm small mb-0">
                   <tbody>
                     {([
                       ['Region', `${REGION_FLAGS[data.region] ?? '🌐'} ${data.label}`],
@@ -166,7 +166,7 @@ export function DataResidencyPage() {
                       ['Locked Since', data.lockedAt ? new Date(data.lockedAt).toLocaleDateString() : 'Not locked'],
                     ] as [string, string][]).map(([key, val]) => (
                       <tr key={key}>
-                        <td className="text-600 fw-semi-bold py-2 px-3" style={{ width: 160 }}>{key}</td>
+                        <td className="text-secondary fw-medium py-2 px-3" style={{ width: 160 }}>{key}</td>
                         <td className={`py-2 px-3 ${key === 'Region ID' || key === 'API Endpoint' ? 'font-monospace' : ''}`}>
                           {val}
                         </td>

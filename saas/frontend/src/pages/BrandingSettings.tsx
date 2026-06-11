@@ -47,14 +47,14 @@ export function BrandingSettingsPage() {
 
   return (
     <Layout title="White-Label Branding">
-      <div className="row g-3">
+      <div className="row row-deck row-cards">
         <div className="col-12">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">White-Label Branding</h5>
-                  <p className="text-600 fs--1 mb-0">Customize the look and feel of your Career-Ops instance</p>
+                  <p className="text-secondary small mb-0">Customize the look and feel of your Career-Ops instance</p>
                 </div>
               </div>
             </div>
@@ -63,7 +63,7 @@ export function BrandingSettingsPage() {
 
         {/* Settings form */}
         <div className="col-lg-8">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <h5 className="mb-0">Brand Identity</h5>
             </div>
@@ -73,7 +73,7 @@ export function BrandingSettingsPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Logo URL</label>
+                <label className="form-label fw-medium">Logo URL</label>
                 <input
                   className="form-control"
                   type="url"
@@ -85,13 +85,14 @@ export function BrandingSettingsPage() {
 
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-semi-bold">Primary Color</label>
+                  <label className="form-label fw-medium">Primary Color</label>
                   <div className="d-flex gap-2 align-items-center">
                     <input
                       type="color"
+                      className="form-control form-control-color"
                       value={form.primaryColor ?? '#5d9cec'}
                       onChange={(e) => setForm((f) => ({ ...f, primaryColor: e.target.value }))}
-                      style={{ width: 40, height: 38, cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+                      title="Primary color"
                     />
                     <input
                       className="form-control font-monospace"
@@ -101,13 +102,14 @@ export function BrandingSettingsPage() {
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semi-bold">Secondary Color</label>
+                  <label className="form-label fw-medium">Secondary Color</label>
                   <div className="d-flex gap-2 align-items-center">
                     <input
                       type="color"
+                      className="form-control form-control-color"
                       value={form.secondaryColor ?? '#2b2d42'}
                       onChange={(e) => setForm((f) => ({ ...f, secondaryColor: e.target.value }))}
-                      style={{ width: 40, height: 38, cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+                      title="Secondary color"
                     />
                     <input
                       className="form-control font-monospace"
@@ -119,7 +121,7 @@ export function BrandingSettingsPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Font Family</label>
+                <label className="form-label fw-medium">Font Family</label>
                 <select
                   className="form-select"
                   value={form.fontFamily ?? 'Inter'}
@@ -130,7 +132,7 @@ export function BrandingSettingsPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Login Background URL</label>
+                <label className="form-label fw-medium">Login Background URL</label>
                 <input
                   className="form-control"
                   type="url"
@@ -141,32 +143,31 @@ export function BrandingSettingsPage() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Custom Domain</label>
+                <label className="form-label fw-medium">Custom Domain</label>
                 <input
                   className="form-control"
                   value={form.customDomain ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, customDomain: e.target.value }))}
                   placeholder="careers.yourcompany.com"
                 />
-                <small className="form-text text-500">
+                <small className="form-hint">
                   Add a CNAME record pointing to your Career-Ops instance. Let's Encrypt TLS auto-provisioned.
                 </small>
               </div>
-
-              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                <button className="btn btn-primary" onClick={() => save.mutate(form)} disabled={save.isPending}>
-                  {save.isPending ? 'Saving…' : 'Save Branding'}
-                </button>
-              </div>
+            </div>
+            <div className="card-footer d-flex justify-content-end">
+              <button className="btn btn-primary" onClick={() => save.mutate(form)} disabled={save.isPending}>
+                {save.isPending ? 'Saving…' : 'Save Branding'}
+              </button>
             </div>
           </div>
         </div>
 
         {/* Live Preview */}
         <div className="col-lg-4">
-          <div className="card mb-3">
-            <div className="card-header bg-200">
-              <h6 className="mb-0 text-600">Live Preview</h6>
+          <div className="card">
+            <div className="card-header">
+              <h6 className="mb-0 text-secondary">Live Preview</h6>
             </div>
             <div
               className="card-body p-0 overflow-hidden"
@@ -189,7 +190,7 @@ export function BrandingSettingsPage() {
                 )}
                 <div className="mb-3" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>Dashboard Preview</div>
                 <div className="rounded p-3 mb-3" style={{ background: 'rgba(0,0,0,0.2)' }}>
-                  <div className="text-white fw-semi-bold mb-2">Applications</div>
+                  <div className="text-white fw-medium mb-2">Applications</div>
                   <div className="d-flex gap-2 flex-wrap">
                     {['Evaluated', 'Applied', 'Interview'].map((s) => (
                       <span

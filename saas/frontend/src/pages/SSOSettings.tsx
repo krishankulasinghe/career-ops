@@ -88,14 +88,14 @@ export function SSOSettingsPage() {
 
   return (
     <Layout title="SSO Configuration">
-      <div className="row g-3">
+      <div className="row row-deck row-cards">
         <div className="col-12">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">SSO Configuration</h5>
-                  <p className="text-600 fs--1 mb-0">Configure Single Sign-On for your organization</p>
+                  <p className="text-secondary small mb-0">Configure Single Sign-On for your organization</p>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ export function SSOSettingsPage() {
               <h5 className="mb-0">Protocol</h5>
             </div>
             <div className="card-body">
-              <p className="text-600 fs--1 mb-3">
+              <p className="text-secondary small mb-3">
                 Gated to Team and Enterprise plans. Supports OIDC (Okta, Auth0, Google Workspace) and SAML 2.0.
               </p>
               <div className="d-flex gap-2">
@@ -126,7 +126,7 @@ export function SSOSettingsPage() {
                   <button
                     key={p}
                     type="button"
-                    className={`btn ${form.protocol === p ? 'btn-primary' : 'btn-falcon-default'}`}
+                    className={`btn ${form.protocol === p ? 'btn-primary' : 'btn-outline-secondary'}`}
                     onClick={() => setForm((f) => ({ ...f, protocol: p }))}
                   >
                     {p.toUpperCase()}
@@ -144,7 +144,7 @@ export function SSOSettingsPage() {
               </div>
               <div className="card-body">
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">Issuer URL</label>
+                  <label className="form-label fw-medium">Issuer URL</label>
                   <input
                     className="form-control"
                     value={form.issuer}
@@ -153,7 +153,7 @@ export function SSOSettingsPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">Client ID</label>
+                  <label className="form-label fw-medium">Client ID</label>
                   <input
                     className="form-control"
                     value={form.clientId}
@@ -161,15 +161,17 @@ export function SSOSettingsPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">Client Secret</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={form.clientSecret}
-                    onChange={(e) => setForm((f) => ({ ...f, clientSecret: e.target.value }))}
-                    placeholder={config?.hasClientSecret ? '(saved — leave blank to keep)' : 'Enter client secret'}
-                    autoComplete="new-password"
-                  />
+                  <label className="form-label fw-medium">Client Secret</label>
+                  <div className="input-group input-group-flat">
+                    <input
+                      type="password"
+                      className="form-control"
+                      value={form.clientSecret}
+                      onChange={(e) => setForm((f) => ({ ...f, clientSecret: e.target.value }))}
+                      placeholder={config?.hasClientSecret ? '(saved — leave blank to keep)' : 'Enter client secret'}
+                      autoComplete="new-password"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -183,7 +185,7 @@ export function SSOSettingsPage() {
               </div>
               <div className="card-body">
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">IdP Metadata URL</label>
+                  <label className="form-label fw-medium">IdP Metadata URL</label>
                   <input
                     className="form-control"
                     value={form.idpMetadataUrl}
@@ -192,7 +194,7 @@ export function SSOSettingsPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">SP Entity ID</label>
+                  <label className="form-label fw-medium">SP Entity ID</label>
                   <input
                     className="form-control"
                     value={form.entityId}
@@ -210,8 +212,8 @@ export function SSOSettingsPage() {
                 <h5 className="mb-0">Callback URL</h5>
               </div>
               <div className="card-body">
-                <label className="form-label fw-semi-bold">ACS / Callback URL (configure in your IdP)</label>
-                <input className="form-control text-600" readOnly value={config.acsUrl} />
+                <label className="form-label fw-medium">ACS / Callback URL (configure in your IdP)</label>
+                <input className="form-control text-secondary" readOnly value={config.acsUrl} />
               </div>
             </div>
           )}
@@ -241,7 +243,7 @@ export function SSOSettingsPage() {
           </div>
 
           <div className="d-flex justify-content-end gap-2 mt-2">
-            <button className="btn btn-falcon-default" onClick={handleSave} disabled={save.isPending}>
+            <button className="btn btn-outline-secondary" onClick={handleSave} disabled={save.isPending}>
               {save.isPending ? 'Saving…' : 'Save Config'}
             </button>
             {config && !config.isActive && (

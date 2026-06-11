@@ -4,6 +4,20 @@ import { Layout } from '@/components/layout/Layout';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { useProfile, useUpdateProfile, useCvs, useUpdateCv, useCreateCv } from '@/api/profile';
 import toast from 'react-hot-toast';
+import {
+  IconUser,
+  IconTarget,
+  IconCurrencyDollar,
+  IconPencil,
+  IconFileText,
+  IconDeviceFloppy,
+  IconMapPin,
+  IconBrandLinkedin,
+  IconBrandGithub,
+  IconWorld,
+  IconUpload,
+  IconPlus,
+} from '@tabler/icons-react';
 
 type Tab = 'identity' | 'roles' | 'compensation' | 'narrative' | 'cvs';
 
@@ -85,12 +99,12 @@ export function ProfilePage() {
 
   if (isLoading) return <Layout><LoadingSpinner /></Layout>;
 
-  const tabs: { key: Tab; label: string; icon: string }[] = [
-    { key: 'identity', label: 'Identity', icon: 'fas fa-user' },
-    { key: 'roles', label: 'Target Roles', icon: 'fas fa-bullseye' },
-    { key: 'compensation', label: 'Compensation', icon: 'fas fa-dollar-sign' },
-    { key: 'narrative', label: 'Narrative', icon: 'fas fa-pen' },
-    { key: 'cvs', label: 'CVs', icon: 'fas fa-file-alt' },
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: 'identity', label: 'Identity', icon: <IconUser size={16} /> },
+    { key: 'roles', label: 'Target Roles', icon: <IconTarget size={16} /> },
+    { key: 'compensation', label: 'Compensation', icon: <IconCurrencyDollar size={16} /> },
+    { key: 'narrative', label: 'Narrative', icon: <IconPencil size={16} /> },
+    { key: 'cvs', label: 'CVs', icon: <IconFileText size={16} /> },
   ];
 
   const initials = (profile?.fullName ?? 'U')
@@ -108,16 +122,16 @@ export function ProfilePage() {
           <div className="card mb-3">
             <div className="card-body text-center">
               <div
-                className="rounded-circle d-inline-flex align-items-center justify-content-center bg-soft-primary text-primary fw-bold mb-3"
-                style={{ width: 80, height: 80, fontSize: 28 }}
+                className="avatar avatar-xl mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary-lt text-primary fw-bold"
+                style={{ width: 80, height: 80, fontSize: 28, borderRadius: '50%' }}
               >
                 {initials}
               </div>
               <h5 className="mb-1">{profile?.fullName || 'Your Name'}</h5>
-              <p className="fs--1 text-500 mb-2">{profile?.emailContact || 'email@example.com'}</p>
+              <p className="text-secondary mb-2 small">{profile?.emailContact || 'email@example.com'}</p>
               {profile?.location && (
-                <p className="fs--2 text-400 mb-0">
-                  <span className="fas fa-map-marker-alt me-1" />
+                <p className="text-muted mb-0 small">
+                  <IconMapPin size={14} className="me-1" />
                   {profile.location}
                 </p>
               )}
@@ -131,31 +145,31 @@ export function ProfilePage() {
             <div className="card-body p-0">
               <ul className="list-group list-group-flush">
                 {profile?.linkedinUrl && (
-                  <li className="list-group-item fs--1">
-                    <span className="fab fa-linkedin text-primary me-2" />
+                  <li className="list-group-item small">
+                    <IconBrandLinkedin size={14} className="text-primary me-2" />
                     <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-truncate d-inline-block" style={{ maxWidth: 180 }}>
                       LinkedIn
                     </a>
                   </li>
                 )}
                 {profile?.githubUrl && (
-                  <li className="list-group-item fs--1">
-                    <span className="fab fa-github me-2" />
+                  <li className="list-group-item small">
+                    <IconBrandGithub size={14} className="me-2" />
                     <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">
                       GitHub
                     </a>
                   </li>
                 )}
                 {profile?.portfolioUrl && (
-                  <li className="list-group-item fs--1">
-                    <span className="fas fa-globe text-success me-2" />
+                  <li className="list-group-item small">
+                    <IconWorld size={14} className="text-success me-2" />
                     <a href={profile.portfolioUrl} target="_blank" rel="noopener noreferrer">
                       Portfolio
                     </a>
                   </li>
                 )}
                 {!profile?.linkedinUrl && !profile?.githubUrl && !profile?.portfolioUrl && (
-                  <li className="list-group-item fs--1 text-500">No links added yet.</li>
+                  <li className="list-group-item small text-secondary">No links added yet.</li>
                 )}
               </ul>
             </div>
@@ -171,7 +185,7 @@ export function ProfilePage() {
                   {profile.targetRoles.map((r, i) => (
                     <span
                       key={i}
-                      className={`badge ${r.fit === 'primary' ? 'badge-soft-primary' : 'badge-soft-secondary'}`}
+                      className={`badge ${r.fit === 'primary' ? 'bg-primary-lt' : 'bg-secondary-lt'}`}
                     >
                       {r.title}
                     </span>
@@ -194,7 +208,7 @@ export function ProfilePage() {
                   type="button"
                   role="tab"
                 >
-                  <span className={`${t.icon} me-1`} />
+                  <span className="me-1">{t.icon}</span>
                   {t.label}
                 </button>
               </li>
@@ -231,10 +245,12 @@ export function ProfilePage() {
                       </div>
                     ))}
                   </div>
-                  <button type="submit" className="btn btn-primary" disabled={updateProfile.isPending}>
-                    <span className="fas fa-save me-1" />
-                    {updateProfile.isPending ? 'Saving…' : 'Save Changes'}
-                  </button>
+                  <div className="form-footer">
+                    <button type="submit" className="btn btn-primary" disabled={updateProfile.isPending}>
+                      <IconDeviceFloppy size={16} className="me-1" />
+                      {updateProfile.isPending ? 'Saving…' : 'Save Changes'}
+                    </button>
+                  </div>
                 </form>
               )}
 
@@ -257,7 +273,7 @@ export function ProfilePage() {
                       }}
                     />
                     <button
-                      className="btn btn-falcon-default"
+                      className="btn btn-outline-secondary"
                       type="button"
                       onClick={() => {
                         if (!roleInput.trim()) return;
@@ -273,7 +289,7 @@ export function ProfilePage() {
                     {profile?.targetRoles?.map((r, i) => (
                       <span
                         key={i}
-                        className={`badge badge-soft-${r.fit === 'primary' ? 'primary' : 'secondary'} d-inline-flex align-items-center gap-1 fs--1`}
+                        className={`badge ${r.fit === 'primary' ? 'bg-primary-lt' : 'bg-secondary-lt'} d-inline-flex align-items-center gap-1`}
                       >
                         {r.title}
                         <button
@@ -289,7 +305,7 @@ export function ProfilePage() {
                       </span>
                     ))}
                     {!profile?.targetRoles?.length && (
-                      <p className="text-500 fs--1">No target roles added yet.</p>
+                      <p className="text-secondary small">No target roles added yet.</p>
                     )}
                   </div>
                 </div>
@@ -341,10 +357,12 @@ export function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <button type="submit" className="btn btn-primary" disabled={updateProfile.isPending}>
-                    <span className="fas fa-save me-1" />
-                    Save
-                  </button>
+                  <div className="form-footer">
+                    <button type="submit" className="btn btn-primary" disabled={updateProfile.isPending}>
+                      <IconDeviceFloppy size={16} className="me-1" />
+                      Save
+                    </button>
+                  </div>
                 </form>
               )}
 
@@ -380,18 +398,18 @@ export function ProfilePage() {
                     {cvList?.map((cv) => (
                       <button
                         key={cv.id}
-                        className={`btn btn-sm ${selectedCvId === cv.id ? 'btn-primary' : 'btn-falcon-default'}`}
+                        className={`btn btn-sm ${selectedCvId === cv.id ? 'btn-primary' : 'btn-outline-secondary'}`}
                         onClick={() => { setSelectedCvId(cv.id); setCvContent(cv.contentMd); setCvName(cv.name); }}
                       >
                         {cv.name}
-                        {cv.isPrimary && <span className="ms-1 badge badge-soft-warning fs--2">Primary</span>}
+                        {cv.isPrimary && <span className="ms-1 badge bg-warning-lt">Primary</span>}
                       </button>
                     ))}
                     <button
-                      className="btn btn-sm btn-falcon-default"
+                      className="btn btn-sm btn-outline-secondary"
                       onClick={() => { setSelectedCvId(''); setCvContent(''); setCvName('New CV'); }}
                     >
-                      <span className="fas fa-plus me-1" />
+                      <IconPlus size={14} className="me-1" />
                       New CV
                     </button>
                   </div>
@@ -410,12 +428,12 @@ export function ProfilePage() {
                     <label className="form-label">Upload CV file</label>
                     <div
                       {...getRootProps()}
-                      className={`dropzone border-dashed rounded-2 p-3 text-center ${isDragActive ? 'bg-soft-primary border-primary' : 'bg-soft-secondary'}`}
-                      style={{ cursor: 'pointer', borderWidth: 2, borderStyle: 'dashed' }}
+                      className={`rounded-2 p-3 text-center ${isDragActive ? 'bg-primary-lt border-primary' : 'bg-light'}`}
+                      style={{ cursor: 'pointer', borderWidth: 2, borderStyle: 'dashed', border: '2px dashed var(--tblr-border-color)' }}
                     >
                       <input {...getInputProps()} />
-                      <span className="fas fa-upload fs-2 text-400 mb-2 d-block" />
-                      <p className="fs--1 text-600 mb-0">
+                      <IconUpload size={32} className="text-muted mb-2 d-block mx-auto" />
+                      <p className="small text-secondary mb-0">
                         {isDragActive ? 'Drop CV here…' : 'Drag & drop CV (.md) or click to browse'}
                       </p>
                     </div>
@@ -424,7 +442,7 @@ export function ProfilePage() {
                   <div className="mb-3">
                     <label className="form-label">Content (Markdown)</label>
                     <textarea
-                      className="form-control font-monospace fs--2"
+                      className="form-control font-monospace"
                       rows={20}
                       value={cvContent}
                       onChange={(e) => setCvContent(e.target.value)}
@@ -432,14 +450,16 @@ export function ProfilePage() {
                     />
                   </div>
 
-                  <button
-                    className="btn btn-primary"
-                    onClick={handleSaveCv}
-                    disabled={updateCv.isPending || createCv.isPending}
-                  >
-                    <span className="fas fa-save me-1" />
-                    {updateCv.isPending || createCv.isPending ? 'Saving…' : 'Save CV'}
-                  </button>
+                  <div className="form-footer">
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleSaveCv}
+                      disabled={updateCv.isPending || createCv.isPending}
+                    >
+                      <IconDeviceFloppy size={16} className="me-1" />
+                      {updateCv.isPending || createCv.isPending ? 'Saving…' : 'Save CV'}
+                    </button>
+                  </div>
                 </div>
               )}
 

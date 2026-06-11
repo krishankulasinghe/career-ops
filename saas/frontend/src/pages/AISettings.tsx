@@ -87,14 +87,14 @@ export function AISettingsPage() {
 
   return (
     <Layout title="AI Settings">
-      <div className="row g-3">
+      <div className="row row-deck row-cards">
         <div className="col-12">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">AI Settings</h5>
-                  <p className="text-600 fs--1 mb-0">Configure your AI provider, model, and generation parameters</p>
+                  <p className="text-secondary small mb-0">Configure your AI provider, model, and generation parameters</p>
                 </div>
               </div>
             </div>
@@ -102,7 +102,7 @@ export function AISettingsPage() {
         </div>
 
         <div className="col-lg-8">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <h5 className="mb-0">Provider Configuration</h5>
             </div>
@@ -110,7 +110,7 @@ export function AISettingsPage() {
 
               {/* Provider selector */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">AI Provider</label>
+                <label className="form-label fw-medium">AI Provider</label>
                 <div className="d-flex gap-2 flex-wrap">
                   {(['deepseek', 'gemini', 'openai', 'anthropic'] as const).map((p) => {
                     const isAllowed = allowed.includes(p);
@@ -120,12 +120,12 @@ export function AISettingsPage() {
                         type="button"
                         disabled={!isAllowed}
                         onClick={() => isAllowed && handleProviderChange(p)}
-                        className={`btn btn-sm ${form.provider === p ? 'btn-primary' : 'btn-falcon-default'}`}
+                        className={`btn btn-sm ${form.provider === p ? 'btn-primary' : 'btn-outline-secondary'}`}
                         style={{ opacity: isAllowed ? 1 : 0.4, cursor: isAllowed ? 'pointer' : 'not-allowed' }}
                       >
                         {PROVIDER_LABELS[p]}
                         {!isAllowed && (
-                          <span className="badge badge-soft-warning ms-1 fs--2">PRO+</span>
+                          <span className="badge bg-warning-lt ms-1">PRO+</span>
                         )}
                       </button>
                     );
@@ -135,7 +135,7 @@ export function AISettingsPage() {
 
               {/* Model selector */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Model</label>
+                <label className="form-label fw-medium">Model</label>
                 <select
                   className="form-select"
                   value={form.model}
@@ -149,9 +149,9 @@ export function AISettingsPage() {
 
               {/* Temperature */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">
+                <label className="form-label fw-medium">
                   Temperature: <strong>{form.temperature.toFixed(2)}</strong>
-                  <small className="text-600 ms-2">(0 = deterministic · 2 = creative)</small>
+                  <small className="text-secondary ms-2">(0 = deterministic · 2 = creative)</small>
                 </label>
                 <input
                   type="range"
@@ -166,7 +166,7 @@ export function AISettingsPage() {
 
               {/* Max tokens */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">
+                <label className="form-label fw-medium">
                   Max Tokens: <strong>{form.maxTokens.toLocaleString()}</strong>
                 </label>
                 <input
@@ -179,14 +179,14 @@ export function AISettingsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, maxTokens: parseInt(e.target.value) }))}
                 />
                 <div className="d-flex justify-content-between">
-                  <small className="text-600">256</small>
-                  <small className="text-600">32 768</small>
+                  <small className="text-secondary">256</small>
+                  <small className="text-secondary">32 768</small>
                 </div>
               </div>
 
               {/* Fallback */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Fallback Provider</label>
+                <label className="form-label fw-medium">Fallback Provider</label>
                 <select
                   className="form-select"
                   value={form.fallbackProvider}
@@ -197,46 +197,48 @@ export function AISettingsPage() {
                     .filter((p) => p !== form.provider && allowed.includes(p))
                     .map((p) => <option key={p} value={p}>{PROVIDER_LABELS[p]}</option>)}
                 </select>
-                <small className="form-text text-500">Used automatically if the primary provider fails</small>
+                <small className="form-hint">Used automatically if the primary provider fails</small>
               </div>
 
               {/* Custom API key */}
               <div className="mb-3">
-                <label className="form-label fw-semi-bold">Custom API Key</label>
+                <label className="form-label fw-medium">Custom API Key</label>
                 {settings?.hasCustomKey && !showKeyInput ? (
                   <div className="d-flex align-items-center gap-3">
-                    <span className="text-success fs--1">✓ Custom key configured</span>
-                    <button className="btn btn-falcon-default btn-sm" onClick={() => setShowKeyInput(true)}>
+                    <span className="text-success small">✓ Custom key configured</span>
+                    <button className="btn btn-outline-secondary btn-sm" onClick={() => setShowKeyInput(true)}>
                       Replace
                     </button>
                   </div>
                 ) : (
                   <>
-                    <input
-                      type="password"
-                      className="form-control"
-                      value={form.apiKey}
-                      onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
-                      placeholder={`Your ${PROVIDER_LABELS[form.provider]} API key (leave blank to use platform key)`}
-                      autoComplete="new-password"
-                    />
-                    <small className="form-text text-500">Encrypted with AES-256-GCM before storage. Shown only once.</small>
+                    <div className="input-group input-group-flat">
+                      <input
+                        type="password"
+                        className="form-control"
+                        value={form.apiKey}
+                        onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
+                        placeholder={`Your ${PROVIDER_LABELS[form.provider]} API key (leave blank to use platform key)`}
+                        autoComplete="new-password"
+                      />
+                    </div>
+                    <small className="form-hint">Encrypted with AES-256-GCM before storage. Shown only once.</small>
                   </>
                 )}
               </div>
 
               {/* Test result */}
               {testResult && (
-                <div className={`alert ${testResult.ok ? 'alert-success' : 'alert-danger'} fs--1 mb-3`} role="alert">
+                <div className={`alert ${testResult.ok ? 'alert-success' : 'alert-danger'} small mb-3`} role="alert">
                   {testResult.ok
                     ? `✓ Connected (${testResult.latencyMs}ms)`
                     : `✗ Failed: ${testResult.error}`}
                 </div>
               )}
 
-              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <div className="card-footer d-flex justify-content-end gap-2">
                 <button
-                  className="btn btn-falcon-default"
+                  className="btn btn-outline-secondary"
                   onClick={handleTest}
                   disabled={testConn.isPending}
                 >

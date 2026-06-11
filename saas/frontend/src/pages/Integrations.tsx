@@ -73,106 +73,110 @@ function IntegrationModal({
   const displayName = name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
-        <div className="modal-header">
-          <h2 className="modal-title">
-            {INTEGRATION_ICONS[name] ?? '🔌'} Configure {displayName}
-          </h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
+    <div className="modal modal-blur fade show d-block" tabIndex={-1} role="dialog" onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: 480 }} role="document" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">
+              {INTEGRATION_ICONS[name] ?? '🔌'} Configure {displayName}
+            </h5>
+            <button type="button" className="btn-close" onClick={onClose} />
+          </div>
 
-        {isLoading ? (
-          <div className="text-center py-5 text-600">Loading…</div>
-        ) : (
-          <>
-            {cfg?.apiKeyConfigured && (
-              <div className="alert alert-success fs--1 mb-3" role="alert">✓ API key configured</div>
-            )}
-            {cfg?.oauthConnected && (
-              <div className="alert alert-success fs--1 mb-3" role="alert">✓ OAuth connected</div>
-            )}
-
-            {OAUTH_INTEGRATIONS.has(name) ? (
-              <div className="mb-3">
-                <a
-                  href={`/api/v1/integrations/${name}/connect`}
-                  className="btn btn-primary"
-                >
-                  {cfg?.oauthConnected ? 'Reconnect via OAuth' : 'Connect via OAuth'}
-                </a>
-              </div>
+          <div className="modal-body">
+            {isLoading ? (
+              <div className="text-center py-5 text-secondary">Loading…</div>
             ) : (
               <>
-                {['slack', 'greenhouse', 'lever', 'ashby'].includes(name) && (
-                  <div className="mb-3">
-                    <label className="form-label fw-semi-bold">
-                      {name === 'slack' ? 'Webhook URL' : 'Webhook URL (receive events)'}
-                    </label>
-                    <input
-                      className="form-control"
-                      type="url"
-                      placeholder="https://hooks.slack.com/..."
-                      value={form.webhookUrl ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, webhookUrl: e.target.value }))}
-                    />
-                  </div>
+                {cfg?.apiKeyConfigured && (
+                  <div className="alert alert-success small mb-3" role="alert">✓ API key configured</div>
+                )}
+                {cfg?.oauthConnected && (
+                  <div className="alert alert-success small mb-3" role="alert">✓ OAuth connected</div>
                 )}
 
-                {['greenhouse', 'lever', 'ashby', 'sendgrid', 'resend'].includes(name) && (
+                {OAUTH_INTEGRATIONS.has(name) ? (
                   <div className="mb-3">
-                    <label className="form-label fw-semi-bold">API Key</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      placeholder={cfg?.apiKeyConfigured ? '••••••••••••••••' : 'Enter API key'}
-                      value={form.apiKey ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
-                      autoComplete="off"
-                    />
+                    <a
+                      href={`/api/v1/integrations/${name}/connect`}
+                      className="btn btn-primary"
+                    >
+                      {cfg?.oauthConnected ? 'Reconnect via OAuth' : 'Connect via OAuth'}
+                    </a>
                   </div>
-                )}
+                ) : (
+                  <>
+                    {['slack', 'greenhouse', 'lever', 'ashby'].includes(name) && (
+                      <div className="mb-3">
+                        <label className="form-label fw-medium">
+                          {name === 'slack' ? 'Webhook URL' : 'Webhook URL (receive events)'}
+                        </label>
+                        <input
+                          className="form-control"
+                          type="url"
+                          placeholder="https://hooks.slack.com/..."
+                          value={form.webhookUrl ?? ''}
+                          onChange={(e) => setForm((f) => ({ ...f, webhookUrl: e.target.value }))}
+                        />
+                      </div>
+                    )}
 
-                {name === 'slack' && (
-                  <div className="mb-3">
-                    <label className="form-label fw-semi-bold">Channel ID (optional)</label>
-                    <input
-                      className="form-control"
-                      placeholder="C1234567890"
-                      value={form.channelId ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, channelId: e.target.value }))}
-                    />
-                  </div>
-                )}
+                    {['greenhouse', 'lever', 'ashby', 'sendgrid', 'resend'].includes(name) && (
+                      <div className="mb-3">
+                        <label className="form-label fw-medium">API Key</label>
+                        <input
+                          className="form-control"
+                          type="password"
+                          placeholder={cfg?.apiKeyConfigured ? '••••••••••••••••' : 'Enter API key'}
+                          value={form.apiKey ?? ''}
+                          onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
+                          autoComplete="off"
+                        />
+                      </div>
+                    )}
 
-                {['greenhouse', 'lever', 'ashby'].includes(name) && (
-                  <div className="mb-3">
-                    <label className="form-label fw-semi-bold">Board Token</label>
-                    <input
-                      className="form-control"
-                      placeholder="Your job board token"
-                      value={form.boardToken ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, boardToken: e.target.value }))}
-                    />
-                  </div>
+                    {name === 'slack' && (
+                      <div className="mb-3">
+                        <label className="form-label fw-medium">Channel ID (optional)</label>
+                        <input
+                          className="form-control"
+                          placeholder="C1234567890"
+                          value={form.channelId ?? ''}
+                          onChange={(e) => setForm((f) => ({ ...f, channelId: e.target.value }))}
+                        />
+                      </div>
+                    )}
+
+                    {['greenhouse', 'lever', 'ashby'].includes(name) && (
+                      <div className="mb-3">
+                        <label className="form-label fw-medium">Board Token</label>
+                        <input
+                          className="form-control"
+                          placeholder="Your job board token"
+                          value={form.boardToken ?? ''}
+                          onChange={(e) => setForm((f) => ({ ...f, boardToken: e.target.value }))}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
+          </div>
 
-            <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-              <button className="btn btn-falcon-default" onClick={onClose}>Cancel</button>
-              {!OAUTH_INTEGRATIONS.has(name) && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => save.mutate(form)}
-                  disabled={save.isPending}
-                >
-                  {save.isPending ? 'Saving…' : 'Save'}
-                </button>
-              )}
-            </div>
-          </>
-        )}
+          <div className="modal-footer">
+            <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Cancel</button>
+            {!OAUTH_INTEGRATIONS.has(name) && (
+              <button
+                className="btn btn-primary"
+                onClick={() => save.mutate(form)}
+                disabled={save.isPending || isLoading}
+              >
+                {save.isPending ? 'Saving…' : 'Save'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -218,7 +222,7 @@ export function IntegrationsPage() {
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">Integrations</h5>
-                  <p className="text-600 fs--1 mb-0">Connect Career-Ops with your existing tools and workflows</p>
+                  <p className="text-secondary small mb-0">Connect Career-Ops with your existing tools and workflows</p>
                 </div>
               </div>
             </div>
@@ -226,7 +230,7 @@ export function IntegrationsPage() {
         </div>
 
         {isLoading && (
-          <div className="col-12 text-center text-600 py-5">Loading integrations…</div>
+          <div className="col-12 text-center text-secondary py-5">Loading integrations…</div>
         )}
 
         {CATEGORIES.map((cat) => {
@@ -237,7 +241,7 @@ export function IntegrationsPage() {
             <div key={cat.id} className="col-12">
               <div className="card mb-3">
                 <div className="card-header">
-                  <h6 className="mb-0 text-600 text-uppercase" style={{ letterSpacing: 1 }}>{cat.label}</h6>
+                  <h6 className="mb-0 text-secondary text-uppercase" style={{ letterSpacing: 1 }}>{cat.label}</h6>
                 </div>
                 <div className="card-body">
                   <div className="row g-3">
@@ -249,15 +253,15 @@ export function IntegrationsPage() {
                             <div className="card-body d-flex align-items-start gap-3 p-3">
                               <div className="fs-2 flex-shrink-0">{INTEGRATION_ICONS[item.name] ?? '🔌'}</div>
                               <div className="flex-1 min-w-0">
-                                <div className="fw-semi-bold fs--1">{displayName}</div>
-                                <div className="text-600 fs--2 mt-1" style={{ lineHeight: 1.4 }}>{item.description}</div>
+                                <div className="fw-medium small">{displayName}</div>
+                                <div className="text-secondary small mt-1" style={{ lineHeight: 1.4 }}>{item.description}</div>
                                 {item.configured && (
-                                  <div className="text-success fs--2 mt-2">✓ Configured</div>
+                                  <div className="text-success small mt-2">✓ Configured</div>
                                 )}
                               </div>
                               <div className="d-flex flex-column gap-2 align-items-end flex-shrink-0">
                                 <button
-                                  className="btn btn-falcon-default btn-sm"
+                                  className="btn btn-outline-secondary btn-sm"
                                   onClick={() => setConfiguring(item.name)}
                                 >
                                   Configure
@@ -270,7 +274,7 @@ export function IntegrationsPage() {
                                     checked={item.enabled}
                                     onChange={(e) => toggle.mutate({ name: item.name, enabled: e.target.checked })}
                                   />
-                                  <label className="form-check-label fs--2" htmlFor={`toggle-${item.name}`}>
+                                  <label className="form-check-label small" htmlFor={`toggle-${item.name}`}>
                                     {item.enabled ? 'On' : 'Off'}
                                   </label>
                                 </div>

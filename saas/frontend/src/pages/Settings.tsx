@@ -75,14 +75,14 @@ export function SettingsPage() {
 
   return (
     <Layout title="Settings">
-      <div className="row g-3">
+      <div className="row row-deck row-cards">
         <div className="col-12">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
                   <h5 className="mb-0">Settings</h5>
-                  <p className="text-600 fs--1 mb-0">Manage your organization, API keys, and usage</p>
+                  <p className="text-secondary small mb-0">Manage your organization, API keys, and usage</p>
                 </div>
               </div>
             </div>
@@ -91,19 +91,19 @@ export function SettingsPage() {
 
         {/* Organization */}
         <div className="col-lg-6">
-          <div className="card mb-3 h-100">
+          <div className="card h-100">
             <div className="card-header">
               <h5 className="mb-0">Organization</h5>
             </div>
             <div className="card-body">
               <dl className="row mb-0">
-                <dt className="col-5 text-600 fw-semi-bold">Name</dt>
+                <dt className="col-5 text-secondary fw-medium">Name</dt>
                 <dd className="col-7 mb-2">{org?.name}</dd>
-                <dt className="col-5 text-600 fw-semi-bold">Slug</dt>
+                <dt className="col-5 text-secondary fw-medium">Slug</dt>
                 <dd className="col-7 mb-2">{org?.slug}</dd>
-                <dt className="col-5 text-600 fw-semi-bold">Plan</dt>
+                <dt className="col-5 text-secondary fw-medium">Plan</dt>
                 <dd className="col-7 mb-0">
-                  <span className="badge badge-soft-primary">{org?.plan}</span>
+                  <span className="badge bg-primary-lt">{org?.plan}</span>
                 </dd>
               </dl>
             </div>
@@ -113,20 +113,20 @@ export function SettingsPage() {
         {/* Usage */}
         {usage.data && (
           <div className="col-lg-6">
-            <div className="card mb-3 h-100">
+            <div className="card h-100">
               <div className="card-header">
                 <h5 className="mb-0">Usage This Month</h5>
               </div>
               <div className="card-body">
                 <div className="mb-1 d-flex justify-content-between align-items-baseline">
-                  <span className="text-600 fs--1 fw-semi-bold text-uppercase">Evaluations</span>
-                  <span className="fs--1 text-600">
+                  <span className="text-secondary small fw-medium text-uppercase">Evaluations</span>
+                  <span className="small text-secondary">
                     {usage.data.evaluationsCount} / {org?.maxEvaluationsMo}
                   </span>
                 </div>
-                <div className="fs-2 fw-bold text-primary mb-2">
+                <div className="h2 fw-bold text-primary mb-2">
                   {usage.data.evaluationsCount}
-                  <span className="fs--1 text-600 fw-normal ms-1">/ {org?.maxEvaluationsMo}</span>
+                  <span className="small text-secondary fw-normal ms-1">/ {org?.maxEvaluationsMo}</span>
                 </div>
                 <div className="progress" style={{ height: 6 }}>
                   <div
@@ -145,7 +145,7 @@ export function SettingsPage() {
 
         {/* API Keys */}
         <div className="col-12">
-          <div className="card mb-3">
+          <div className="card">
             <div className="card-header">
               <div className="row align-items-center">
                 <div className="col">
@@ -162,27 +162,27 @@ export function SettingsPage() {
               {rawKey && (
                 <div className="alert alert-success d-flex align-items-start gap-2 mb-3" role="alert">
                   <div className="flex-1">
-                    <div className="fw-semi-bold mb-1">New API Key — copy now, shown only once</div>
-                    <code className="fs--1 text-break">{rawKey}</code>
+                    <div className="fw-medium mb-1">New API Key — copy now, shown only once</div>
+                    <code className="small text-break">{rawKey}</code>
                   </div>
                   <div className="d-flex gap-2 flex-shrink-0 ms-2">
                     <button
-                      className="btn btn-falcon-default btn-sm"
+                      className="btn btn-outline-secondary btn-sm"
                       onClick={() => { navigator.clipboard.writeText(rawKey); toast.success('Copied!'); }}
                     >
                       Copy
                     </button>
-                    <button className="btn btn-falcon-default btn-sm" onClick={() => setRawKey('')}>Dismiss</button>
+                    <button className="btn btn-outline-secondary btn-sm" onClick={() => setRawKey('')}>Dismiss</button>
                   </div>
                 </div>
               )}
 
               {keys?.length === 0 ? (
-                <div className="text-center text-600 py-4">No API keys yet</div>
+                <div className="text-center text-secondary py-4">No API keys yet</div>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-hover table-sm fs--1 mb-0">
-                    <thead className="bg-200 text-900">
+                  <table className="table card-table table-vcenter table-hover table-sm mb-0">
+                    <thead>
                       <tr>
                         <th>Name</th>
                         <th>Prefix</th>
@@ -196,11 +196,11 @@ export function SettingsPage() {
                         <tr key={k.id}>
                           <td className="align-middle">{k.name ?? 'Unnamed'}</td>
                           <td className="align-middle"><code>{k.keyPrefix}…</code></td>
-                          <td className="text-600 fs--2 align-middle">{new Date(k.createdAt).toLocaleDateString()}</td>
-                          <td className="text-600 fs--2 align-middle">{k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : '—'}</td>
+                          <td className="text-secondary small align-middle">{new Date(k.createdAt).toLocaleDateString()}</td>
+                          <td className="text-secondary small align-middle">{k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : '—'}</td>
                           <td className="align-middle text-end">
                             <button
-                              className="btn btn-falcon-danger btn-sm"
+                              className="btn btn-outline-danger btn-sm"
                               onClick={() => { if (confirm('Revoke this key?')) revokeKey.mutateAsync(k.id); }}
                             >
                               Revoke
@@ -218,29 +218,33 @@ export function SettingsPage() {
       </div>
 
       {showNewKeyModal && (
-        <div className="modal-overlay" onClick={() => setShowNewKeyModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Create API Key</h2>
-              <button className="modal-close" onClick={() => setShowNewKeyModal(false)}>×</button>
+        <div className="modal modal-blur fade show d-block" tabIndex={-1} role="dialog" onClick={() => setShowNewKeyModal(false)}>
+          <div className="modal-dialog modal-sm modal-dialog-centered" role="document" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Create API Key</h5>
+                <button type="button" className="btn-close" onClick={() => setShowNewKeyModal(false)} />
+              </div>
+              <form onSubmit={handleCreateKey}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-medium">Key Name (optional)</label>
+                    <input
+                      className="form-control"
+                      value={newKeyName}
+                      onChange={(e) => setNewKeyName(e.target.value)}
+                      placeholder="e.g. CI/CD, CLI tool…"
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => setShowNewKeyModal(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary" disabled={createKey.isPending}>
+                    {createKey.isPending ? 'Creating…' : 'Create Key'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleCreateKey}>
-              <div className="mb-3">
-                <label className="form-label fw-semi-bold">Key Name (optional)</label>
-                <input
-                  className="form-control"
-                  value={newKeyName}
-                  onChange={(e) => setNewKeyName(e.target.value)}
-                  placeholder="e.g. CI/CD, CLI tool…"
-                />
-              </div>
-              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                <button type="button" className="btn btn-falcon-default" onClick={() => setShowNewKeyModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={createKey.isPending}>
-                  {createKey.isPending ? 'Creating…' : 'Create Key'}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
