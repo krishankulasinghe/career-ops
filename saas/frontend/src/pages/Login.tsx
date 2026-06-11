@@ -25,59 +25,85 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100">
-      <div className="card w-100" style={{ maxWidth: 400 }}>
-        <div className="card-body p-4">
-          <div className="text-center mb-4">
-            <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
-            <p className="text-500">AI-powered job search pipeline</p>
+    <div className="page page-center">
+      <div className="container container-tight py-4">
+        <div className="text-center mb-4">
+          <Link to="/" className="navbar-brand navbar-brand-autodark app-brand fs-3">
+            Career-Ops
+          </Link>
+        </div>
+        <div className="card card-md">
+          <div className="row g-0">
+            {/* Left column: illustration */}
+            <div className="col-lg-6 d-none d-lg-flex align-items-center justify-content-center p-4 bg-primary-lt rounded-start">
+              <div className="text-center">
+                <div className="display-1 mb-3">🎯</div>
+                <h3 className="fw-bold">Land your next role</h3>
+                <p className="text-secondary mb-0">AI-powered job search pipeline with evaluation scoring, CV generation, and portal scanning.</p>
+              </div>
+            </div>
+            {/* Right column: form */}
+            <div className="col-lg-6 d-flex align-items-center">
+              <div className="card-body">
+                <h2 className="h2 text-center mb-4">Sign in to your account</h2>
+                <form onSubmit={handleSubmit} autoComplete="off" noValidate>
+                  {error && (
+                    <div className="alert alert-danger" role="alert">
+                      {error}
+                    </div>
+                  )}
+                  <div className="mb-3">
+                    <label className="form-label">Email address</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Password</label>
+                    <div className="input-group input-group-flat">
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                      />
+                    </div>
+                  </div>
+                  <div className="form-footer">
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-100"
+                      disabled={login.isPending}
+                    >
+                      {login.isPending ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                          Signing in…
+                        </>
+                      ) : (
+                        'Sign in'
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-
-          <form onSubmit={handleSubmit}>
-            {error && (
-              <div className="alert alert-danger py-2 mb-3 fs--1">{error}</div>
-            )}
-
-            <div className="form-group mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-
-            <div className="form-group mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary w-100 mt-3"
-              disabled={login.isPending}
-            >
-              {login.isPending ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
-
-          <p className="fs--1 text-center mt-3">
-            Don't have an account? <Link to="/register">Sign up</Link>
-          </p>
+        </div>
+        <div className="text-center text-secondary mt-3">
+          Don't have an account?{' '}
+          <Link to="/register" tabIndex={-1}>Sign up</Link>
         </div>
       </div>
-      <p className="mt-3 text-center text-500 fs--1">
-        © {new Date().getFullYear()} Career-Ops
-      </p>
     </div>
   );
 }

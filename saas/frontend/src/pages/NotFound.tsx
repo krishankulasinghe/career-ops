@@ -1,12 +1,24 @@
+import { Link } from 'react-router-dom';
+import { IconArrowLeft } from '@tabler/icons-react';
+
 export function NotFoundPage() {
   return (
-    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100 text-center px-3">
-      <h1 className="display-1 fw-bold text-300">404</h1>
-      <h5 className="fw-bold mb-3">Page Not Found</h5>
-      <p className="text-500 mb-4">The page you are looking for doesn't exist or has been moved.</p>
-      <a className="btn btn-primary" href="/">
-        <span className="fas fa-home me-2"></span>Go to Dashboard
-      </a>
+    <div className="page page-center">
+      <div className="container-tight py-4">
+        <div className="empty">
+          <div className="empty-header">404</div>
+          <p className="empty-title">Oops… You just found an error page</p>
+          <p className="empty-subtitle text-secondary">
+            We are sorry but the page you are looking for was not found.
+          </p>
+          <div className="empty-action">
+            <Link to="/" className="btn btn-primary">
+              <IconArrowLeft size={16} className="me-2" />
+              Take me home
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

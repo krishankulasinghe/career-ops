@@ -25,8 +25,6 @@ export function OnboardingPage() {
   const [evalTaskId, setEvalTaskId] = useState('');
   const [evalDone, setEvalDone] = useState(false);
 
-  const progressPercent = ((step - 1) / (TOTAL_STEPS - 1)) * 100;
-
   const handleFinish = async () => {
     await apiClient.put('/users/me/profile', { customConfig: { onboarded: true } });
     navigate('/');
@@ -75,23 +73,21 @@ export function OnboardingPage() {
   };
 
   return (
-    <div className="min-vh-100 bg-100">
-      <div className="container py-5">
+    <div className="page page-center">
+      <div className="container-tight py-4">
         <div className="text-center mb-4">
-          <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
-          <p className="text-500">Let's get you set up in a few steps</p>
+          <h3 className="fw-bold">Career-Ops</h3>
+          <p className="text-secondary">Let's get you set up in a few steps</p>
         </div>
 
-        <div className="progress mb-4" style={{ height: 6 }}>
-          <div
-            className="progress-bar"
-            role="progressbar"
-            style={{ width: `${progressPercent}%`, transition: 'width 0.3s' }}
-            aria-valuenow={progressPercent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          />
-        </div>
+        {/* Tabler steps indicator */}
+        <ul className="steps steps-green mb-4">
+          {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+            <li key={i} className={`step-item${i + 1 <= step ? ' active' : ''}`}>
+              Step {i + 1}
+            </li>
+          ))}
+        </ul>
 
         <div className="card">
           <div className="card-body p-4 p-md-5">
@@ -107,8 +103,8 @@ export function OnboardingPage() {
             {step === 1 && (
               <div>
                 <h5 className="mb-3">Account Confirmed</h5>
-                <p className="text-700">You're registered as <strong>{user?.email}</strong>.</p>
-                <p className="text-700">Career-Ops will help you evaluate job opportunities, generate tailored CVs, and track your applications — all in one place.</p>
+                <p className="text-body">You're registered as <strong>{user?.email}</strong>.</p>
+                <p className="text-body">Career-Ops will help you evaluate job opportunities, generate tailored CVs, and track your applications — all in one place.</p>
                 <button className="btn btn-primary" onClick={nextStep}>Get Started →</button>
               </div>
             )}
@@ -140,9 +136,9 @@ export function OnboardingPage() {
             {step === 3 && (
               <div>
                 <h5 className="mb-3">Upload Your CV</h5>
-                <p className="text-700 mb-3">Paste your CV in Markdown format:</p>
+                <p className="text-body mb-3">Paste your CV in Markdown format:</p>
                 <textarea
-                  className="form-control font-monospace fs--1"
+                  className="form-control font-monospace small"
                   rows={12}
                   value={cvContent}
                   onChange={(e) => setCvContent(e.target.value)}
@@ -184,13 +180,13 @@ export function OnboardingPage() {
             {step === 5 && (
               <div>
                 <h5 className="mb-3">Archetypes (Optional)</h5>
-                <p className="text-700">Archetypes help classify job offers. The defaults work great:</p>
+                <p className="text-body">Archetypes help classify job offers. The defaults work great:</p>
                 <div className="d-flex flex-wrap gap-2 mb-4">
                   {['IC Technical', 'Tech Lead', 'Engineering Manager', 'Product Engineer', 'AI/ML Engineer'].map((a) => (
-                    <span key={a} className="badge bg-info fs--1">{a}</span>
+                    <span key={a} className="badge bg-azure-lt text-azure">{a}</span>
                   ))}
                 </div>
-                <p className="text-500 fs--1">You can customize these anytime from your Profile page.</p>
+                <p className="text-secondary small">You can customize these anytime from your Profile page.</p>
                 <div className="d-flex gap-2">
                   <button className="btn btn-secondary" onClick={prevStep}>← Back</button>
                   <button className="btn btn-primary" onClick={nextStep}>Use Defaults & Continue →</button>
@@ -201,7 +197,7 @@ export function OnboardingPage() {
             {step === 6 && (
               <div>
                 <h5 className="mb-3">Your First Evaluation</h5>
-                <p className="text-700">Paste a job URL to see Career-Ops in action!</p>
+                <p className="text-body">Paste a job URL to see Career-Ops in action!</p>
                 <div className="form-group mb-3">
                   <label className="form-label">Job Posting URL (optional)</label>
                   <input
@@ -214,8 +210,8 @@ export function OnboardingPage() {
                 </div>
 
                 {evalTaskId && !evalDone && (
-                  <div className="d-flex align-items-center gap-3 text-700 mb-3">
-                    <div className="spinner-border spinner-border-sm text-primary" role="status">
+                  <div className="d-flex align-items-center gap-3 text-body mb-3">
+                    <div className="spinner-border spinner-border-sm" role="status">
                       <span className="visually-hidden">Loading…</span>
                     </div>
                     <span>Evaluating job posting…</span>
@@ -223,7 +219,7 @@ export function OnboardingPage() {
                 )}
 
                 {evalDone && (
-                  <div className="alert alert-success py-2 mb-3 fs--1 fw-semibold">
+                  <div className="alert alert-success py-2 mb-3 fw-semibold">
                     Evaluation complete! View your results on the dashboard.
                   </div>
                 )}
@@ -248,3 +244,4 @@ export function OnboardingPage() {
     </div>
   );
 }
+

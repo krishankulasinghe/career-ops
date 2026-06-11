@@ -31,72 +31,82 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-100">
-      <div className="card w-100" style={{ maxWidth: 400 }}>
-        <div className="card-body p-4">
-          <div className="text-center mb-4">
-            <h3 className="font-sans-serif text-primary fw-bold">Career-Ops</h3>
-            <p className="text-500">Create your account</p>
+    <div className="page page-center">
+      <div className="container container-tight py-4">
+        <div className="text-center mb-4">
+          <Link to="/" className="navbar-brand navbar-brand-autodark app-brand fs-3">
+            Career-Ops
+          </Link>
+        </div>
+        <div className="card card-md">
+          <div className="card-body">
+            <h2 className="h2 text-center mb-4">Create new account</h2>
+            <form onSubmit={handleSubmit} autoComplete="off" noValidate>
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+              <div className="mb-3">
+                <label className="form-label">Full name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Email address</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Minimum 8 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+                <div className="form-hint">Must be at least 8 characters.</div>
+              </div>
+              <div className="form-footer">
+                <button
+                  type="submit"
+                  className="btn btn-primary w-100"
+                  disabled={register.isPending}
+                >
+                  {register.isPending ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                      Creating account…
+                    </>
+                  ) : (
+                    'Create account'
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <form onSubmit={handleSubmit}>
-            {error && (
-              <div className="alert alert-danger py-2 mb-3 fs--1">{error}</div>
-            )}
-
-            <div className="form-group mb-3">
-              <label className="form-label">Full Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-
-            <div className="form-group mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-              <div className="form-text text-500 fs--1">Minimum 8 characters</div>
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary w-100 mt-3"
-              disabled={register.isPending}
-            >
-              {register.isPending ? 'Creating account…' : 'Create account'}
-            </button>
-          </form>
-
-          <p className="fs--1 text-center mt-3">
-            Already have an account? <Link to="/login">Sign in</Link>
-          </p>
+        </div>
+        <div className="text-center text-secondary mt-3">
+          Already have account?{' '}
+          <Link to="/login" tabIndex={-1}>Sign in</Link>
         </div>
       </div>
-      <p className="mt-3 text-center text-500 fs--1">
-        © {new Date().getFullYear()} Career-Ops
-      </p>
     </div>
   );
 }
