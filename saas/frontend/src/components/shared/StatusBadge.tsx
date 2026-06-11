@@ -1,5 +1,9 @@
+type ApplicationStatus =
+  | 'Evaluated' | 'Applied' | 'Responded' | 'Interview'
+  | 'Offer' | 'Rejected' | 'Discarded' | 'SKIP';
+
 interface StatusBadgeProps {
-  status: string;
+  status: ApplicationStatus | string;
 }
 
 const statusBadgeClasses: Record<string, string> = {

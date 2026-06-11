@@ -22,7 +22,7 @@ export function KPICard({ title, value, change, Icon, color = 'primary' }: KPICa
             )}
           </div>
           <div className="col">
-            <div className="font-weight-medium">{value}</div>
+            <div className="fw-medium">{value}</div>
             <div className="text-secondary">{title}</div>
           </div>
           {change && (
