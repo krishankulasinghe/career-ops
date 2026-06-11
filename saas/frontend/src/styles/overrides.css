@@ -1,18 +1,8 @@
 /*
- * Career-Ops SaaS — Falcon theme overrides
- * Falcon's theme.min.css owns the full design system.
- * This file only adds SaaS-specific tweaks and compat shims.
+ * Career-Ops SaaS — app-specific overrides on top of Tabler
+ * Tabler's CSS owns the full design system via --tblr-* variables.
+ * This file only adds SaaS-specific tweaks.
  */
-
-:root {
-  /* Map legacy variable names used by inline styles to Falcon equivalents */
-  --sidebar-width: 260px; /* matches Falcon's --falcon-navbar-vertical-width */
-  --primary: var(--falcon-primary, #2c7be5);
-  --danger: var(--falcon-danger, #e63757);
-  --success: var(--falcon-success, #00d27a);
-  --warning: var(--falcon-warning, #f5803e);
-  --info: var(--falcon-info, #27bcfd);
-}
 
 /* Ensure full-height layout */
 html, body, #root {
@@ -31,7 +21,7 @@ html, body, #root {
 .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 0.75em; }
 .prose code { background: rgba(0,0,0,.05); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.875em; }
 .prose pre { background: rgba(0,0,0,.05); padding: 1em; border-radius: 4px; overflow-x: auto; }
-.prose blockquote { border-left: 3px solid var(--falcon-primary, #2c7be5); padding-left: 1rem; color: #748194; }
+.prose blockquote { border-left: 3px solid var(--tblr-primary); padding-left: 1rem; color: var(--tblr-muted); }
 .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
-.prose th, .prose td { padding: 6px 12px; border: 1px solid #e2e8f0; }
-.prose th { background: #f9fafc; font-weight: 600; }
+.prose th, .prose td { padding: 6px 12px; border: 1px solid var(--tblr-border-color); }
+.prose th { background: var(--tblr-bg-surface-secondary, #f9fafc); font-weight: 600; }

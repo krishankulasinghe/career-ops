@@ -1,1 +1,3 @@
 /// <reference types="vite/client" />
+
+declare module '@tabler/core/dist/js/tabler.min.js';
