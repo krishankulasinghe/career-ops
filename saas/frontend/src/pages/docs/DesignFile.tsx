@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 interface ColorSwatch {
   name: string;
@@ -8,12 +9,12 @@ interface ColorSwatch {
 }
 
 const COLOR_PALETTE: ColorSwatch[] = [
-  { name: 'Primary', variable: '--falcon-primary', hex: '#2c7be5', textClass: 'text-white' },
-  { name: 'Secondary', variable: '--falcon-secondary', hex: '#748194', textClass: 'text-white' },
-  { name: 'Success', variable: '--falcon-success', hex: '#00d27a', textClass: 'text-dark' },
-  { name: 'Info', variable: '--falcon-info', hex: '#27bcfd', textClass: 'text-dark' },
-  { name: 'Warning', variable: '--falcon-warning', hex: '#f5803e', textClass: 'text-white' },
-  { name: 'Danger', variable: '--falcon-danger', hex: '#e63757', textClass: 'text-white' },
+  { name: 'Primary', variable: '--tblr-primary', hex: '#206bc4', textClass: 'text-white' },
+  { name: 'Secondary', variable: '--tblr-secondary', hex: '#616876', textClass: 'text-white' },
+  { name: 'Success', variable: '--tblr-success', hex: '#2fb344', textClass: 'text-white' },
+  { name: 'Info', variable: '--tblr-info', hex: '#4299e1', textClass: 'text-white' },
+  { name: 'Warning', variable: '--tblr-warning', hex: '#f76707', textClass: 'text-white' },
+  { name: 'Danger', variable: '--tblr-danger', hex: '#d63939', textClass: 'text-white' },
 ];
 
 export function DesignFilePage() {
@@ -24,26 +25,26 @@ export function DesignFilePage() {
 
           <div className="card mb-3">
             <div className="card-body">
-              <h2 id="falcon-design-system" className="docs-anchor mb-3">Falcon Design System</h2>
+              <h2 id="falcon-design-system" className="docs-anchor mb-3">Tabler Design System</h2>
               <p>
-                Career-Ops SaaS is built on the <strong>Falcon v3.14.0</strong> Bootstrap 5 admin
-                template. Falcon provides a complete design language — color tokens, typography
+                Career-Ops SaaS is built on the <strong>Tabler v1.4.0</strong> Bootstrap 5 admin
+                template. Tabler provides a complete design language — color tokens, typography
                 scale, spacing system, component library, and icon set — that ensures visual
                 consistency across every page without writing bespoke CSS from scratch.
               </p>
               <p>
-                The Falcon stylesheet is loaded globally via <code>index.html</code>. All
+                The Tabler stylesheet is loaded globally via <code>index.html</code>. All
                 Bootstrap 5 utility classes (<code>d-flex</code>, <code>gap-2</code>,{' '}
-                <code>fs--1</code>, etc.) and Falcon component styles are available anywhere
+                <code>small</code>, etc.) and Tabler component styles are available anywhere
                 in the application without additional imports.
               </p>
 
               <div className="alert alert-info d-flex gap-2 mb-0 mt-2">
-                <span className="fas fa-info-circle mt-1"></span>
+                <IconInfoCircle size={16} className="mt-1 flex-shrink-0" />
                 <div>
-                  <strong>Falcon-specific utilities:</strong> <code>fs--1</code> and <code>fs--2</code>{' '}
-                  set font size to 87.5% and 75% of the base size respectively. <code>bg-100</code>,{' '}
-                  <code>bg-200</code>, … <code>bg-900</code> are Falcon's neutral surface steps.
+                  <strong>Tabler-specific utilities:</strong> use Bootstrap's <code>small</code>{' '}
+                  class for 87.5% font size. <code>bg-*-lt</code> provides light tinted variants
+                  for each semantic color (e.g. <code>bg-primary-lt</code>, <code>bg-danger-lt</code>).
                 </div>
               </div>
             </div>
@@ -53,9 +54,9 @@ export function DesignFilePage() {
             <div className="card-body">
               <h2 id="bootstrap-components" className="docs-anchor mb-3">Bootstrap Components Used</h2>
               <p>
-                The following Bootstrap 5 / Falcon components are used throughout the platform.
-                Refer to the Falcon documentation in{' '}
-                <code>falcon-v3.14.0/public/documentation/</code> for usage examples.
+                The following Bootstrap 5 / Tabler components are used throughout the platform.
+                Refer to the Tabler documentation at{' '}
+                <code>https://tabler.io/docs</code> for usage examples.
               </p>
               <div className="row g-2">
                 {[
@@ -64,7 +65,7 @@ export function DesignFilePage() {
                   'Toast', 'Tooltip', 'Offcanvas', 'Progress', 'Form Controls',
                 ].map((c) => (
                   <div key={c} className="col-auto">
-                    <span className="badge bg-200 text-700 fs--1">{c}</span>
+                    <span className="badge bg-secondary-lt small">{c}</span>
                   </div>
                 ))}
               </div>
@@ -75,13 +76,13 @@ export function DesignFilePage() {
             <div className="card-body">
               <h2 id="custom-components" className="docs-anchor mb-3">Custom Components</h2>
               <p>
-                Beyond Falcon's built-in components, Career-Ops SaaS ships a set of shared
+                Beyond Tabler's built-in components, Career-Ops SaaS ships a set of shared
                 React components in <code>src/components/shared/</code>:
               </p>
 
               <div className="table-responsive">
-                <table className="table table-sm fs--1 mb-0">
-                  <thead className="bg-200">
+                <table className="table table-sm small mb-0">
+                  <thead>
                     <tr>
                       <th>Component</th>
                       <th>File</th>
@@ -129,7 +130,7 @@ export function DesignFilePage() {
             <div className="card-body">
               <h2 id="color-palette" className="docs-anchor mb-3">Color Palette</h2>
               <p>
-                The semantic color palette maps directly to Falcon's CSS custom properties.
+                The semantic color palette maps directly to Tabler's CSS custom properties.
                 Use Bootstrap utility classes (<code>text-primary</code>, <code>bg-success</code>,
                 etc.) to stay consistent — avoid hardcoding hex values in component code.
               </p>
@@ -142,8 +143,8 @@ export function DesignFilePage() {
                       style={{ backgroundColor: swatch.hex }}
                     >
                       <span className={`fw-semibold ${swatch.textClass}`}>{swatch.name}</span>
-                      <code className={`fs--2 ${swatch.textClass} opacity-75`}>{swatch.hex}</code>
-                      <code className={`fs--2 ${swatch.textClass} opacity-75`}>{swatch.variable}</code>
+                      <code className={`small ${swatch.textClass} opacity-75`}>{swatch.hex}</code>
+                      <code className={`small ${swatch.textClass} opacity-75`}>{swatch.variable}</code>
                     </div>
                   </div>
                 ))}
@@ -160,10 +161,10 @@ export function DesignFilePage() {
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#falcon-design-system">Falcon Design System</a>
-                <a className="nav-link py-1 fs--1" href="#bootstrap-components">Bootstrap Components</a>
-                <a className="nav-link py-1 fs--1" href="#custom-components">Custom Components</a>
-                <a className="nav-link py-1 fs--1" href="#color-palette">Color Palette</a>
+                <a className="nav-link py-1 small" href="#falcon-design-system">Tabler Design System</a>
+                <a className="nav-link py-1 small" href="#bootstrap-components">Bootstrap Components</a>
+                <a className="nav-link py-1 small" href="#custom-components">Custom Components</a>
+                <a className="nav-link py-1 small" href="#color-palette">Color Palette</a>
               </nav>
             </div>
           </div>

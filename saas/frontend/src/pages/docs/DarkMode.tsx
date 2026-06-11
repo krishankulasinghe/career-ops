@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export function DarkModePage() {
   return (
@@ -10,18 +11,18 @@ export function DarkModePage() {
             <div className="card-body">
               <h2 id="toggling" className="docs-anchor mb-3">Toggling Dark Mode</h2>
               <p>
-                Career-Ops SaaS ships with full Falcon dark mode support. Users toggle dark mode
+                Career-Ops SaaS ships with full Tabler dark mode support. Users toggle dark mode
                 from the top navigation bar via the moon/sun icon, or from their{' '}
                 <strong>Profile &rarr; Preferences</strong> page. The preference is sent to the
                 server so it roams across devices.
               </p>
               <p>
-                Falcon implements dark mode by toggling the <code>data-bs-theme="dark"</code>{' '}
-                attribute on the <code>{'<html>'}</code> element. All Falcon utility classes,
+                Tabler implements dark mode by toggling the <code>data-bs-theme="dark"</code>{' '}
+                attribute on the <code>{'<html>'}</code> element. All Tabler utility classes,
                 component styles, and CSS variables automatically respond to this attribute — no
                 separate stylesheet is needed.
               </p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`// useDarkMode.ts
 export function useDarkMode() {
   const { preferences } = useAuth();
@@ -51,7 +52,7 @@ export function useDarkMode() {
               </p>
 
               <div className="alert alert-info d-flex gap-2 mb-3">
-                <span className="fas fa-info-circle mt-1"></span>
+                <IconInfoCircle size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   For the fastest possible paint, a small inline script in <code>index.html</code>{' '}
                   reads <code>localStorage('theme')</code> as a fallback before the React app
@@ -59,7 +60,7 @@ export function useDarkMode() {
                 </div>
               </div>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`<!-- index.html — runs before React mounts -->
 <script>
   const theme = localStorage.getItem('career-ops-theme');
@@ -77,11 +78,11 @@ export function useDarkMode() {
               <p>
                 When writing custom CSS that needs different values in dark mode, use the{' '}
                 <code>[data-bs-theme="dark"]</code> selector rather than a media query. This
-                matches Falcon's own approach and means the theme responds to user preference
+                matches Tabler's own approach and means the theme responds to user preference
                 rather than OS-level settings:
               </p>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`/* src/styles/overrides.css */
 
 /* Light mode (default) */
@@ -103,7 +104,7 @@ export function useDarkMode() {
                 attribute via a <code>MutationObserver</code> or by reading the current theme
                 from a React context:
               </p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`const isDark = document.documentElement
   .getAttribute('data-bs-theme') === 'dark';
 
@@ -125,9 +126,9 @@ const option = {
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#toggling">Toggling Dark Mode</a>
-                <a className="nav-link py-1 fs--1" href="#persistence">Persistence</a>
-                <a className="nav-link py-1 fs--1" href="#custom-dark-styles">Custom Dark Mode Styles</a>
+                <a className="nav-link py-1 small" href="#toggling">Toggling Dark Mode</a>
+                <a className="nav-link py-1 small" href="#persistence">Persistence</a>
+                <a className="nav-link py-1 small" href="#custom-dark-styles">Custom Dark Mode Styles</a>
               </nav>
             </div>
           </div>

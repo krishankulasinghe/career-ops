@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconInfoCircle, IconCircleCheck } from '@tabler/icons-react';
 
 export function GettingStartedPage() {
   return (
@@ -42,7 +43,7 @@ export function GettingStartedPage() {
 
               <h5 id="docker" className="mt-3">1 — Start infrastructure with Docker</h5>
               <p>Clone the repository and spin up the backing services:</p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`git clone https://github.com/your-org/career-ops-saas.git
 cd career-ops-saas/saas
 docker compose up -d`}</code>
@@ -53,7 +54,7 @@ docker compose up -d`}</code>
               </p>
 
               <h5 className="mt-4">2 — Install dependencies</h5>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# API
 npm install
 npm run db:generate
@@ -69,13 +70,13 @@ cd frontend && npm install`}</code>
                 Copy the example env file and fill in your credentials. Every variable is
                 documented inline.
               </p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`cp .env.example .env
 # Edit .env — set DATABASE_URL, REDIS_URL, AI_PROVIDER_KEY, etc.`}</code>
               </pre>
 
               <div className="alert alert-info d-flex gap-2 mb-0 mt-3">
-                <span className="fas fa-info-circle mt-1"></span>
+                <IconInfoCircle size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   Never commit <code>.env</code>. The <code>.gitignore</code> already excludes it,
                   but double-check before pushing to a shared repository.
@@ -88,7 +89,7 @@ cd frontend && npm install`}</code>
             <div className="card-body">
               <h2 id="first-evaluation" className="docs-anchor mb-3">Your First Evaluation</h2>
               <p>With the services running, start the API and frontend dev servers:</p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Terminal 1 — API
 npm run dev          # :3000
 
@@ -107,7 +108,7 @@ cd frontend && npm run dev   # :5173`}</code>
               </p>
 
               <div className="alert alert-success d-flex gap-2 mb-0 mt-3">
-                <span className="fas fa-check-circle mt-1"></span>
+                <IconCircleCheck size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   Evaluation results include a score out of 5, gap analysis across six
                   blocks (company, role, compensation, culture, growth, legitimacy), and
@@ -139,12 +140,12 @@ cd frontend && npm run dev   # :5173`}</code>
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#introduction">Introduction</a>
-                <a className="nav-link py-1 fs--1" href="#prerequisites">Prerequisites</a>
-                <a className="nav-link py-1 fs--1" href="#installation">Installation</a>
-                <a className="nav-link py-1 fs--1 ps-4" href="#docker">Docker setup</a>
-                <a className="nav-link py-1 fs--1" href="#first-evaluation">First Evaluation</a>
-                <a className="nav-link py-1 fs--1" href="#dashboard-overview">Dashboard Overview</a>
+                <a className="nav-link py-1 small" href="#introduction">Introduction</a>
+                <a className="nav-link py-1 small" href="#prerequisites">Prerequisites</a>
+                <a className="nav-link py-1 small" href="#installation">Installation</a>
+                <a className="nav-link py-1 small ps-4" href="#docker">Docker setup</a>
+                <a className="nav-link py-1 small" href="#first-evaluation">First Evaluation</a>
+                <a className="nav-link py-1 small" href="#dashboard-overview">Dashboard Overview</a>
               </nav>
             </div>
           </div>

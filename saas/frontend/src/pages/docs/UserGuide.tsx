@@ -1,10 +1,23 @@
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
+import {
+  IconRocket,
+  IconQuestionMark,
+  IconAdjustments,
+  IconPaint,
+  IconMoon,
+  IconPlug,
+  IconTool,
+  IconCompass,
+  IconHistory,
+  IconArrowRight,
+} from '@tabler/icons-react';
+import type { ComponentType } from 'react';
 
 interface DocCard {
   title: string;
   description: string;
-  icon: string;
+  Icon: ComponentType<{ size?: number; className?: string }>;
   href: string;
 }
 
@@ -12,55 +25,55 @@ const DOC_CARDS: DocCard[] = [
   {
     title: 'Getting Started',
     description: 'Install, configure, and run your first job evaluation in minutes.',
-    icon: 'fas fa-rocket',
+    Icon: IconRocket,
     href: '/docs/getting-started',
   },
   {
     title: 'FAQ',
     description: 'Answers to the most common questions about evaluations, billing, and security.',
-    icon: 'fas fa-question-circle',
+    Icon: IconQuestionMark,
     href: '/docs/faq',
   },
   {
     title: 'Configuration',
     description: 'Environment variables, feature flags, and AI provider settings.',
-    icon: 'fas fa-sliders-h',
+    Icon: IconAdjustments,
     href: '/docs/configuration',
   },
   {
     title: 'Styling',
-    description: 'Customize the look and feel with Falcon CSS variables and custom overrides.',
-    icon: 'fas fa-paint-brush',
+    description: 'Customize the look and feel with Tabler CSS variables and custom overrides.',
+    Icon: IconPaint,
     href: '/docs/styling',
   },
   {
     title: 'Dark Mode',
     description: 'How dark mode works, how to toggle it, and how to write dark-mode-aware styles.',
-    icon: 'fas fa-moon',
+    Icon: IconMoon,
     href: '/docs/dark-mode',
   },
   {
     title: 'Plugins',
     description: 'Extend Career-Ops with the open agent skill standard and custom CLI skills.',
-    icon: 'fas fa-plug',
+    Icon: IconPlug,
     href: '/docs/plugin',
   },
   {
     title: 'Build & Tooling',
     description: 'Development server, production builds, testing, and CI/CD pipeline.',
-    icon: 'fas fa-tools',
+    Icon: IconTool,
     href: '/docs/gulp',
   },
   {
     title: 'Design File',
     description: 'Design system, Bootstrap components, custom components, and color palette.',
-    icon: 'fas fa-drafting-compass',
+    Icon: IconCompass,
     href: '/docs/design-file',
   },
   {
     title: 'Changelog',
     description: 'Release history — what changed in each version of Career-Ops SaaS.',
-    icon: 'fas fa-history',
+    Icon: IconHistory,
     href: '/docs/changelog',
   },
 ];
@@ -95,12 +108,12 @@ export function UserGuidePage() {
                 <div className="card h-100 hover-shadow">
                   <div className="card-body d-flex flex-column">
                     <div className="d-flex align-items-center mb-2 gap-2">
-                      <span className={`${card.icon} text-primary fs-4`}></span>
+                      <card.Icon size={20} className="text-primary" />
                       <h6 className="mb-0">{card.title}</h6>
                     </div>
-                    <p className="text-600 fs--1 flex-grow-1 mb-3">{card.description}</p>
-                    <Link to={card.href} className="btn btn-sm btn-falcon-primary">
-                      Read docs <span className="fas fa-arrow-right ms-1"></span>
+                    <p className="text-secondary small flex-grow-1 mb-3">{card.description}</p>
+                    <Link to={card.href} className="btn btn-sm btn-primary">
+                      Read docs <IconArrowRight size={14} className="ms-1" />
                     </Link>
                   </div>
                 </div>
@@ -133,9 +146,9 @@ export function UserGuidePage() {
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#overview">Overview</a>
-                <a className="nav-link py-1 fs--1" href="#all-docs">All Documentation Pages</a>
-                <a className="nav-link py-1 fs--1" href="#contributing">Contributing</a>
+                <a className="nav-link py-1 small" href="#overview">Overview</a>
+                <a className="nav-link py-1 small" href="#all-docs">All Documentation Pages</a>
+                <a className="nav-link py-1 small" href="#contributing">Contributing</a>
               </nav>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconInfoCircle, IconAlertTriangle } from '@tabler/icons-react';
 
 interface EnvVar {
   key: string;
@@ -50,7 +51,7 @@ export function ConfigurationPage() {
               </p>
 
               <div className="table-responsive">
-                <table className="table table-sm fs--1 mb-0">
+                <table className="table table-sm small mb-0">
                   <thead className="bg-200">
                     <tr>
                       <th>Variable</th>
@@ -63,12 +64,12 @@ export function ConfigurationPage() {
                     {ENV_VARS.map((v) => (
                       <tr key={v.key}>
                         <td><code>{v.key}</code></td>
-                        <td className="text-600">{v.defaultValue}</td>
+                        <td className="text-secondary">{v.defaultValue}</td>
                         <td>{v.description}</td>
                         <td className="text-center">
                           {v.required
                             ? <span className="badge bg-danger">Yes</span>
-                            : <span className="badge bg-200 text-700">No</span>}
+                            : <span className="badge bg-secondary-lt">No</span>}
                         </td>
                       </tr>
                     ))}
@@ -89,7 +90,7 @@ export function ConfigurationPage() {
               </p>
 
               <div className="alert alert-info d-flex gap-2 mb-3">
-                <span className="fas fa-info-circle mt-1"></span>
+                <IconInfoCircle size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   DeepSeek is the recommended primary provider — it delivers high evaluation
                   quality at a significantly lower cost per token than alternatives.
@@ -98,7 +99,7 @@ export function ConfigurationPage() {
               </div>
 
               <div className="table-responsive">
-                <table className="table table-sm fs--1 mb-0">
+                <table className="table table-sm small mb-0">
                   <thead className="bg-200">
                     <tr>
                       <th>Variable</th>
@@ -111,12 +112,12 @@ export function ConfigurationPage() {
                     {AI_VARS.map((v) => (
                       <tr key={v.key}>
                         <td><code>{v.key}</code></td>
-                        <td className="text-600">{v.defaultValue}</td>
+                        <td className="text-secondary">{v.defaultValue}</td>
                         <td>{v.description}</td>
                         <td className="text-center">
                           {v.required
                             ? <span className="badge bg-danger">Yes</span>
-                            : <span className="badge bg-200 text-700">No</span>}
+                            : <span className="badge bg-secondary-lt">No</span>}
                         </td>
                       </tr>
                     ))}
@@ -136,7 +137,7 @@ export function ConfigurationPage() {
               </p>
 
               <h5 className="mt-3">Cloudflare R2 example</h5>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 S3_ACCESS_KEY=<r2-access-key-id>
 S3_SECRET_KEY=<r2-secret-access-key>
@@ -145,7 +146,7 @@ S3_REGION=auto`}</code>
               </pre>
 
               <h5 className="mt-3">AWS S3 example</h5>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`S3_ENDPOINT=https://s3.us-east-1.amazonaws.com
 S3_ACCESS_KEY=AKIA...
 S3_SECRET_KEY=...
@@ -154,7 +155,7 @@ S3_REGION=us-east-1`}</code>
               </pre>
 
               <div className="alert alert-warning d-flex gap-2 mb-0 mt-3">
-                <span className="fas fa-exclamation-triangle mt-1"></span>
+                <IconAlertTriangle size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   All S3 object keys are prefixed with <code>{'{orgId}/{type}/{filename}'}</code>.
                   Never allow user-supplied values to compose the key path directly — always
@@ -173,9 +174,9 @@ S3_REGION=us-east-1`}</code>
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#env-vars">Environment Variables</a>
-                <a className="nav-link py-1 fs--1" href="#ai-configuration">AI Configuration</a>
-                <a className="nav-link py-1 fs--1" href="#storage-configuration">Storage Configuration</a>
+                <a className="nav-link py-1 small" href="#env-vars">Environment Variables</a>
+                <a className="nav-link py-1 small" href="#ai-configuration">AI Configuration</a>
+                <a className="nav-link py-1 small" href="#storage-configuration">Storage Configuration</a>
               </nav>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconStar, IconRocket, IconUsers, IconChartBar } from '@tabler/icons-react';
 
 export function ChangelogPage() {
   return (
@@ -12,23 +13,23 @@ export function ChangelogPage() {
                 <h2 id="v1-7-0" className="docs-anchor mb-0">v1.7.0</h2>
                 <span className="badge bg-success">Current</span>
               </div>
-              <p className="text-600 fs--1 mb-3">Released 2026-06-10</p>
+              <p className="text-secondary small mb-3">Released 2026-06-10</p>
 
               <h6 className="text-primary mb-2">
-                <span className="fas fa-star me-2"></span>Falcon Theme Migration
+                <IconStar size={14} className="me-2" />Tabler Theme Migration
               </h6>
-              <ul className="fs--1 mb-3">
-                <li>Migrated the entire frontend from Adminator-inspired styles to <strong>Falcon v3.14.0</strong> Bootstrap 5 admin template</li>
-                <li>All 30+ dashboard pages re-styled with Falcon utility classes, cards, and layout patterns</li>
-                <li>ECharts charts integrated with Falcon color tokens for light and dark mode</li>
+              <ul className="small mb-3">
+                <li>Migrated the entire frontend from Adminator-inspired styles to <strong>Tabler v1.4.0</strong> Bootstrap 5 admin template</li>
+                <li>All 30+ dashboard pages re-styled with Tabler utility classes, cards, and layout patterns</li>
+                <li>ECharts charts integrated with Tabler color tokens for light and dark mode</li>
                 <li>New sticky anchor-link sidebar added to all documentation pages</li>
                 <li>Dark mode implementation using <code>data-bs-theme</code> attribute — FOUC-free with inline script fallback</li>
               </ul>
 
               <h6 className="text-primary mb-2">
-                <span className="fas fa-rocket me-2"></span>SaaS Transformation
+                <IconRocket size={14} className="me-2" />SaaS Transformation
               </h6>
-              <ul className="fs--1 mb-3">
+              <ul className="small mb-3">
                 <li>Full multi-tenant architecture with <code>org_id</code> scoping on every DB query</li>
                 <li>Fastify + Drizzle + PostgreSQL 16 backend replacing the CLI-only workflow</li>
                 <li>BullMQ async job queues for evaluation, scan, PDF, liveness, analytics, and import workers</li>
@@ -38,9 +39,9 @@ export function ChangelogPage() {
               </ul>
 
               <h6 className="text-primary mb-2">
-                <span className="fas fa-users me-2"></span>Multi-Tenancy &amp; Teams
+                <IconUsers size={14} className="me-2" />Multi-Tenancy &amp; Teams
               </h6>
-              <ul className="fs--1 mb-3">
+              <ul className="small mb-3">
                 <li>Organization memberships, invites, and RBAC (owner / admin / member)</li>
                 <li>SSO support via SAML 2.0 and OIDC for enterprise plans</li>
                 <li>Per-org branding settings (logo, primary color, display name) applied at runtime</li>
@@ -49,9 +50,9 @@ export function ChangelogPage() {
               </ul>
 
               <h6 className="text-primary mb-2">
-                <span className="fas fa-chart-bar me-2"></span>ECharts &amp; Analytics
+                <IconChartBar size={14} className="me-2" />ECharts &amp; Analytics
               </h6>
-              <ul className="fs--1 mb-0">
+              <ul className="small mb-0">
                 <li>Replaced Recharts with <code>echarts-for-react</code> across the entire dashboard</li>
                 <li>Score distribution histogram, pipeline funnel, acceptance trend, company heatmap</li>
                 <li>Pattern analysis surfacing rejection reasons and targeting gaps</li>
@@ -63,9 +64,9 @@ export function ChangelogPage() {
           <div className="card mb-3">
             <div className="card-body">
               <h2 id="v1-6-0" className="docs-anchor mb-3">v1.6.0</h2>
-              <p className="text-600 fs--1 mb-3">Released 2025-04-18</p>
+              <p className="text-secondary small mb-3">Released 2025-04-18</p>
 
-              <ul className="fs--1 mb-0">
+              <ul className="small mb-0">
                 <li>Multi-CLI support via the Open Agent Skill Standard — skills now work across Claude Code, Gemini CLI, Codex, OpenCode, Qwen, and Copilot</li>
                 <li>Added German (<code>modes/de/</code>), French (<code>modes/fr/</code>), and Japanese (<code>modes/ja/</code>) language mode packs</li>
                 <li>New <code>interview-prep</code> mode for company-specific interview coaching with STAR+R story bank</li>
@@ -81,9 +82,9 @@ export function ChangelogPage() {
           <div className="card mb-3">
             <div className="card-body">
               <h2 id="v1-5-0" className="docs-anchor mb-3">v1.5.0</h2>
-              <p className="text-600 fs--1 mb-3">Released 2024-11-03</p>
+              <p className="text-secondary small mb-3">Released 2024-11-03</p>
 
-              <ul className="fs--1 mb-0">
+              <ul className="small mb-0">
                 <li>Initial public open-source release of Career-Ops CLI</li>
                 <li>AI-powered offer evaluation with six-block scoring system (A–F)</li>
                 <li>PDF report generation via Playwright HTML-to-PDF pipeline</li>
@@ -107,11 +108,11 @@ export function ChangelogPage() {
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#v1-7-0">
+                <a className="nav-link py-1 small" href="#v1-7-0">
                   v1.7.0 <span className="badge bg-success ms-1" style={{ fontSize: '0.65rem' }}>Current</span>
                 </a>
-                <a className="nav-link py-1 fs--1" href="#v1-6-0">v1.6.0</a>
-                <a className="nav-link py-1 fs--1" href="#v1-5-0">v1.5.0</a>
+                <a className="nav-link py-1 small" href="#v1-6-0">v1.6.0</a>
+                <a className="nav-link py-1 small" href="#v1-5-0">v1.5.0</a>
               </nav>
             </div>
           </div>

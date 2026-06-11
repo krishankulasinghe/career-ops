@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 export function GulpPage() {
   return (
@@ -15,7 +16,7 @@ export function GulpPage() {
                 simultaneously during development, along with the BullMQ worker process.
               </p>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Terminal 1 — Postgres, Redis, MinIO
 docker compose up -d
 
@@ -37,7 +38,7 @@ cd frontend && npm run dev   # listens on :5173`}</code>
               </p>
 
               <div className="alert alert-info d-flex gap-2 mb-0 mt-3">
-                <span className="fas fa-info-circle mt-1"></span>
+                <IconInfoCircle size={16} className="mt-1 flex-shrink-0" />
                 <div>
                   Health check: <code>GET http://localhost:3000/health</code> pings Postgres,
                   Redis, and S3. All three must be green before the API accepts traffic.
@@ -55,7 +56,7 @@ cd frontend && npm run dev   # listens on :5173`}</code>
                 <code>dist/</code>.
               </p>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Frontend — outputs to frontend/dist/
 cd frontend && npm run build
 
@@ -71,7 +72,7 @@ npm start`}</code>
                 The repo ships a multi-stage <code>Dockerfile</code> that builds both the API
                 and frontend in a single image:
               </p>
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Build the image
 docker build -t career-ops-saas:latest .
 
@@ -90,7 +91,7 @@ docker run -p 3000:3000 --env-file .env.production career-ops-saas:latest`}</cod
                 in <code>saas/tests/</code> alongside the modules they cover.
               </p>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Run all tests once
 npm test
 
@@ -131,7 +132,7 @@ npx vitest run tests/modules/evaluations.test.ts`}</code>
                 can be merged to <code>main</code>.
               </p>
 
-              <pre className="bg-100 rounded-2 p-3 fs--1 overflow-auto">
+              <pre className="bg-100 rounded-2 p-3 small overflow-auto">
                 <code>{`# Run the same checks locally that CI runs
 npx tsc --noEmit            # type check
 npx eslint src              # lint
@@ -150,10 +151,10 @@ node ../../test-all.mjs     # CLI pipeline checks (63+ assertions)`}</code>
             </div>
             <div className="card-body p-0">
               <nav className="nav flex-column py-2">
-                <a className="nav-link py-1 fs--1" href="#dev-server">Development Server</a>
-                <a className="nav-link py-1 fs--1" href="#production-build">Building for Production</a>
-                <a className="nav-link py-1 fs--1" href="#testing">Testing</a>
-                <a className="nav-link py-1 fs--1" href="#environment-setup">Environment Setup</a>
+                <a className="nav-link py-1 small" href="#dev-server">Development Server</a>
+                <a className="nav-link py-1 small" href="#production-build">Building for Production</a>
+                <a className="nav-link py-1 small" href="#testing">Testing</a>
+                <a className="nav-link py-1 small" href="#environment-setup">Environment Setup</a>
               </nav>
             </div>
           </div>
