@@ -1,6 +1,8 @@
-/* Career-Ops brand: Tabler green primary */
+/* Career-Ops brand: Tabler green primary, system sans-serif font */
 :root,
 [data-bs-theme="light"] {
+  --tblr-font-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --tblr-body-font-family: var(--tblr-font-sans-serif);
   --tblr-primary: #2fb344;
   --tblr-primary-rgb: 47, 179, 68;
   --tblr-primary-fg: #ffffff;
