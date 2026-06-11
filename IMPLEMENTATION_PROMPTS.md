@@ -1618,15 +1618,1242 @@ The MVP is complete.
 
 ---
 
-## After MVP: What's Next
+## Phase 2 & 3: Prompts 20-33
 
-After completing all 19 prompts, you have a working MVP. The next prompts (not included here) would cover:
+The prompts below extend the MVP into the Phase 2 (Scanner + Analytics + Teams + Billing) and Phase 3 (AI Admin) feature sets defined in `SAAS_TRANSFORMATION_PLAN.md` sections 11.2 and 11.3. Run them in order, after Prompt 19.
 
-- **Prompt 20-22:** Portal Scanner module (port scan.mjs, cron scheduling)
-- **Prompt 23-24:** Batch evaluation (submit multiple JDs)
-- **Prompt 25-26:** Analytics (funnel, patterns, follow-ups — port from analyze-patterns.mjs)
-- **Prompt 27-28:** Team features (invitations, RBAC enforcement)
-- **Prompt 29-30:** Billing (Stripe integration, plan limits)
-- **Prompt 31-33:** AI admin tools (anomaly detection, smart dedup, cost dashboard)
+---
 
-Want me to write those too? Just ask after the MVP is complete.
+## Prompt 20: Portals Module (CRUD + ATS Detection + YAML Import)
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md sections 6.1 (PORTALS endpoints) and 11.2 (Week 9-12).
+
+Also read the existing `scan.mjs` and `portals.yml` in the project root to understand the portal config shape (name, careers_url, api_type, api_url, enabled, filters, etc.) and the ATS auto-detection patterns (Greenhouse boards.greenhouse.io, Ashby jobs.ashbyhq.com, Lever jobs.lever.co).
+
+The `detectApi()` pure function was already ported in Prompt 16 to `saas/src/shared/ats-utils.ts`. Reuse it.
+
+Build the Portals module.
+
+### 1. saas/src/modules/portals/portals.service.ts
+
+- `listPortals(orgId, filters?)` — paginated. Filter by enabled (boolean), api_type, name (ilike). Sort by name ASC.
+- `getPortal(id, orgId)` — return single portal (org-scoped). Throw NotFoundError if not in org.
+- `createPortal(orgId, data: {name, careersUrl, apiType?, apiUrl?, enabled?, metadata?})` —
+  1. If apiType/apiUrl not provided, call detectApi(careersUrl) and set them
+  2. Insert. Return created.
+- `updatePortal(id, orgId, data)` — update any field. Re-run detectApi if careersUrl changes and apiType is null. Return updated.
+- `deletePortal(id, orgId)` — soft delete by setting enabled=false (preserves scan_results FK). Actual delete only if no scan_results reference it.
+- `importFromYaml(orgId, yamlContent)` —
+  1. Parse YAML with `yaml` package (add dep)
+  2. Expect shape: `portals: [{name, careers_url, enabled?, title_filter?, ...}]` and optionally `title_filter: {positive: [], negative: []}` at root
+  3. For each portal entry: detectApi() if no api_type, upsert by (org_id, name)
+  4. Persist root-level title_filter entries into `title_filters` table (type='positive'/'negative')
+  5. Return {imported: N, updated: N, skipped: N, errors: [...]}
+- `listTitleFilters(orgId)` — return {positive: [], negative: []}
+- `setTitleFilters(orgId, positive: string[], negative: string[])` — delete existing, insert new. Return new lists.
+
+### 2. saas/src/modules/portals/portals.routes.ts
+
+- `GET /api/v1/portals` — requireAuth, requireOrg. Query: ?enabled=true&apiType=greenhouse&page=1&limit=50. Paginated.
+- `POST /api/v1/portals` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {name, careersUrl, apiType?, apiUrl?, enabled?, metadata?}. Create.
+- `GET /api/v1/portals/:id` — requireAuth, requireOrg. Return portal.
+- `PUT /api/v1/portals/:id` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Update.
+- `DELETE /api/v1/portals/:id` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Soft delete.
+- `POST /api/v1/portals/import` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {yaml: string}. Bulk import.
+- `GET /api/v1/portals/title-filters` — requireAuth, requireOrg. Return positive/negative lists.
+- `PUT /api/v1/portals/title-filters` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {positive: string[], negative: string[]}. Update.
+
+### 3. Audit logging
+
+Add audit.log() calls: `portal.created`, `portal.updated`, `portal.deleted`, `portal.imported`, `title_filters.updated`.
+
+### 4. Register routes in server.ts
+
+### 5. Tests
+
+Create `saas/tests/modules/portals.test.ts`:
+- Upsert behavior (same name + org → updates, not duplicates)
+- detectApi integration (greenhouse/ashby/lever URLs auto-detect)
+- YAML import with mixed valid/invalid entries
+- Soft delete preserves rows when scan_results FK exists
+
+Run: `cd saas && npx vitest run tests/modules/portals.test.ts`
+
+Test manually:
+1. POST /api/v1/portals with `{"name": "Stripe", "careersUrl": "https://boards.greenhouse.io/stripe"}` — verify api_type='greenhouse' auto-detected
+2. POST /api/v1/portals/import with sample portals.yml content
+3. GET /api/v1/portals?enabled=true — verify list
+4. PUT /api/v1/portals/title-filters with positive: ["engineer", "developer"], negative: ["intern"]
+```
+
+---
+
+## Prompt 21: Scanner Service & Worker (Greenhouse/Ashby/Lever)
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md section 11.2 (Week 9-12: Scanner).
+
+Read the existing `scan.mjs` in the project root carefully. Note the API patterns:
+- **Greenhouse:** GET `https://boards-api.greenhouse.io/v1/boards/{boardId}/jobs` → `{jobs: [{id, title, absolute_url, location: {name}, updated_at}]}`
+- **Ashby:** GET `https://api.ashbyhq.com/posting-api/job-board/{boardId}` → `{jobs: [{id, title, jobUrl, locationName, publishedDate}]}`
+- **Lever:** GET `https://api.lever.co/v0/postings/{boardId}?mode=json` → array of `{id, text, hostedUrl, categories: {location}, createdAt}`
+
+Build the Scanner.
+
+### 1. saas/src/modules/scanner/scanner.service.ts
+
+- `triggerScan(userId, orgId, portalIds?: string[])` —
+  1. Check usage limits via cost-tracker.checkLimits(orgId, 'scan')
+  2. Resolve portals: if portalIds provided, use those (verify org-scoped). Otherwise all enabled portals for org.
+  3. Create ai_task (task_type: 'scan', input: {portalIds, triggered_by: userId})
+  4. Enqueue to 'scan' BullMQ queue
+  5. Return {taskId, portalCount}
+- `getScanStatus(taskId, userId)` — return ai_task status + output (portals scanned, new results count)
+- `listResults(orgId, filters?)` — paginated. Filter by source (portal name), company, status, dateFrom (first_seen >=). Sort by first_seen DESC.
+- `getScanHistory(orgId, pagination)` — paginated. Group ai_tasks where task_type='scan' by created_at. Return list with portal counts and new-results counts.
+- `markResultProcessed(id, orgId, status)` — update scan_results.status ('added'|'skipped'|'evaluated') and processed_at.
+- `convertToPipeline(orgId, userId, resultIds: string[])` — for each result, add to pipeline_items (dedup by URL). Mark result status='added'. Return {added: N, duplicates: N}.
+
+### 2. saas/src/modules/scanner/scanner.fetchers.ts
+
+Export per-ATS fetchers. Each returns a normalized array `{externalId, title, url, company, location, postedAt}`:
+
+- `fetchGreenhouse(boardId, portalName)` — GET boards-api.greenhouse.io endpoint, map fields.
+- `fetchAshby(boardId, portalName)` — GET posting-api endpoint, map fields.
+- `fetchLever(boardId, portalName)` — GET api.lever.co endpoint, map fields.
+- `fetchPortal(portal)` — dispatch based on portal.api_type. Throws if unknown type.
+
+Use native fetch with 30s timeout. Retry once on 5xx with 2s backoff.
+
+### 3. saas/src/modules/scanner/scanner.queue.ts
+
+Create BullMQ Queue 'scan'. Job options: 2 retries, exponential backoff (5s, 30s).
+
+### 4. saas/src/modules/scanner/scanner.worker.ts
+
+Worker for 'scan' queue:
+1. Update ai_task status='processing', started_at
+2. Load portals from DB by IDs
+3. Load org title_filters (positive + negative)
+4. For each portal, in parallel batches of 5:
+   - Call fetchPortal(portal)
+   - For each result: apply title filter (must match a positive keyword if any defined, and not match any negative) — pure helper `buildTitleFilter()` from Prompt 16
+   - For each surviving result, upsert into scan_results ON CONFLICT (org_id, url) DO NOTHING. Track count of inserted vs skipped.
+5. Update ai_task: status='completed', output: {portalsScanned, newResults, skippedDuplicates, filteredOut, errors: [{portal, error}]}
+6. Track usage via cost-tracker (scans_count++) — note: scans are free of token cost but count toward plan scan quota
+7. Audit log: `scanner.completed`
+
+Errors: catch per-portal errors so one failed portal doesn't fail the whole scan. Aggregate errors into output.errors.
+
+### 5. saas/src/modules/scanner/scanner.routes.ts
+
+- `POST /api/v1/scanner/run` — requireAuth, requireOrg. Body: `{portalIds?: string[]}`. Trigger. Return {taskId, portalCount}.
+- `GET /api/v1/scanner/run/:taskId/status` — requireAuth, requireOrg. Status.
+- `GET /api/v1/scanner/results` — requireAuth, requireOrg. Paginated results. Query: ?source=&company=&status=&dateFrom=&page=&limit=.
+- `POST /api/v1/scanner/results/convert` — requireAuth, requireOrg. Body: {resultIds: string[]}. Push to pipeline.
+- `PUT /api/v1/scanner/results/:id` — requireAuth, requireOrg. Body: {status}. Mark processed.
+- `GET /api/v1/scanner/history` — requireAuth, requireOrg. Paginated history.
+
+### 6. Register worker in workers/index.ts, routes in server.ts
+
+### 7. Tests
+
+Create `saas/tests/modules/scanner.test.ts`:
+- Mock fetch for each ATS, assert field mapping is correct
+- Filter logic: positive only, negative only, both, neither
+- Dedup: re-running same scan doesn't create duplicates
+
+Manual test:
+1. Create a portal with `{"name": "Stripe", "careersUrl": "https://boards.greenhouse.io/stripe"}`
+2. POST /api/v1/scanner/run with no portalIds → scans all enabled portals
+3. Poll status until completed
+4. GET /api/v1/scanner/results — verify rows
+5. POST /api/v1/scanner/results/convert with a few IDs — verify they appear in /api/v1/pipeline
+```
+
+---
+
+## Prompt 22: Scanner UI + Cron Scheduling
+
+```
+The Scanner backend is working. Now build the Scanner UI and recurring scan scheduling.
+
+### 1. saas/src/modules/scanner/scanner.schedule.ts
+
+- `upsertSchedule(orgId, userId, cron: string, portalIds?: string[], enabled: boolean)` —
+  1. Validate cron expression using `cron-parser` (add dep). Reject if invalid.
+  2. Store in organizations.settings.scanner_schedule = {cron, portalIds, enabled, updatedBy: userId, updatedAt}
+  3. Register BullMQ repeatable job: queue.add('scheduled-scan', {orgId, portalIds}, {repeat: {pattern: cron}, jobId: `scan-${orgId}`})
+  4. If enabled=false, removeRepeatable.
+- `getSchedule(orgId)` — return current schedule from settings
+- `removeSchedule(orgId)` — removeRepeatable from queue + clear settings entry
+
+When the scheduled job fires, the worker handles it identically to a manual scan but with input.triggered_by='schedule'.
+
+### 2. Schedule routes (extend scanner.routes.ts)
+
+- `GET /api/v1/scanner/schedule` — requireAuth, requireOrg. Return current schedule.
+- `PUT /api/v1/scanner/schedule` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {cron, portalIds?, enabled}. Upsert.
+- `DELETE /api/v1/scanner/schedule` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Remove.
+
+### 3. Frontend API hooks — saas/frontend/src/api/scanner.ts
+
+- `useRunScan()` — POST /api/v1/scanner/run mutation
+- `useScanStatus(taskId)` — GET status, refetchInterval 2000 while pending/processing
+- `useScanResults(filters)` — GET /api/v1/scanner/results
+- `useConvertResults()` — POST /scanner/results/convert mutation
+- `useScanHistory(pagination)` — GET /scanner/history
+- `useScanSchedule()` — GET /scanner/schedule
+- `useUpdateScanSchedule()` — PUT mutation
+- `useDeleteScanSchedule()` — DELETE mutation
+
+### 4. Portals API hooks — saas/frontend/src/api/portals.ts
+
+CRUD hooks for /api/v1/portals + title-filters get/set + import.
+
+### 5. saas/frontend/src/pages/Portals.tsx
+
+- Table: Name, Careers URL (truncated, link), ATS type (badge), Enabled (toggle), Actions
+- "Add Portal" button → modal: name, careersUrl, enabled. Submit → auto-detect ATS shown after creation.
+- "Import YAML" button → modal: paste YAML textarea, preview parsed portal count, import.
+- "Title Filters" panel: two tag inputs (positive / negative), save button.
+
+### 6. saas/frontend/src/pages/Scanner.tsx
+
+Layout:
+- Header: "Scan Now" button (multi-select portals dropdown, default all)
+- Status banner: shows in-progress scan with portal count + progress text (polled)
+- KPI row: Last scan time, New results this week, Total open scans, Conversion rate (results → applications)
+- Recurring schedule card: cron expression input + enabled toggle, "Save Schedule" button, human-readable description ("Every day at 9 AM")
+- Results table: New (badge if status='added' and < 24h), Date Seen, Title, Company, Location, Source (portal name), Status, Actions
+  - Multi-select rows
+  - Bulk action: "Convert to Pipeline" (calls convert endpoint)
+  - Per-row: "Evaluate" (creates pipeline item + immediately triggers evaluation), "Skip" (status='skipped')
+- Filter bar: status, source (portal), company search, date range
+- Pagination
+- Scan history accordion at bottom: collapsed by default, expands to show last 20 scans with portal count and new-results count
+
+### 7. Update Sidebar nav
+
+Enable "Scanner" and add "Portals" item. Remove "coming soon" badge.
+
+### 8. Tests
+
+Verify:
+- Schedule cron validation rejects invalid expressions
+- Schedule disabled → no repeatable job exists in BullMQ
+- Schedule enabled → repeatable job registered, fires per cron
+
+Manual:
+1. Add 2-3 portals (one of each ATS type if possible)
+2. /scanner → click "Scan Now"
+3. Watch progress → results populate
+4. Multi-select 3 results → "Convert to Pipeline"
+5. Set schedule "0 9 * * *", enable → verify scheduled job in Redis (`BullMQ` repeat keys)
+6. Disable → verify removed
+```
+
+---
+
+## Prompt 23: Batch Evaluation + Liveness Checker
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md sections 6.1 (LIVENESS endpoints) and 11.2 (Week 13-16).
+
+The liveness classifier was ported in Prompt 16 to `saas/src/shared/liveness-classifier.ts`. The evaluation flow already exists from Prompt 7.
+
+Now wire up batch evaluation and a liveness check worker.
+
+### 1. Batch evaluation (extend evaluations module)
+
+Add to evaluations.service.ts:
+- `submitBatch(userId, orgId, items: Array<{url?: string, jdText?: string, company?: string, role?: string}>)` —
+  1. Check usage limits (allowed >= items.length, or partial allowed)
+  2. Validate at least one of url/jdText per item
+  3. Create one ai_task per item (task_type: 'evaluation', input: item, metadata: {batchId: nanoid()})
+  4. Enqueue each to 'evaluation' queue
+  5. Return {batchId, taskIds: [...], queued: N, rejected: [...] }
+
+- `getBatchStatus(batchId, userId, orgId)` — return all ai_tasks where input.batchId = batchId, summarize {pending, processing, completed, failed} counts, list each with status+output.
+
+Add to evaluations.routes.ts:
+- `POST /api/v1/evaluations/batch` — requireAuth, requireOrg. Body: {items: [...]}. Returns batchId + taskIds.
+- `GET /api/v1/evaluations/batch/:batchId/status` — requireAuth, requireOrg. Returns aggregate + per-item status.
+
+### 2. Liveness module
+
+#### saas/src/modules/liveness/liveness.service.ts
+
+- `submitLivenessCheck(userId, orgId, urls: string[])` —
+  1. Limit max 50 URLs per request
+  2. Create ai_task (task_type: 'liveness', input: {urls})
+  3. Enqueue to 'liveness' queue
+  4. Return {taskId, count}
+- `getLivenessStatus(taskId, userId, orgId)` — return ai_task with output array of {url, tier, signals, fetchedAt}
+- `getLivenessForApplications(applicationIds, orgId)` — for each application's job_url, lookup most recent liveness result (from ai_tasks where url matches), return map.
+
+#### saas/src/modules/liveness/liveness.queue.ts
+
+Create BullMQ Queue 'liveness'. Concurrency 5.
+
+#### saas/src/modules/liveness/liveness.worker.ts
+
+Worker for 'liveness':
+1. Update ai_task status='processing'
+2. For each URL, in parallel batches of 5:
+   - Fetch URL with 15s timeout, user-agent string. Handle 404/410/expired domains.
+   - Strip HTML to text (cheap, no Playwright in worker)
+   - Run classifyLiveness(htmlText, statusCode) → returns {tier: 'active'|'expired'|'uncertain', signals: [...]}
+   - Append result
+3. Update ai_task: status='completed', output: [{url, tier, signals, fetchedAt}], latency, tokens=0, cost=0
+
+Errors per URL: capture as result {url, tier: 'error', error: msg}. Don't fail the whole task.
+
+#### saas/src/modules/liveness/liveness.routes.ts
+
+- `POST /api/v1/liveness/check` — requireAuth, requireOrg. Body: {urls: string[]} (max 50). Submit. Return {taskId, count}.
+- `GET /api/v1/liveness/:taskId/status` — requireAuth, requireOrg. Return status + results.
+- `POST /api/v1/liveness/applications` — requireAuth, requireOrg. Body: {applicationIds: string[]}. Triggers liveness check on each application's job_url. Returns {taskId}.
+
+### 3. Worker registration
+
+Register liveness worker in workers/index.ts.
+
+### 4. Frontend integration
+
+API hooks `saas/frontend/src/api/batch.ts`:
+- `useSubmitBatch()` mutation
+- `useBatchStatus(batchId)` — refetchInterval 3000 while any item pending/processing
+
+API hooks `saas/frontend/src/api/liveness.ts`:
+- `useCheckLiveness()` mutation
+- `useLivenessStatus(taskId)` polled
+- `useCheckLivenessForApplications()` mutation
+
+#### Batch UI
+
+Update Pipeline page: "Evaluate All Pending" → uses submitBatch (more efficient than per-item process). Show batch progress panel.
+
+Update Applications page: bulk-select rows → "Check Liveness" button → triggers liveness for selected. Update column "Liveness" with tier badge (Active green / Expired gray / Uncertain yellow). Auto-refresh from polled status.
+
+### 5. Tests
+
+`saas/tests/modules/batch.test.ts`:
+- 100 items: enforce quota correctly
+- Mixed valid/invalid items: invalid rejected, valid queued
+
+`saas/tests/modules/liveness.test.ts`:
+- Mocked fetch returning expired page → tier='expired'
+- Mocked 404 → tier='expired'
+- Mocked active job page → tier='active'
+
+Manual:
+1. /pipeline → "Evaluate All Pending" with 5 items → watch batch progress
+2. /applications → select 3 → "Check Liveness" → verify tiers update
+```
+
+---
+
+## Prompt 24: Follow-ups Module
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md section 6.1 (FOLLOW-UPS) and 11.2 (Week 13-16).
+
+Read the existing `followup-cadence.mjs` in the project root to understand the cadence rules:
+- Day 7 after Applied → first follow-up due
+- Day 14 → second follow-up
+- Day 21 → final follow-up
+- Urgency levels: overdue (red), due-today (orange), soon (yellow), scheduled (green)
+
+The cadence calculator was ported in Prompt 16 to `saas/src/shared/analytics-utils.ts` (or add it now if not done).
+
+### 1. saas/src/modules/followups/followups.service.ts
+
+- `listFollowUps(userId, orgId, filters?)` — paginated. Join with applications. Filter by urgency (computed), application status, dateFrom/To. Include current urgency for each item.
+- `getCadence(userId, orgId)` — for every application in status Applied/Responded, compute next follow-up date and urgency. Return list grouped by urgency tier.
+- `recordFollowUp(userId, orgId, data: {applicationId, date, channel, contactName?, contactEmail?, notes?})` — insert into follow_ups. If channel/contactName provided, optionally update application notes.
+- `updateFollowUp(id, userId, data)` — update notes, channel.
+- `deleteFollowUp(id, userId)` — delete.
+
+Helper `computeUrgency(application, lastFollowUpDate?)` — uses ported `followup-cadence.mjs` logic. Returns 'overdue'|'due-today'|'soon'|'scheduled'|'none'.
+
+### 2. saas/src/modules/followups/followups.routes.ts
+
+- `GET /api/v1/followups` — requireAuth, requireOrg. Query: ?urgency=overdue&page=&limit=. Return list with urgency.
+- `GET /api/v1/followups/cadence` — requireAuth, requireOrg. Return grouped cadence view.
+- `POST /api/v1/followups` — requireAuth, requireOrg. Body: {applicationId, date, channel, contactName?, contactEmail?, notes?}. Record.
+- `PUT /api/v1/followups/:id` — requireAuth, requireOrg. Update.
+- `DELETE /api/v1/followups/:id` — requireAuth, requireOrg. Delete.
+
+### 3. Frontend
+
+API hooks `saas/frontend/src/api/followups.ts`:
+- `useFollowUps(filters)`, `useCadence()`, `useRecordFollowUp()`, `useUpdateFollowUp()`, `useDeleteFollowUp()`.
+
+Page `saas/frontend/src/pages/FollowUps.tsx`:
+- Top: Urgency-tier cards (Overdue count red, Due Today orange, Soon yellow, Scheduled green) — click filters list
+- Table: Application (Company / Role), Last Status Change, Days Since, Next Action, Urgency badge, Actions (Record button)
+- "Record Follow-up" modal: date (default today), channel (email/linkedin/phone/other), contact name + email, notes
+- Per-application detail drawer shows full follow-up history
+
+Add nav item "Follow-ups" in sidebar.
+
+### 4. Email reminders (optional, behind feature flag)
+
+If `env.EMAIL_PROVIDER` set, register a daily cron job that:
+- For each user with overdue follow-ups, send a single digest email (use whatever email service is wired in section 18 of the plan — placeholder logger if not).
+
+### 5. Tests
+
+- Cadence math: Day 6 → 'soon', Day 7 → 'due-today', Day 8 → 'overdue' after Applied
+- Recording a follow-up resets urgency for next cycle
+
+Manual:
+1. Mark a few applications as Applied dated 8+ days ago → /followups shows them as Overdue
+2. Record follow-up → urgency moves to 'scheduled' for next cycle
+```
+
+---
+
+## Prompt 25: Analytics Backend (Funnel, Patterns, Score Threshold)
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md section 6.1 (ANALYTICS) and 11.2 (Week 13-16).
+
+The analytics pure functions (classifyRemote, classifyCompanySize, extractBlockerType, scoreStats) were ported in Prompt 16 to `saas/src/shared/analytics-utils.ts`.
+
+Build the analytics service.
+
+### 1. saas/src/modules/analytics/analytics.service.ts
+
+- `getFunnel(orgId, filters?: {dateFrom?, dateTo?, archetype?})` — count applications by status. Return:
+  ```
+  {
+    stages: [
+      {status: 'Evaluated', count, percentage},
+      {status: 'Applied', count, percentage, conversionFromPrev},
+      {status: 'Responded', ...},
+      {status: 'Interview', ...},
+      {status: 'Offer', ...}
+    ],
+    rejectedTotal,
+    discardedTotal,
+    totalEvaluated
+  }
+  ```
+- `getPatterns(orgId, filters?)` — analyze rejected/discarded applications. Return:
+  ```
+  {
+    byArchetype: [{archetype, count, avgScore, rejectionRate}],
+    byCompanySize: [{size, count, rejectionRate}],
+    byRemotePolicy: [{policy, count, rejectionRate}],
+    blockerTypes: [{type, count, examples: [...]}],
+    scoreDistribution: {evaluated: {...stats}, applied: {...}, rejected: {...}, offer: {...}}
+  }
+  ```
+  Uses analytics-utils helpers. Mines gap descriptions from evaluations for blocker classification.
+
+- `getScoreThreshold(orgId)` — find the score below which rejection rate exceeds 80%. Compute by binning applications into 0.5-wide score buckets, computing rejection rate per bucket, finding the lowest bucket with rate <= 20%. Return `{recommendedMinScore, rationale: "Below 3.5 → 87% rejection rate over 23 samples"}`.
+
+- `getFollowUpsAnalytics(orgId)` — average response time (Applied → Responded), follow-up effectiveness rate (response rate with vs without follow-up).
+
+- `getTimeSeriesEvaluations(orgId, granularity: 'day'|'week'|'month', dateFrom, dateTo)` — buckets of evaluation count, avg score over time.
+
+### 2. saas/src/modules/analytics/analytics.routes.ts
+
+- `GET /api/v1/analytics/funnel` — requireAuth, requireOrg. Query: ?dateFrom=&dateTo=&archetype=.
+- `GET /api/v1/analytics/patterns` — requireAuth, requireOrg.
+- `GET /api/v1/analytics/score-threshold` — requireAuth, requireOrg.
+- `GET /api/v1/analytics/followups` — requireAuth, requireOrg.
+- `GET /api/v1/analytics/timeseries` — requireAuth, requireOrg. Query: ?granularity=week&dateFrom=&dateTo=.
+
+### 3. Caching
+
+Add to analytics.service.ts: per-org cache (Redis, 10 min TTL) keyed on org+filters hash. Bust cache when applications/evaluations updated (use a Redis pub/sub or a simpler "lastMutationAt:org:{orgId}" timestamp comparison).
+
+### 4. Tests
+
+`saas/tests/modules/analytics.test.ts`:
+- Seed 100 mock applications across statuses → funnel percentages correct
+- Score threshold: synthetic data where score 3.5 has 80% rejection → recommendedMinScore returns 3.5
+- Time series: 30 days of data, weekly granularity → 4-5 buckets
+
+Manual:
+1. After accumulating data via prior prompts, GET each endpoint
+2. Verify funnel numbers match counts in /applications by status
+3. Verify patterns surface real archetype/companySize breakdowns
+```
+
+---
+
+## Prompt 26: Analytics Frontend (Funnel, Patterns, Trends)
+
+```
+Analytics backend is ready. Now build the Analytics UI.
+
+### 1. API hooks — saas/frontend/src/api/analytics.ts
+
+- `useFunnel(filters)`, `usePatterns(filters)`, `useScoreThreshold()`, `useFollowUpsAnalytics()`, `useTimeSeriesEvaluations(granularity, dateFrom, dateTo)`.
+
+### 2. Reusable charts (Recharts)
+
+Create in `saas/frontend/src/components/charts/`:
+- `FunnelChart.tsx` — vertical funnel with stage labels, counts, drop-off arrows
+- `BarChartCard.tsx` — generic horizontal bar chart for breakdowns
+- `LineChartCard.tsx` — line chart for time series
+- `ScoreDistributionChart.tsx` — histogram with status overlay (stacked bars)
+
+All charts respect dark/light theme via CSS vars defined in Prompt 11.
+
+### 3. saas/frontend/src/pages/Analytics.tsx
+
+Tabs:
+**Funnel tab:**
+- Filter bar: date range, archetype dropdown
+- Big funnel chart in center
+- Stage cards beneath: each shows count + conversion rate from previous stage
+- Side panel: Rejected total, Discarded total, with breakdown into "Bad fit" vs "Closed" reasons
+
+**Patterns tab:**
+- Card: Recommended score threshold (big number + rationale line)
+- Bar charts row: By Archetype, By Company Size, By Remote Policy — each showing rejection rate
+- Blocker types card: top-5 reasons applications fail, with example snippets (collapsible)
+- Score distribution chart at bottom
+
+**Trends tab:**
+- Granularity toggle: Day / Week / Month
+- Line chart: evaluations per period, with secondary axis for average score
+- KPI strip: This Period vs Last Period (evals count delta %, avg score delta)
+
+**Follow-ups tab:**
+- Avg response time card (days)
+- Follow-up effectiveness card (response rate with follow-up vs without)
+- Funnel of: Applied → Responded → Interview, with/without follow-up overlay
+
+### 4. Dashboard enrichments
+
+Update `Dashboard.tsx`:
+- Replace placeholder "Analytics" tile with a Mini Funnel widget (4 stages, simplified)
+- Add "Recommended Min Score" KPI card using useScoreThreshold
+
+### 5. Enable Sidebar item
+
+Remove the "coming soon" badge from Analytics nav item.
+
+### 6. Loading + empty states
+
+- If org has < 10 applications: show empty state "Need at least 10 applications for meaningful patterns. You have N."
+- Per-chart skeleton during load
+
+Manual:
+1. /analytics → all four tabs render
+2. Verify funnel matches actual counts on /applications
+3. Patterns surface real archetypes from past evaluations
+4. Score threshold matches gut check on dataset
+```
+
+---
+
+## Prompt 27: Team Invitations + RBAC Enforcement
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md section 11.2 (Week 17-20: Teams + RBAC) and 13.1.
+
+Roles: owner > admin > member > viewer.
+
+### 1. Invitations table
+
+Add to schema: `invitations` — id (uuid pk), org_id (uuid ref organizations cascade), email (varchar 255 not null), role (varchar 20 not null), token (varchar 64 unique not null), invited_by (uuid ref users), expires_at (timestamp not null), accepted_at (timestamp), created_at. Index on (token), (org_id, email).
+
+Generate migration: `npx drizzle-kit generate && npx drizzle-kit push`.
+
+### 2. saas/src/modules/organizations/invitations.service.ts
+
+- `createInvitation(orgId, invitedBy, email, role)` —
+  1. Check inviter is owner/admin (caller already validated, this is internal check)
+  2. Check org member limits (current count + pending invites < max_members)
+  3. If user with email exists AND already a member → throw ConflictError
+  4. Generate token nanoid(64). 7-day expiry.
+  5. Insert. Send email (if EMAIL_PROVIDER configured) with link `${env.FRONTEND_URL}/invite/accept?token=...`. Else log the URL.
+  6. Return invitation (without token unless caller is owner/admin viewing pending invites).
+- `listInvitations(orgId, status?: 'pending'|'accepted'|'expired')` — list with status computed.
+- `acceptInvitation(token, userId)` —
+  1. Find by token, check not expired and not accepted
+  2. If invitee email doesn't match userId email → throw ForbiddenError
+  3. Create membership (org_id, user_id, role)
+  4. Mark invitation accepted_at = now
+  5. Return {orgId, role}
+- `revokeInvitation(id, orgId, callerUserId)` — caller must be owner/admin. Delete row.
+- `resendInvitation(id, orgId, callerUserId)` — caller must be owner/admin. Reset expiry, resend email.
+
+### 3. Update orgs.service.ts inviteMember
+
+Refactor to call invitations.service.createInvitation. Remove the legacy "create membership immediately if user exists" path; everyone goes through token acceptance now (cleaner, consistent).
+
+### 4. Invitation routes (extend orgs.routes.ts)
+
+- `POST /api/v1/orgs/:orgId/invitations` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {email, role}. Create.
+- `GET /api/v1/orgs/:orgId/invitations` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). List.
+- `DELETE /api/v1/orgs/:orgId/invitations/:id` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Revoke.
+- `POST /api/v1/orgs/:orgId/invitations/:id/resend` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Resend.
+- `POST /api/v1/invitations/accept` — requireAuth. Body: {token}. Accept. Returns {orgId, role}.
+- `GET /api/v1/invitations/:token` — public (no auth). Returns invitation metadata for the accept page (orgName, inviterName, role, email, expiresAt) — does NOT include sensitive info.
+
+### 5. RBAC enforcement audit
+
+Go through every existing route and ensure correct requireOrgRole:
+- Read-only (GET): any member (incl. viewer)
+- Mutations (POST/PUT/DELETE) on org-owned entities (CVs, applications, evaluations, pipeline, portals, etc.): member or above (NOT viewer)
+- Org settings + invitations + member management: owner or admin
+- Billing changes: owner only
+- Custom prompt templates: owner or admin
+
+Add `requireOrgRole('owner', 'admin', 'member')` middleware (exclude viewer) where appropriate. Add a `denyViewer` helper if convenient.
+
+For evaluation submission: viewer should NOT be able to submit. For viewing reports: viewer SHOULD be able to read.
+
+### 6. Frontend
+
+Update Settings → Team Members tab:
+- Two sections: "Members" (existing) and "Pending Invitations"
+- Pending invitations table: Email, Role, Invited By, Expires, Actions (Resend, Revoke)
+- "Invite Member" form: email + role dropdown (owner/admin/member/viewer)
+- Member role dropdown: editable inline (calls existing updateMemberRole)
+
+New page `saas/frontend/src/pages/AcceptInvite.tsx`:
+- Route: /invite/accept?token=...
+- Fetches public invitation metadata via GET /invitations/:token
+- If user is logged in AND email matches → "Accept Invitation" button → calls POST /invitations/accept → on success, switches active org and navigates to /dashboard
+- If user not logged in → "Sign in to accept" with login link that preserves the token
+- If email mismatch → error with "Sign in as {email} to accept"
+- If expired → error message
+
+API hooks `saas/frontend/src/api/invitations.ts`: useInvitationMetadata(token), useAcceptInvitation(), useListInvitations(orgId), useCreateInvitation(orgId), useRevokeInvitation(), useResendInvitation().
+
+### 7. Audit logging
+
+- `org.invitation_created`, `org.invitation_accepted`, `org.invitation_revoked`, `org.invitation_resent`
+- `org.member_role_updated`
+
+### 8. Tests
+
+`saas/tests/modules/invitations.test.ts`:
+- Create → token unique, 7-day expiry
+- Accept with matching email → membership created, invitation marked accepted
+- Accept with mismatched email → ForbiddenError
+- Accept expired → error
+- Revoke + resend behavior
+- Member limit enforcement (pending + active counted)
+
+RBAC tests `saas/tests/modules/rbac.test.ts`:
+- Viewer cannot POST application, evaluation, pipeline item
+- Viewer can GET them
+- Member cannot manage invitations or update org settings
+- Admin cannot remove the last owner
+- Owner can do everything
+
+Manual:
+1. Invite owner@test.com as admin → check email log/output for link
+2. Register that user separately → /invite/accept?token=... → accept
+3. Verify they appear in members with admin role
+4. Switch active org → can see same data
+5. Try viewer-level account: cannot submit evaluation (403)
+```
+
+---
+
+## Prompt 28: Notifications & Activity Feed
+
+```
+Build in-app notifications and an org activity feed.
+
+### 1. Notifications table
+
+Add to schema: `notifications` — id (uuid pk), user_id (uuid ref users cascade), org_id (uuid ref organizations cascade), type (varchar 50 not null), title (varchar 255 not null), body (text), entity_type (varchar 50), entity_id (uuid), read_at (timestamp), created_at (timestamp default now). Index on (user_id, read_at, created_at DESC).
+
+Generate + push migration.
+
+### 2. saas/src/modules/notifications/notifications.service.ts
+
+- `notify(userId, orgId, type, title, body, entityType?, entityId?)` — insert row. Fire and forget.
+- `notifyOrg(orgId, type, title, body, entityType?, entityId?, excludeUserId?)` — fanout to every membership user_id in org (except excluded).
+- `listForUser(userId, orgId, filters?)` — paginated. Filter unreadOnly.
+- `markRead(ids, userId)` — bulk mark.
+- `markAllRead(userId, orgId)`.
+- `getUnreadCount(userId, orgId)`.
+
+Notification types:
+- `evaluation.completed`, `evaluation.failed`
+- `pdf.generated`
+- `scanner.completed` (org fanout)
+- `pipeline.processed`
+- `usage.warning` (80% of plan), `usage.exceeded` (100%)
+- `invitation.received`, `invitation.accepted`
+- `member.joined`, `member.removed`
+- `follow_up.due` (daily digest from cron)
+
+### 3. Wire into existing workers/services
+
+- Evaluation worker on success → notify(userId, orgId, 'evaluation.completed', `"${role} at ${company}" — Score ${score}`, ..., 'evaluation', evalId)
+- Evaluation worker on failure → notify(userId, orgId, 'evaluation.failed', ...)
+- PDF worker on completion → notify(userId, ...)
+- Scanner worker on completion → notifyOrg with summary
+- Usage-record incrementer → if hitting 80%/100%, notify all org owners/admins (one-time per month, dedup via metadata)
+
+### 4. Routes
+
+- `GET /api/v1/notifications` — requireAuth, requireOrg. Query: ?unreadOnly=true&page=&limit=. Paginated.
+- `POST /api/v1/notifications/mark-read` — requireAuth. Body: {ids: string[]}. Mark.
+- `POST /api/v1/notifications/mark-all-read` — requireAuth, requireOrg.
+- `GET /api/v1/notifications/unread-count` — requireAuth, requireOrg.
+
+### 5. Activity feed (extends audit log)
+
+Reuse audit_logs. Add endpoint:
+- `GET /api/v1/audit/feed` — requireAuth, requireOrg. Paginated. Returns enriched rows with user.full_name and best-effort entity link (e.g., "Alice submitted evaluation for Stripe / Senior SWE"). Excludes noisy actions like `user.login` (filterable via query).
+
+### 6. Frontend
+
+API hooks `saas/frontend/src/api/notifications.ts`: useNotifications(filters), useUnreadCount() with refetchInterval 30s, useMarkRead(), useMarkAllRead().
+
+Header bell component `saas/frontend/src/components/layout/NotificationBell.tsx`:
+- Bell icon with unread count badge
+- Click → dropdown panel with last 10 notifications, "Mark all read", link to /notifications page
+- Notification row: icon (by type), title, body (truncated), relative time, read indicator
+- Clicking a notification: marks as read + navigates to entity (e.g., /evaluations/:id)
+
+Add to Header.tsx alongside user dropdown.
+
+Page `saas/frontend/src/pages/Notifications.tsx`:
+- Tabs: Unread / All
+- Same row design as dropdown but larger
+- Pagination
+- Filter by type (dropdown)
+
+Page `saas/frontend/src/pages/ActivityFeed.tsx`:
+- Linear timeline view of audit log
+- Filter: action type, date range, user
+- Grouped by day with "Today" / "Yesterday" / date labels
+
+Add nav entry "Activity" (admin/owner only).
+
+### 7. Tests
+
+- Notification created on evaluation completion
+- Usage warning fires only once per month per threshold
+- Mark-read only affects own user
+
+Manual:
+1. Submit evaluation → bell badge increments → click → navigate to report
+2. Trigger scan as owner → other org members see "scanner.completed" notification
+3. Fill plan to 80% → owner gets usage warning
+```
+
+---
+
+## Prompt 29: Stripe Billing Backend
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md sections 6.1 (BILLING), 11.2 (Week 13-16), 12.1, 12.2.
+
+### 1. Stripe setup
+
+Add dep: `stripe`. Add env vars:
+```
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_FREE=price_...
+STRIPE_PRICE_PRO=price_...
+STRIPE_PRICE_TEAM=price_...
+STRIPE_PRICE_AI_OVERAGE=price_... (metered, per 1K tokens)
+FRONTEND_URL=http://localhost:5173
+```
+
+Add to config/env.ts schema.
+
+Create `saas/src/config/stripe.ts` — export configured Stripe client instance.
+
+### 2. Plans configuration
+
+Create `saas/src/modules/billing/plans.config.ts`:
+
+```typescript
+export const PLANS = {
+  free: { name: 'Free', stripeKey: 'STRIPE_PRICE_FREE', maxEvaluationsMo: 10, maxScansMo: 2, maxPdfsMo: 5, maxMembers: 1, maxCvVersions: 1 },
+  pro: { name: 'Pro', stripeKey: 'STRIPE_PRICE_PRO', maxEvaluationsMo: 100, maxScansMo: 20, maxPdfsMo: 50, maxMembers: 1, maxCvVersions: 5 },
+  team: { name: 'Team', stripeKey: 'STRIPE_PRICE_TEAM', maxEvaluationsMo: 500, maxScansMo: 100, maxPdfsMo: 250, maxMembers: 10, maxCvVersions: 20 },
+  enterprise: { name: 'Enterprise', stripeKey: null, maxEvaluationsMo: 999999, maxScansMo: 999999, maxPdfsMo: 999999, maxMembers: 999999, maxCvVersions: 999999 },
+} as const;
+```
+
+### 3. saas/src/modules/billing/billing.service.ts
+
+- `getOrCreateCustomer(orgId)` — if org.stripe_customer_id exists return it. Otherwise create Stripe customer with metadata {orgId, orgSlug}, save to org, return.
+- `createCheckoutSession(orgId, planKey, returnUrl)` — owner only. Creates Stripe Checkout subscription session for the price. success_url and cancel_url use returnUrl with appended `?status=success|cancelled`. Returns checkout URL.
+- `createPortalSession(orgId, returnUrl)` — owner only. Creates Stripe Customer Portal session. Returns URL.
+- `applyPlanToOrg(orgId, planKey)` — update org.plan, max_evaluations_mo, max_scans_mo, etc. from PLANS[planKey].
+- `getUsage(orgId, period?)` — return usage_records row for current period (default) or specified period, plus computed remaining quota.
+- `listInvoices(orgId)` — call Stripe invoices.list for the customer.
+
+### 4. Webhook handler
+
+`saas/src/modules/billing/billing.webhook.ts`:
+- Fastify route `POST /api/v1/billing/webhook` — no auth, raw body, signature verified via stripe.webhooks.constructEvent
+- Handle events:
+  - `checkout.session.completed` → find org by customer ID, resolve price → plan, applyPlanToOrg, store subscription_id, notify owners
+  - `customer.subscription.updated` → if plan changed, applyPlanToOrg
+  - `customer.subscription.deleted` → applyPlanToOrg(orgId, 'free')
+  - `invoice.payment_failed` → notify owners (org.notify type='billing.payment_failed')
+  - `invoice.paid` → audit log
+
+Fastify needs raw body for webhook signature: add per-route content type parser or use @fastify/raw-body for that route.
+
+### 5. Quota enforcement middleware
+
+Create `saas/src/shared/quota.middleware.ts`:
+- `requireQuota(taskType: 'evaluation'|'scan'|'pdf')` — preHandler. Checks usage_records for current period vs org's max_*_mo. If at 100%, return 402 PAYMENT_REQUIRED with {code, message, current, limit, planKey}. If at 80% emits soft warning header `X-Quota-Warning`.
+
+Apply this middleware to:
+- POST /api/v1/evaluations → requireQuota('evaluation')
+- POST /api/v1/evaluations/batch → requireQuota('evaluation') (and check items.length doesn't exceed remaining; partial rejection)
+- POST /api/v1/scanner/run → requireQuota('scan')
+- POST /api/v1/pdf/generate → requireQuota('pdf')
+
+Cost-tracker `checkLimits` already exists from Prompt 6/10 — wire the middleware on top so HTTP layer rejects cleanly with 402.
+
+### 6. Billing routes
+
+- `GET /api/v1/billing/usage` — requireAuth, requireOrg. Current period usage + quotas + plan.
+- `GET /api/v1/billing/invoices` — requireAuth, requireOrg, requireOrgRole('owner', 'admin').
+- `POST /api/v1/billing/checkout` — requireAuth, requireOrg, requireOrgRole('owner'). Body: {planKey, returnUrl}. Return checkout URL.
+- `POST /api/v1/billing/portal` — requireAuth, requireOrg, requireOrgRole('owner'). Body: {returnUrl}. Return portal URL.
+- `GET /api/v1/billing/plan` — requireAuth, requireOrg. Return current plan details + limits.
+- `POST /api/v1/billing/webhook` — public, raw body. Stripe webhook.
+
+### 7. Tests
+
+`saas/tests/modules/billing.test.ts`:
+- Webhook signature verification: tampered payload rejected
+- checkout.session.completed → org plan updated, limits applied
+- subscription.deleted → org downgraded to free
+- Quota middleware: at limit returns 402
+
+Use Stripe's mock event payloads or a Stripe fixture library.
+
+Manual (Stripe test mode):
+1. Stripe CLI: `stripe listen --forward-to localhost:3000/api/v1/billing/webhook`
+2. POST /api/v1/billing/checkout with planKey=pro → open URL → use test card 4242...
+3. Verify webhook fires → org plan='pro' → limits updated
+4. Generate 11 evaluations on free plan → 11th returns 402
+```
+
+---
+
+## Prompt 30: Billing UI + Plan Limits Display
+
+```
+Billing backend is wired. Now build the Billing UI.
+
+### 1. API hooks — saas/frontend/src/api/billing.ts
+
+- `useBillingUsage()`, `useBillingPlan()`, `useBillingInvoices()`, `useCreateCheckout()` mutation, `useCreatePortal()` mutation.
+
+### 2. saas/frontend/src/pages/Billing.tsx
+
+Sections:
+**Current Plan**
+- Plan badge (Free/Pro/Team/Enterprise)
+- Monthly price
+- "Manage Subscription" button (owner only) → calls createPortal → window.location.href = url
+
+**Usage This Period**
+- Progress bars for each metric: Evaluations X / Y, Scans X / Y, PDFs X / Y, Members X / Y
+- Bar color: <70% green, 70-90% yellow, >90% red
+- Reset date shown ("Resets in 12 days")
+- AI cost this period (small, info)
+
+**Plans Comparison Table**
+- Free / Pro / Team / Enterprise columns with feature checkmarks/quotas
+- Highlight current plan
+- "Upgrade" / "Downgrade" / "Contact Sales" CTAs (owner only) → checkout
+
+**Invoices**
+- List of past invoices (Stripe): date, amount, status, download PDF link (uses Stripe hosted URL)
+
+### 3. Update Settings page
+
+Add "Billing" link to /billing prominently.
+
+### 4. Quota awareness
+
+Update API client (saas/frontend/src/api/client.ts):
+- Response interceptor: if 402, capture `error.details.planKey` and show a global modal: "You've hit your {metric} limit on the {plan} plan. Upgrade to continue." with "View Plans" button (links to /billing)
+- Read `X-Quota-Warning` header: if present, push a toast "You're at 80% of your {metric} quota this month."
+
+Update NewEvaluation page:
+- Before submitting, check useBillingUsage data. If at/over limit, disable submit button with hint text. Otherwise allow.
+
+Update Scanner page: same pattern for scan quota.
+
+### 5. Onboarding integration
+
+Add a final optional step to OnboardingWizard: "Start free" (default) vs "Compare plans". Not pushy.
+
+### 6. Manual test
+
+1. /billing → see Free plan, usage 0/10 evaluations
+2. Submit 8 evaluations → bars yellow, warning toast on each new request
+3. Submit 10 → bar red. 11th → modal upgrade prompt
+4. Click Upgrade Pro → checkout → use Stripe test card
+5. After redirect, /billing shows Pro plan, limits expanded
+6. Click Manage Subscription → Stripe portal opens
+7. Cancel subscription via portal → webhook downgrades to Free → /billing reflects
+```
+
+---
+
+## Prompt 31: Multi-Provider AI (OpenAI + Anthropic) + Per-Org Config
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md section 7 and 11.3 (Week 21-28).
+
+The AI abstraction was built in Prompt 6 (AIProvider interface + DeepSeekProvider). Now add OpenAI and Anthropic, and a per-org provider config.
+
+### 1. Provider implementations
+
+`saas/src/modules/ai/ai.openai.ts` — OpenAIProvider:
+- Uses native fetch against https://api.openai.com/v1/chat/completions
+- Default model: 'gpt-4o-mini' (configurable)
+- Pricing: gpt-4o-mini ~$0.15/M input, ~$0.60/M output; gpt-4o ~$2.50/M input, ~$10/M output
+- Reads OPENAI_API_KEY from env or from `org.settings.ai.openai_api_key` (encrypted)
+- Implements evaluate() and generateText() same shape as DeepSeek
+- Retry on 429/500 (exponential backoff), 120s timeout
+
+`saas/src/modules/ai/ai.anthropic.ts` — AnthropicProvider:
+- Uses native fetch against https://api.anthropic.com/v1/messages
+- Header: `x-api-key`, `anthropic-version: 2023-06-01`
+- Default model: 'claude-haiku-4-5-20251001' (configurable)
+- Pricing: read from a constants map (claude-haiku-4-5 ~$0.80/M in / ~$4/M out; claude-sonnet-4-6 ~$3/M in / ~$15/M out)
+- Reads ANTHROPIC_API_KEY from env or org.settings
+- Note: Anthropic API uses {system, messages: [{role, content}]} shape — system is top-level, not in messages
+
+### 2. Encrypt org-stored API keys
+
+Add to env: `ENCRYPTION_KEY` (32-byte hex). Use Node's crypto.createCipheriv with aes-256-gcm.
+
+Create `saas/src/shared/crypto.ts`:
+- `encrypt(plaintext): string` — returns base64(iv + ciphertext + authTag)
+- `decrypt(ciphertext): string`
+
+When persisting per-org provider keys to org.settings, encrypt them. When reading at provider instantiation, decrypt.
+
+### 3. Update ai.router.ts
+
+- `getProvider(orgId, providerName?)` —
+  1. Resolve provider name: explicit arg > org.settings.ai.default_provider > env.DEFAULT_AI_PROVIDER ('deepseek')
+  2. Resolve API key: org.settings.ai[provider].api_key (decrypted) > env vars
+  3. Resolve model: org.settings.ai[provider].model > provider default
+  4. Cache per-(orgId, provider) for 5 min
+  5. Return provider instance
+
+Plan tier enforcement: Free plan → DeepSeek only. Pro → DeepSeek + Gemini (skip if not implemented, fall through to OpenAI as substitute) + OpenAI. Team/Enterprise → all providers. Enforce in route layer.
+
+### 4. Per-org AI config routes
+
+Add `saas/src/modules/ai/ai-config.routes.ts`:
+- `GET /api/v1/ai/config` — requireAuth, requireOrg. Return safe view (provider names, models, has_key boolean per provider, default_provider). Never return raw keys.
+- `PUT /api/v1/ai/config` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: `{defaultProvider?, providers?: {[name]: {apiKey?, model?}}}`. Update org.settings.ai. Encrypt keys.
+- `POST /api/v1/ai/test` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {provider}. Sends a 1-token ping. Returns {ok, latency, error?}.
+
+### 5. Update workers
+
+Evaluation worker, batch worker, etc. now resolve provider per-org via getProvider(orgId). Cost-tracker logs the actual provider used.
+
+### 6. Tests
+
+`saas/tests/modules/ai-providers.test.ts`:
+- Mock OpenAI endpoint → evaluate returns parsed report
+- Mock Anthropic endpoint → same
+- getProvider resolution priority correct
+- Plan tier denies free user from selecting OpenAI
+
+`saas/tests/shared/crypto.test.ts`:
+- Encrypt/decrypt round-trip
+- Tampered ciphertext fails
+
+Manual:
+1. As Pro org owner, PUT /api/v1/ai/config with {defaultProvider: 'openai', providers: {openai: {apiKey: 'sk-...'}}}
+2. POST /api/v1/ai/test with provider=openai → ok: true
+3. Submit evaluation → worker uses OpenAI
+4. /api/v1/admin/ai/usage → breakdown shows openai usage
+```
+
+---
+
+## Prompt 32: Prompt Template Management + AI Cost Dashboard
+
+```
+Build org-customizable prompt templates and a cost dashboard.
+
+### 1. Prompt template CRUD
+
+`saas/src/modules/ai/prompt-templates.service.ts`:
+- `listTemplates(orgId)` — return all templates where org_id IN (null, orgId). System ones marked `isSystem: true`.
+- `getTemplate(id, orgId)` — verify accessible (org-owned or system).
+- `createTemplate(orgId, data: {name, language, content, basedOnId?})` — org-scoped only. If basedOnId, version = system+1. Else version=1.
+- `updateTemplate(id, orgId, data)` — only org-owned. Increment version on content change. Cannot edit system.
+- `deleteTemplate(id, orgId)` — only org-owned. Hard delete.
+- `setActiveTemplate(orgId, name, language, templateId)` — store in org.settings.prompts[name][language] = templateId. Override system default for this org.
+- `getActiveTemplate(orgId, name, language)` — read org override, fallback to system. Used by buildEvalPrompt() — update prompt.registry.ts to consult this.
+
+### 2. Routes — saas/src/modules/ai/prompt-templates.routes.ts
+
+- `GET /api/v1/prompts` — requireAuth, requireOrg. List org + system templates.
+- `GET /api/v1/prompts/:id` — requireAuth, requireOrg. Get.
+- `POST /api/v1/prompts` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Body: {name, language, content, basedOnId?}. Create.
+- `PUT /api/v1/prompts/:id` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Update.
+- `DELETE /api/v1/prompts/:id` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Delete.
+- `POST /api/v1/prompts/:id/activate` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Set as active for {name, language}.
+- `POST /api/v1/prompts/:id/test` — requireAuth, requireOrg. Body: {jdText, cvContent}. Runs a one-off evaluation against this template using current org provider. Returns parsed result + token+cost. Does NOT save to applications/evaluations tables.
+
+### 3. AI cost dashboard backend
+
+Extend `saas/src/modules/admin/admin.routes.ts`:
+- `GET /api/v1/admin/ai/usage` — requireAuth, requireRole('admin', 'superadmin'). Query: ?orgId=&from=&to=&groupBy=provider|model|task_type|org|day. Aggregate ai_tasks rows: tokens_in, tokens_out, cost_usd, latency_ms, count. Return list of buckets.
+- `GET /api/v1/admin/ai/forecast` — requireAuth, requireRole('admin', 'superadmin'). Project end-of-month spend using last-7-day rate. Return {currentMtdCost, projectedMonthCost, byOrg: [...]}.
+
+Per-org version (non-admin):
+- `GET /api/v1/ai/usage` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Same shape but scoped to org. Org owners see their own usage breakdown.
+
+### 4. Frontend — Prompt template UI
+
+API hooks `saas/frontend/src/api/prompts.ts`: CRUD + activate + test.
+
+Page `saas/frontend/src/pages/PromptTemplates.tsx`:
+- List grouped by name (shared, oferta, apply, etc.) with language tabs
+- Each row: version, last updated, is_active, is_system badge
+- Actions: View, Fork (create org copy based on system), Edit, Activate, Delete
+- Editor modal: side-by-side Markdown editor (textarea) + rendered preview
+- "Test" tab in editor: paste sample JD + CV, run, see parsed score + report + token cost
+
+Add nav item "Prompts" (owner/admin only).
+
+### 5. Frontend — AI cost dashboard
+
+API hooks `saas/frontend/src/api/ai-usage.ts`: useOrgAiUsage(filters), useAdminAiUsage(filters), useAdminAiForecast().
+
+Page `saas/frontend/src/pages/AICostDashboard.tsx` (owner/admin):
+- KPI strip: This Month Cost, Projected Cost, Avg Cost per Eval, Total Tokens
+- Bar chart: Cost by Provider (stacked by model)
+- Line chart: Daily cost over last 30 days (with projection dashed line)
+- Table: Top tasks by cost (task_type, count, total cost, avg latency)
+- Filter bar: date range, provider, model
+
+Admin variant `saas/frontend/src/pages/AdminAIDashboard.tsx` (superadmin only): same but with `groupBy=org` option to compare orgs.
+
+### 6. Audit + alerts
+
+- Audit log `ai.template_created`, `ai.template_updated`, `ai.template_activated`
+- Cost alert: if any org projects > $X/month (configurable), notify org owner via notification
+
+### 7. Tests
+
+- Activate template → buildEvalPrompt for that org uses it; other orgs unaffected
+- Test endpoint does NOT touch applications/evaluations tables
+- Cost aggregation correct over mocked ai_tasks rows
+- Forecast calculation matches simple last-7-day extrapolation
+
+Manual:
+1. /prompts → fork the "oferta" template → edit (e.g., emphasize remote-friendliness more) → Activate
+2. Submit a fresh evaluation → verify the custom template's bias shows in the report
+3. /ai-cost → see breakdown by provider after running several evals across providers
+```
+
+---
+
+## Prompt 33: AI Admin Tools (Smart Dedup, Anomaly Detection, Cost Caps)
+
+```
+Read SAAS_TRANSFORMATION_PLAN.md sections 7.4, 11.3 (Week 21-28), and 19.5 (Cost Caps).
+
+Final prompt: AI-powered admin tools that operate ON the system's data using AI as a backend tool — not chatbots.
+
+### 1. Smart dedup (embedding-based)
+
+Use the provider's embedding endpoint (DeepSeek doesn't have one — use OpenAI text-embedding-3-small as default for this feature; document the cost: ~$0.02/M tokens).
+
+Add to ai.openai.ts: `embed(texts: string[]): Promise<{vectors: number[][], usage}>`.
+
+`saas/src/modules/admin-ai/dedup.service.ts`:
+- `computeApplicationFingerprint(application)` — concatenate company + role + key JD bullets (from evaluation gaps + tldr). Embed.
+- `findSimilarApplications(orgId, threshold = 0.92, limit = 50)` —
+  1. Fetch all applications for org with their primary evaluation
+  2. Compute embeddings (cached in metadata.embedding to avoid recompute)
+  3. Pairwise cosine similarity
+  4. Return clusters above threshold
+- `findSimilarScanResults(orgId, threshold = 0.95)` — same for scan_results titles + company + location
+- `acceptDedupSuggestion(orgId, primaryId, duplicateIds)` — mark duplicates: applications → set status='Discarded', notes='Auto-deduped from {primaryId}'; scan_results → status='skipped'
+- `rejectDedupSuggestion(orgId, primaryId, duplicateIds)` — mark them as reviewed in metadata so they don't surface again
+
+Routes:
+- `GET /api/v1/admin-ai/dedup/applications` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Returns suggestion clusters.
+- `GET /api/v1/admin-ai/dedup/scan-results` — same.
+- `POST /api/v1/admin-ai/dedup/accept` — Body: {kind: 'applications'|'scan_results', primaryId, duplicateIds}.
+- `POST /api/v1/admin-ai/dedup/reject` — same shape.
+
+### 2. Anomaly detection on scan results
+
+`saas/src/modules/admin-ai/anomaly.service.ts`:
+- `detectScannerAnomalies(orgId)` — for each portal, compute trailing 7-day vs prior 7-day stats. Flag:
+  - Sudden drop in result count (>50% decrease) → "Portal may have changed API or been blocked"
+  - Sudden spike (>3x average) → "Possible scraping issue, many duplicates expected"
+  - All-zero result for 3 consecutive scans → "Portal likely broken"
+  - Suspicious titles (e.g., all listings under "Senior" disappear) → "Filter may be over-restrictive"
+- Returns: `{anomalies: [{portalId, portalName, type, severity, evidence: {...}}]}`
+
+Run as a daily cron job. On any anomaly, create notification for org owners + admins.
+
+Route:
+- `GET /api/v1/admin-ai/anomalies` — requireAuth, requireOrg, requireOrgRole('owner', 'admin'). Current anomalies for org's portals.
+
+### 3. Cost caps (hard limits beyond plan quotas)
+
+Add to org schema (settings.ai.cost_cap_usd_mo): a per-org monthly USD cap. Default null (no cap; plan quota is the only limit).
+
+Add to `quota.middleware.ts`:
+- After plan quota check, also check `usage_records.ai_cost_total >= settings.ai.cost_cap_usd_mo` → return 402 with cap-reached message.
+- At 80% of cap, set warning header.
+
+Per-task cap (defense-in-depth): a single evaluation should never cost > $1 (configurable). Add to ai providers: if response usage.cost > maxTaskCost, log critical error, mark task failed.
+
+Route:
+- `PUT /api/v1/ai/cost-cap` — requireAuth, requireOrg, requireOrgRole('owner'). Body: {capUsd: number | null}.
+
+### 4. Evaluation quality feedback loop
+
+Track outcomes vs predicted score:
+`saas/src/modules/admin-ai/calibration.service.ts`:
+- `recordOutcome(applicationId, outcome: 'rejected'|'responded'|'interview'|'offer')` — already implicit via application.status updates. Aggregate.
+- `getCalibration(orgId)` — for each 0.5-wide score bucket: count applications, count outcomes by type. Compute "calibration error" = abs(predicted_offer_rate - actual_offer_rate).
+- Return `{buckets: [{scoreRange, sampleSize, actualOfferRate, predictedOfferRate, calibrationError}], overallError}`
+
+Route:
+- `GET /api/v1/admin-ai/calibration` — requireAuth, requireOrg.
+
+Frontend: small chart on AI cost dashboard showing "Are your scores predictive?" — bar chart of predicted vs actual outcome rates.
+
+### 5. Cost forecasting per org
+
+Extend `/api/v1/billing/usage` response with:
+- `projectedMonthEndCost` — extrapolate from last 7 days
+- `projectedQuotaExhaustionDate` — at current pace, when evaluations/scans hit plan limit
+- `recommendedPlan` — if projected to exceed for 2+ months, suggest the next tier
+
+### 6. Frontend — Admin Tools page
+
+Create `saas/frontend/src/pages/AdminTools.tsx` (owner/admin):
+- Tab: **Dedup Suggestions**
+  - Two sections: Applications, Scan Results
+  - Each shows clusters: primary item highlighted, suggested duplicates with similarity %, "Accept" / "Reject" buttons
+- Tab: **Anomalies**
+  - Table: Portal, Anomaly Type, Severity, Evidence, Action button
+  - Dismiss button per row
+- Tab: **Calibration**
+  - Chart: predicted vs actual offer rates per score bucket
+  - Overall calibration error metric
+  - "Last calibrated N applications ago" indicator
+- Tab: **Cost Cap**
+  - Current cap input (USD/month, blank = no cap)
+  - Current spend bar
+  - Save button
+
+Add nav "AI Tools" (owner/admin only).
+
+### 7. Cron registrations
+
+In workers/index.ts, add daily cron (BullMQ repeat) for:
+- Anomaly detection per org (small orgs daily, large orgs hourly)
+- Cost projection refresh
+
+### 8. Tests
+
+- Dedup: two near-identical applications → flagged as cluster. Accept → duplicates marked Discarded.
+- Anomaly: simulate portal with 0 results for 3 scans → anomaly raised with severity high.
+- Cost cap: org at 100% of cap → next evaluation submission returns 402.
+- Calibration: synthetic data with score 4.5 → 70% offers → bucket calibration error reflects accuracy.
+
+Manual:
+1. Create two applications for same company / very similar roles → dedup tab surfaces them → accept
+2. Disable a portal so it returns nothing for 3 scheduled scans → anomalies tab populates
+3. Set cost cap $1 → submit evaluations until cap reached → 11th blocked with cap message
+4. /ai-tools → calibration tab → see bucket chart
+
+### 9. Closeout
+
+After this prompt, run a final integration pass:
+- All Phase 2 + Phase 3 features documented in saas/README.md (extend the table of contents)
+- Update CHANGELOG (or docs/CHANGELOG.md) with version bumps
+- Run full test suite: `cd saas && npx vitest run`
+- Run build: `npm run build && cd frontend && npm run build`
+- Smoke test: docker compose up; complete one full evaluation under the Pro plan with all features touched
+
+The platform is now feature-complete for the Phase 1 + 2 + 3 roadmap.
+```
+
+---
+
+## Updated Summary: Prompt Execution Order
+
+| # | Prompt | What It Builds | Estimated Time |
+|---|--------|----------------|----------------|
+| 1 | Project Scaffolding | Fastify, Docker, configs, health check | 30 min |
+| 2 | Database Schema | All 19 tables with Drizzle | 20 min |
+| 3 | Auth Module | Register, login, sessions, API keys | 30 min |
+| 4 | Users/Orgs/Profiles | User management, orgs, profiles | 25 min |
+| 5 | CVs & Applications | CV CRUD, applications CRUD, import | 25 min |
+| 6 | AI Provider | DeepSeek integration, prompt registry | 30 min |
+| 7 | Evaluations | Full eval flow: queue → worker → report | 40 min |
+| 8 | PDF Generation | Playwright PDF worker, S3 upload | 30 min |
+| 9 | Pipeline | URL inbox, process items | 20 min |
+| 10 | Audit & Usage | Audit log, usage tracking, admin stats | 20 min |
+| 11 | React Setup | Vite, auth, layout, routing | 30 min |
+| 12 | Dashboard & Apps | KPI cards, applications table | 30 min |
+| 13 | Evaluation Pages | Submit eval, view report, PDF download | 35 min |
+| 14 | Profile/Pipeline/Settings | Profile editor, pipeline UI, settings | 30 min |
+| 15 | Onboarding Wizard | 5-step onboarding flow | 25 min |
+| 16 | Business Logic Ports | Port pure functions from existing code | 20 min |
+| 17 | Seed & Migration | Demo data, import from CLI files | 20 min |
+| 18 | CI/CD & Docker | Dockerfiles, GitHub Actions, production | 20 min |
+| 19 | Integration Test | End-to-end MVP test, polish, README | 40 min |
+| 20 | Portals Module | CRUD, ATS auto-detection, YAML import | 30 min |
+| 21 | Scanner Worker | Greenhouse/Ashby/Lever fetch + dedup | 40 min |
+| 22 | Scanner UI + Cron | Portals page, scanner page, schedule | 35 min |
+| 23 | Batch Eval + Liveness | Batch endpoint, liveness checker worker | 35 min |
+| 24 | Follow-ups | Cadence calculator, follow-up tracking | 25 min |
+| 25 | Analytics Backend | Funnel, patterns, score threshold | 30 min |
+| 26 | Analytics Frontend | Funnel/patterns/trends charts | 35 min |
+| 27 | Invitations + RBAC | Token-based invites, role enforcement | 40 min |
+| 28 | Notifications + Activity | In-app bell, activity feed | 30 min |
+| 29 | Stripe Billing Backend | Checkout, portal, webhooks, quotas | 45 min |
+| 30 | Billing UI | Usage bars, plan comparison, invoices | 30 min |
+| 31 | Multi-Provider AI | OpenAI + Anthropic + per-org config | 40 min |
+| 32 | Prompts + Cost Dashboard | Template management, AI cost views | 40 min |
+| 33 | AI Admin Tools | Dedup, anomalies, cost caps, calibration | 45 min |
+
+**Total estimated: ~17-20 hours of Claude execution time**
+
+---
+
+## What's Beyond Prompt 33
+
+Phase 4 (Scale + Marketplace) work, not included as prompts here:
+
+- SSO (SAML/OIDC) for enterprise
+- Webhooks + WebSocket real-time updates
+- Public SDK (TS + Python) + OpenAPI spec
+- Template marketplace
+- Multi-region deployment
+- SOC 2 prep
+
+These are documented in `SAAS_TRANSFORMATION_PLAN.md` sections 11.3 (Week 29-36) and 11.4. Open a follow-up planning conversation once Prompt 33 ships.
