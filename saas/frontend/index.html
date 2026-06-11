@@ -9,8 +9,10 @@
     <script>
       (function () {
         try {
-          var m = localStorage.getItem('co.theme') || 'light';
-          document.documentElement.setAttribute('data-bs-theme', m);
+          var stored = localStorage.getItem('co.theme');
+          var parsed = stored ? JSON.parse(stored) : null;
+          var mode = (parsed && parsed.state && parsed.state.mode) || 'light';
+          document.documentElement.setAttribute('data-bs-theme', mode);
         } catch (e) {}
       })();
     </script>

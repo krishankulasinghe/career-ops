@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
-import { IconBell } from '@tabler/icons-react';
+import { IconBell, IconSun, IconMoon } from '@tabler/icons-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useLogout } from '@/api/auth';
+import { useTheme } from '@/hooks/useTheme';
 
 export function Header() {
   const { user, org } = useAuthStore();
   const logout = useLogout();
+  const { mode, toggle } = useTheme();
 
   return (
     <header className="navbar navbar-expand-md d-print-none">
@@ -34,6 +36,19 @@ export function Header() {
         </div>
 
         <div className="navbar-nav flex-row order-md-last">
+          {/* Theme toggle */}
+          <div className="nav-item d-none d-md-flex me-3">
+            <button
+              type="button"
+              className="nav-link px-0"
+              title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={toggle}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {mode === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
+            </button>
+          </div>
+
           {/* Notifications */}
           <div className="nav-item dropdown d-none d-md-flex me-3">
             <a

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { useTheme } from '@/hooks/useTheme';
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { LoginPage } from '@/pages/Login';
 import { RegisterPage } from '@/pages/Register';
@@ -54,6 +55,8 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  useTheme();
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
