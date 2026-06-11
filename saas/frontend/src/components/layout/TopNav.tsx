@@ -95,7 +95,7 @@ const navSections: NavSection[] = [
     header: 'Documentation',
     items: [
       { to: '/docs/getting-started', label: 'Getting Started', Icon: IconBook },
-      { to: '/docs', label: 'User Guide', Icon: IconBook },
+      { to: '/docs', label: 'User Guide', Icon: IconBook, end: true },
       { to: '/docs/faq', label: 'FAQ', Icon: IconBook },
       { to: '/docs/changelog', label: 'Changelog', Icon: IconBook },
     ],
@@ -104,7 +104,9 @@ const navSections: NavSection[] = [
 
 function isDropdownActive(section: NavSection, pathname: string): boolean {
   return section.items.some((item) =>
-    item.end ? pathname === item.to : pathname.startsWith(item.to)
+    item.end
+      ? pathname === item.to
+      : pathname === item.to || pathname.startsWith(item.to + '/')
   );
 }
 
@@ -112,7 +114,7 @@ export function TopNav() {
   const { pathname } = useLocation();
 
   return (
-    <div className="navbar-expand-md">
+    <nav className="navbar-expand-md" aria-label="Main navigation">
       <div className="collapse navbar-collapse" id="navbar-menu">
         <div className="navbar">
           <div className="container-xl">
@@ -134,17 +136,14 @@ export function TopNav() {
                   key={section.header}
                   className={`nav-item dropdown${isDropdownActive(section, pathname) ? ' active' : ''}`}
                 >
-                  <a
+                  <button
+                    type="button"
                     className="nav-link dropdown-toggle"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
-                    role="button"
-                    aria-expanded="false"
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
                   >
                     <span className="nav-link-title">{section.header}</span>
-                  </a>
+                  </button>
                   <div className="dropdown-menu">
                     <div className="dropdown-menu-columns">
                       <div className="dropdown-menu-column">
@@ -172,6 +171,6 @@ export function TopNav() {
           </div>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
