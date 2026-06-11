@@ -86,105 +86,113 @@ export function InterviewPrepPage() {
 
   return (
     <Layout title="Interview Prep">
-      {/* Interview Schedule Calendar */}
-      <div className="card mb-3">
-        <div className="card-header">
-          <h5 className="mb-0">Interview Schedule</h5>
-        </div>
-        <div className="card-body">
-          <FullCalendar
-            plugins={[dayGridPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth' }}
-            events={[]}
-            height={300}
-          />
-        </div>
-      </div>
+      <div className="row row-deck row-cards">
 
-      {/* STAR Story Bank */}
-      <div className="card">
-        <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <h5 className="mb-0">STAR Story Bank</h5>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => { setEditing(null); setForm(EMPTY_STORY); setShowCreate(true); }}
-          >
-            + Add Story
-          </button>
-        </div>
-
-        {/* Tag filters */}
-        {allTags.length > 0 && (
-          <div className="card-body border-bottom py-2 d-flex gap-2 flex-wrap">
-            <button
-              className={`btn btn-sm${!filterTag ? ' btn-primary' : ' btn-falcon-default'}`}
-              onClick={() => setFilterTag('')}
-            >
-              All
-            </button>
-            {allTags.map((t) => (
-              <button
-                key={t}
-                className={`btn btn-sm${filterTag === t ? ' btn-primary' : ' btn-falcon-default'}`}
-                onClick={() => setFilterTag(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="card-body">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : filtered.length === 0 ? (
-            <div className="text-center text-muted py-4">
-              No STAR stories yet. Add your first story to build your interview library.
+        {/* Interview Schedule Calendar */}
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Interview Schedule</h5>
             </div>
-          ) : (
-            <div className="d-flex flex-column gap-3">
-              {filtered.map((s) => (
-                <div key={s.id} className="card mb-0 border">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-flex-start gap-3">
-                      <div className="flex-1" style={{ minWidth: 0 }}>
-                        {s.tags.length > 0 && (
-                          <div className="d-flex gap-1 flex-wrap mb-2">
-                            {s.tags.map((t) => (
-                              <span key={t} className="badge badge-soft-primary fs--2">{t}</span>
-                            ))}
+            <div className="card-body">
+              <FullCalendar
+                plugins={[dayGridPlugin]}
+                initialView="dayGridMonth"
+                headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth' }}
+                events={[]}
+                height={300}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* STAR Story Bank */}
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <h5 className="card-title mb-0">STAR Story Bank</h5>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => { setEditing(null); setForm(EMPTY_STORY); setShowCreate(true); }}
+              >
+                + Add Story
+              </button>
+            </div>
+
+            {/* Tag filters */}
+            {allTags.length > 0 && (
+              <div className="card-body border-bottom py-2 d-flex gap-2 flex-wrap">
+                <button
+                  className={`btn btn-sm${!filterTag ? ' btn-primary' : ' btn-outline-secondary'}`}
+                  onClick={() => setFilterTag('')}
+                >
+                  All
+                </button>
+                {allTags.map((t) => (
+                  <button
+                    key={t}
+                    className={`btn btn-sm${filterTag === t ? ' btn-primary' : ' btn-outline-secondary'}`}
+                    onClick={() => setFilterTag(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="card-body">
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : filtered.length === 0 ? (
+                <div className="text-center text-muted py-4">
+                  No STAR stories yet. Add your first story to build your interview library.
+                </div>
+              ) : (
+                <div className="d-flex flex-column gap-3">
+                  {filtered.map((s) => (
+                    <div key={s.id} className="card mb-0 border">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-flex-start gap-3">
+                          <div className="flex-1" style={{ minWidth: 0 }}>
+                            {s.tags.length > 0 && (
+                              <div className="d-flex gap-1 flex-wrap mb-2">
+                                {s.tags.map((t) => (
+                                  <span key={t} className="badge bg-primary-lt small">{t}</span>
+                                ))}
+                              </div>
+                            )}
+                            <dl className="row small mb-0">
+                              <dt className="col-sm-2 text-secondary">Situation</dt>
+                              <dd className="col-sm-10">{s.situation.slice(0, 100)}{s.situation.length > 100 ? '…' : ''}</dd>
+                              <dt className="col-sm-2 text-secondary">Task</dt>
+                              <dd className="col-sm-10">{s.task.slice(0, 100)}{s.task.length > 100 ? '…' : ''}</dd>
+                              <dt className="col-sm-2 text-secondary">Action</dt>
+                              <dd className="col-sm-10">{s.action.slice(0, 100)}{s.action.length > 100 ? '…' : ''}</dd>
+                              <dt className="col-sm-2 text-secondary">Result</dt>
+                              <dd className="col-sm-10 mb-0">{s.result.slice(0, 100)}{s.result.length > 100 ? '…' : ''}</dd>
+                            </dl>
                           </div>
-                        )}
-                        <dl className="row fs--1 mb-0">
-                          <dt className="col-sm-2 text-600">Situation</dt>
-                          <dd className="col-sm-10">{s.situation.slice(0, 100)}{s.situation.length > 100 ? '…' : ''}</dd>
-                          <dt className="col-sm-2 text-600">Task</dt>
-                          <dd className="col-sm-10">{s.task.slice(0, 100)}{s.task.length > 100 ? '…' : ''}</dd>
-                          <dt className="col-sm-2 text-600">Action</dt>
-                          <dd className="col-sm-10">{s.action.slice(0, 100)}{s.action.length > 100 ? '…' : ''}</dd>
-                          <dt className="col-sm-2 text-600">Result</dt>
-                          <dd className="col-sm-10 mb-0">{s.result.slice(0, 100)}{s.result.length > 100 ? '…' : ''}</dd>
-                        </dl>
-                      </div>
-                      <div className="d-flex flex-column gap-2" style={{ flexShrink: 0 }}>
-                        <button className="btn btn-sm btn-falcon-default" onClick={() => setPracticeStory(s)}>Practice</button>
-                        <button className="btn btn-sm btn-falcon-default" onClick={() => openEdit(s)}>Edit</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => deleteStory.mutate(s.id)}>Delete</button>
+                          <div className="d-flex flex-column gap-2" style={{ flexShrink: 0 }}>
+                            <button className="btn btn-sm btn-outline-secondary" onClick={() => setPracticeStory(s)}>Practice</button>
+                            <button className="btn btn-sm btn-outline-secondary" onClick={() => openEdit(s)}>Edit</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => deleteStory.mutate(s.id)}>Delete</button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
+
+            {stories.length > 0 && (
+              <div className="card-footer small text-secondary py-2">
+                {filtered.length} of {stories.length} stor{stories.length !== 1 ? 'ies' : 'y'}
+              </div>
+            )}
+          </div>
         </div>
 
-        {stories.length > 0 && (
-          <div className="card-footer fs--1 text-500 py-2">
-            {filtered.length} of {stories.length} stor{stories.length !== 1 ? 'ies' : 'y'}
-          </div>
-        )}
       </div>
 
       {/* Practice modal */}
@@ -197,27 +205,27 @@ export function InterviewPrepPage() {
                 <button type="button" className="btn-close" onClick={() => setPracticeStory(null)} />
               </div>
               <div className="modal-body">
-                <p className="text-primary fw-semi-bold mb-3">"Tell me about a time when you…"</p>
+                <p className="text-primary fw-semibold mb-3">"Tell me about a time when you…"</p>
                 {(['Situation', 'Task', 'Action', 'Result', 'Reflection'] as const).map((label) => {
                   const key = label.toLowerCase() as keyof Story;
                   const value = practiceStory[key] as string | undefined;
                   return value ? (
                     <div key={label} className="mb-3">
-                      <div className="text-uppercase fs--2 fw-bold text-500 mb-1">{label}</div>
-                      <div className="fs--1 lh-lg">{value}</div>
+                      <div className="text-uppercase small fw-bold text-secondary mb-1">{label}</div>
+                      <div className="small lh-lg">{value}</div>
                     </div>
                   ) : null;
                 })}
                 {practiceStory.tags.length > 0 && (
                   <div className="d-flex gap-1 flex-wrap mt-3">
                     {practiceStory.tags.map((t) => (
-                      <span key={t} className="badge badge-soft-primary fs--2">{t}</span>
+                      <span key={t} className="badge bg-primary-lt small">{t}</span>
                     ))}
                   </div>
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-falcon-default" onClick={() => setPracticeStory(null)}>Close</button>
+                <button type="button" className="btn btn-outline-secondary" onClick={() => setPracticeStory(null)}>Close</button>
               </div>
             </div>
           </div>
@@ -236,7 +244,7 @@ export function InterviewPrepPage() {
               <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
                 {(['situation', 'task', 'action', 'result', 'reflection'] as const).map((field) => (
                   <div key={field} className="mb-3">
-                    <label className="form-label fw-semi-bold" style={{ textTransform: 'capitalize' }}>
+                    <label className="form-label fw-semibold" style={{ textTransform: 'capitalize' }}>
                       {field}{field !== 'reflection' ? ' *' : ''}
                     </label>
                     <textarea
@@ -249,7 +257,7 @@ export function InterviewPrepPage() {
                   </div>
                 ))}
                 <div className="mb-3">
-                  <label className="form-label fw-semi-bold">Tags (comma-separated)</label>
+                  <label className="form-label fw-semibold">Tags (comma-separated)</label>
                   <input
                     className="form-control"
                     value={form.tags}
@@ -261,7 +269,7 @@ export function InterviewPrepPage() {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-falcon-default"
+                  className="btn btn-outline-secondary"
                   onClick={() => setShowCreate(false)}
                 >
                   Cancel

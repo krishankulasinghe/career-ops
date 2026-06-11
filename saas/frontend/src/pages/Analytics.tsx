@@ -7,12 +7,13 @@ import { useFunnel, useScoreDistribution, usePatterns, useArchetypeStats, useSco
 import { useCreateFollowUp } from '@/api/followups';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import toast from 'react-hot-toast';
+import { IconCalendar, IconCircleCheck } from '@tabler/icons-react';
 
 const URGENCY_BADGE: Record<string, string> = {
-  overdue: 'badge-soft-danger',
-  urgent: 'badge-soft-warning',
-  due: 'badge-soft-warning',
-  scheduled: 'badge-soft-success',
+  overdue: 'bg-danger-lt',
+  urgent: 'bg-warning-lt',
+  due: 'bg-warning-lt',
+  scheduled: 'bg-success-lt',
 };
 
 export function AnalyticsPage() {
@@ -98,159 +99,165 @@ export function AnalyticsPage() {
 
   return (
     <Layout title="Analytics">
-      <div className="d-flex flex-column gap-3">
+      <div className="row row-deck row-cards">
 
         {/* Date range filter */}
-        <div className="card mb-0">
-          <div className="card-body py-2">
-            <div className="d-flex align-items-center gap-2">
-              <span className="fas fa-calendar-alt text-500 fs--1" />
-              <Flatpickr
-                className="form-control form-control-sm"
-                options={{ mode: 'range', dateFormat: 'Y-m-d' }}
-                placeholder="Filter by date range"
-                onChange={(dates) => {
-                  setDateRange([dates[0], dates[1]]);
-                }}
-                style={{ maxWidth: 240 }}
-              />
-              <span className="fs--1 text-500">Filter applied to all charts</span>
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body py-2">
+              <div className="d-flex align-items-center gap-2">
+                <IconCalendar size={16} className="text-secondary" />
+                <Flatpickr
+                  className="form-control form-control-sm"
+                  options={{ mode: 'range', dateFormat: 'Y-m-d' }}
+                  placeholder="Filter by date range"
+                  onChange={(dates) => {
+                    setDateRange([dates[0], dates[1]]);
+                  }}
+                  style={{ maxWidth: 240 }}
+                />
+                <span className="small text-secondary">Filter applied to all charts</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Application Funnel — full width */}
-        <div className="card mb-3">
-          <div className="card-header">
-            <h5 className="mb-0">Application Funnel</h5>
-          </div>
-          <div className="card-body">
-            {funnelWithRates.length === 0 ? (
-              <p className="text-500 fs--1 text-center py-4">No funnel data yet.</p>
-            ) : (
-              <ReactECharts option={funnelChartOption} style={{ height: 240 }} />
-            )}
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Application Funnel</h5>
+            </div>
+            <div className="card-body">
+              {funnelWithRates.length === 0 ? (
+                <p className="text-secondary small text-center py-4">No funnel data yet.</p>
+              ) : (
+                <ReactECharts option={funnelChartOption} style={{ height: 240 }} />
+              )}
+            </div>
           </div>
         </div>
 
         {/* Score Distribution + Blockers */}
-        <div className="row g-3">
-          <div className="col-md-6">
-            <div className="card h-100">
-              <div className="card-header">
-                <h5 className="mb-0">Score Distribution</h5>
-              </div>
-              <div className="card-body">
-                {!scores?.length ? (
-                  <p className="text-500 fs--1 text-center py-4">No score data yet.</p>
-                ) : (
-                  <ReactECharts option={scoreDonutOption} style={{ height: 220 }} />
-                )}
-                {threshold && (
-                  <div className="alert alert-soft-primary mb-0 mt-2 fs--1">
-                    Recommended threshold:{' '}
-                    <strong className="text-primary">{threshold.threshold}/5</strong>
-                    <span className="text-500 ms-2">({threshold.basis})</span>
-                  </div>
-                )}
-              </div>
+        <div className="col-md-6">
+          <div className="card h-100">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Score Distribution</h5>
+            </div>
+            <div className="card-body">
+              {!scores?.length ? (
+                <p className="text-secondary small text-center py-4">No score data yet.</p>
+              ) : (
+                <ReactECharts option={scoreDonutOption} style={{ height: 220 }} />
+              )}
+              {threshold && (
+                <div className="alert alert-info mb-0 mt-2 small">
+                  Recommended threshold:{' '}
+                  <strong className="text-primary">{threshold.threshold}/5</strong>
+                  <span className="text-secondary ms-2">({threshold.basis})</span>
+                </div>
+              )}
             </div>
           </div>
+        </div>
 
-          <div className="col-md-6">
-            <div className="card h-100">
-              <div className="card-header">
-                <h5 className="mb-0">Top Gap Blockers</h5>
-              </div>
-              <div className="card-body">
-                {!patterns?.length ? (
-                  <p className="text-500 fs--1 text-center py-4">No pattern data yet.</p>
-                ) : (
-                  <ReactECharts option={blockersChartOption} style={{ height: 220 }} />
-                )}
-              </div>
+        <div className="col-md-6">
+          <div className="card h-100">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Top Gap Blockers</h5>
+            </div>
+            <div className="card-body">
+              {!patterns?.length ? (
+                <p className="text-secondary small text-center py-4">No pattern data yet.</p>
+              ) : (
+                <ReactECharts option={blockersChartOption} style={{ height: 220 }} />
+              )}
             </div>
           </div>
         </div>
 
         {/* Archetype Performance */}
         {archetypes && archetypes.length > 0 && (
-          <div className="card mb-3">
-            <div className="card-header">
-              <h5 className="mb-0">Archetype Performance</h5>
-            </div>
-            <div className="card-body p-0">
-              <div className="table-responsive">
-                <table className="table table-hover table-sm fs--1 mb-0">
-                  <thead className="bg-light">
-                    <tr>
-                      <th className="ps-3">Archetype</th>
-                      <th>Count</th>
-                      <th>Avg Score</th>
-                      <th>Min</th>
-                      <th>Max</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {archetypes.map((a) => (
-                      <tr key={a.archetype}>
-                        <td className="ps-3 fw-semibold">{a.archetype}</td>
-                        <td>{a.count}</td>
-                        <td>
-                          <span className={`badge ${a.avgScore >= 4 ? 'badge-soft-success' : a.avgScore >= 3 ? 'badge-soft-warning' : 'badge-soft-danger'}`}>
-                            {a.avgScore.toFixed(1)}
-                          </span>
-                        </td>
-                        <td className="text-500">{a.minScore.toFixed(1)}</td>
-                        <td className="text-500">{a.maxScore.toFixed(1)}</td>
+          <div className="col-12">
+            <div className="card">
+              <div className="card-header">
+                <h5 className="card-title mb-0">Archetype Performance</h5>
+              </div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table card-table table-vcenter table-hover table-sm small mb-0">
+                    <thead>
+                      <tr>
+                        <th>Archetype</th>
+                        <th>Count</th>
+                        <th>Avg Score</th>
+                        <th>Min</th>
+                        <th>Max</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {archetypes.map((a) => (
+                        <tr key={a.archetype}>
+                          <td className="fw-semibold">{a.archetype}</td>
+                          <td>{a.count}</td>
+                          <td>
+                            <span className={`badge ${a.avgScore >= 4 ? 'bg-success-lt' : a.avgScore >= 3 ? 'bg-warning-lt' : 'bg-danger-lt'}`}>
+                              {a.avgScore.toFixed(1)}
+                            </span>
+                          </td>
+                          <td className="text-secondary">{a.minScore.toFixed(1)}</td>
+                          <td className="text-secondary">{a.maxScore.toFixed(1)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* Follow-ups */}
-        <div className="card mb-3">
-          <div className="card-header">
-            <h5 className="mb-0">Follow-ups Due</h5>
-          </div>
-          <div className="card-body">
-            {followUpsLoading ? (
-              <LoadingSpinner />
-            ) : !followUps?.length ? (
-              <div className="text-500 text-center py-4 fs--1">
-                <span className="fas fa-check-circle d-block fs-2 text-300 mb-2" />
-                No follow-ups due.
-              </div>
-            ) : (
-              <div className="d-flex flex-column gap-2">
-                {followUps.map((f) => (
-                  <div
-                    key={f.applicationId}
-                    className="d-flex align-items-center justify-content-between p-3 rounded-3 border bg-white"
-                  >
-                    <div>
-                      <div className="fw-semibold fs--1">{f.company}</div>
-                      <div className="fs--2 text-500">{f.role} · {f.status}</div>
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Follow-ups Due</h5>
+            </div>
+            <div className="card-body">
+              {followUpsLoading ? (
+                <LoadingSpinner />
+              ) : !followUps?.length ? (
+                <div className="text-secondary text-center py-4 small">
+                  <IconCircleCheck size={32} className="d-block mx-auto mb-2 text-muted" />
+                  No follow-ups due.
+                </div>
+              ) : (
+                <div className="d-flex flex-column gap-2">
+                  {followUps.map((f) => (
+                    <div
+                      key={f.applicationId}
+                      className="d-flex align-items-center justify-content-between p-3 rounded-3 border bg-white"
+                    >
+                      <div>
+                        <div className="fw-semibold small">{f.company}</div>
+                        <div className="small text-secondary">{f.role} · {f.status}</div>
+                      </div>
+                      <div className="d-flex align-items-center gap-3">
+                        <span className={`badge ${URGENCY_BADGE[f.urgency] ?? 'bg-secondary-lt'}`}>
+                          {f.urgency}
+                        </span>
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => setLogModal({ applicationId: f.applicationId, company: f.company })}
+                        >
+                          Log Follow-up
+                        </button>
+                      </div>
                     </div>
-                    <div className="d-flex align-items-center gap-3">
-                      <span className={`badge ${URGENCY_BADGE[f.urgency] ?? 'badge-soft-secondary'}`}>
-                        {f.urgency}
-                      </span>
-                      <button
-                        className="btn btn-sm btn-falcon-primary"
-                        onClick={() => setLogModal({ applicationId: f.applicationId, company: f.company })}
-                      >
-                        Log Follow-up
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -303,7 +310,7 @@ export function AnalyticsPage() {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-falcon-default" onClick={() => setLogModal(null)}>
+                    <button type="button" className="btn btn-outline-secondary" onClick={() => setLogModal(null)}>
                       Cancel
                     </button>
                     <button type="submit" className="btn btn-primary" disabled={createFollowUp.isPending}>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useCreateEvaluation, useEvaluationStatus } from '@/api/evaluations';
 import toast from 'react-hot-toast';
+import { IconCheck, IconLoader2 } from '@tabler/icons-react';
 
 const STEPS = [
   { key: 'pending', label: 'Queued' },
@@ -57,10 +58,10 @@ export function NewEvaluationPage() {
           {!submitted ? (
             <div className="card">
               <div className="card-header">
-                <h5 className="mb-0">New Evaluation</h5>
+                <h5 className="card-title mb-0">New Evaluation</h5>
               </div>
               <div className="card-body">
-                <p className="text-600 mb-3">
+                <p className="text-secondary mb-3">
                   Paste a job posting URL or the full JD text to get an AI-powered evaluation.
                 </p>
 
@@ -82,7 +83,7 @@ export function NewEvaluationPage() {
                 <form onSubmit={handleSubmit}>
                   {mode === 'url' ? (
                     <div className="mb-3">
-                      <label className="form-label fw-semi-bold">Job Posting URL</label>
+                      <label className="form-label fw-semibold">Job Posting URL</label>
                       <input
                         type="url"
                         className="form-control"
@@ -95,7 +96,7 @@ export function NewEvaluationPage() {
                     </div>
                   ) : (
                     <div className="mb-3">
-                      <label className="form-label fw-semi-bold">Job Description</label>
+                      <label className="form-label fw-semibold">Job Description</label>
                       <textarea
                         className="form-control"
                         rows={14}
@@ -117,7 +118,7 @@ export function NewEvaluationPage() {
                     </button>
                     <button
                       type="button"
-                      className="btn btn-falcon-default"
+                      className="btn btn-outline-secondary"
                       onClick={() => navigate(-1)}
                     >
                       Cancel
@@ -129,7 +130,7 @@ export function NewEvaluationPage() {
           ) : (
             <div className="card">
               <div className="card-header text-center">
-                <h5 className="mb-0">
+                <h5 className="card-title mb-0">
                   {status?.status === 'completed'
                     ? 'Evaluation Complete!'
                     : status?.status === 'failed'
@@ -138,46 +139,30 @@ export function NewEvaluationPage() {
                 </h5>
               </div>
               <div className="card-body text-center">
-                {/* Step progress */}
-                <div className="d-flex justify-content-center align-items-center gap-1 mb-4 flex-wrap">
+                {/* Step progress — Tabler steps */}
+                <div className="steps steps-green mb-4">
                   {STEPS.map((step, i) => {
                     const done = i < currentStepIdx || status?.status === 'completed';
                     const active = STEPS[currentStepIdx]?.key === step.key && status?.status !== 'completed';
                     return (
-                      <div key={step.key} className="d-flex align-items-center">
-                        <div className="d-flex flex-column align-items-center">
-                          <div
-                            className={`rounded-circle d-flex align-items-center justify-content-center fw-bold fs--1${
-                              done || status?.status === 'completed'
-                                ? ' bg-success text-white'
-                                : active
-                                ? ' bg-primary text-white'
-                                : ' bg-200 text-500'
-                            }`}
-                            style={{ width: 32, height: 32 }}
-                          >
-                            {done || status?.status === 'completed' ? '✓' : i + 1}
-                          </div>
-                          <div className={`fs--2 mt-1${active ? ' text-primary fw-semi-bold' : ' text-500'}`}>
-                            {step.label}
-                          </div>
-                        </div>
-                        {i < STEPS.length - 1 && (
-                          <div
-                            className={`mx-1 mb-3${done ? ' bg-success' : ' bg-300'}`}
-                            style={{ width: 24, height: 2 }}
-                          />
+                      <a
+                        key={step.key}
+                        className={`step-item${done || status?.status === 'completed' ? ' active' : ''}${active ? ' active' : ''}`}
+                      >
+                        {done || status?.status === 'completed' ? (
+                          <IconCheck size={14} />
+                        ) : (
+                          String(i + 1)
                         )}
-                      </div>
+                        <span className="step-label">{step.label}</span>
+                      </a>
                     );
                   })}
                 </div>
 
                 {status?.status !== 'completed' && status?.status !== 'failed' && (
                   <div className="d-flex justify-content-center mb-3">
-                    <div className="spinner-border text-primary" role="status" style={{ width: 32, height: 32 }}>
-                      <span className="visually-hidden">Loading…</span>
-                    </div>
+                    <IconLoader2 size={32} className="text-primary" style={{ animation: 'spin 1s linear infinite' }} />
                   </div>
                 )}
 
@@ -188,7 +173,7 @@ export function NewEvaluationPage() {
                 {status?.status === 'failed' && (
                   <div className="d-grid gap-2 mt-3">
                     <button
-                      className="btn btn-falcon-default"
+                      className="btn btn-outline-secondary"
                       onClick={() => { setSubmitted(false); setTaskId(''); setApplicationId(''); }}
                     >
                       Try Again

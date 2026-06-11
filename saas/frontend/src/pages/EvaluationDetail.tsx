@@ -38,9 +38,9 @@ export function EvaluationDetailPage() {
   ];
 
   const gapBadgeClass = (severity: string) => {
-    if (severity === 'hard' || severity === 'critical') return 'badge badge-soft-danger';
-    if (severity === 'soft') return 'badge badge-soft-warning';
-    return 'badge badge-soft-secondary';
+    if (severity === 'hard' || severity === 'critical') return 'badge bg-danger-lt';
+    if (severity === 'soft') return 'badge bg-warning-lt';
+    return 'badge bg-secondary-lt';
   };
 
   return (
@@ -48,20 +48,20 @@ export function EvaluationDetailPage() {
       <div className="row g-3">
         {/* Left: main content with tabs */}
         <div className="col-lg-8">
-          <div className="card mb-3">
+          <div className="card card-status-start bg-green mb-3">
             <div className="card-header">
               <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
-                  <h5 className="mb-0">
+                  <h5 className="card-title mb-0">
                     {application?.company}
-                    {application?.role ? <span className="text-600 fw-normal"> — {application.role}</span> : null}
+                    {application?.role ? <span className="text-secondary fw-normal"> — {application.role}</span> : null}
                   </h5>
                   <div className="d-flex gap-2 mt-1 flex-wrap">
                     {evaluation.archetype && (
-                      <span className="badge badge-soft-info">{evaluation.archetype}</span>
+                      <span className="badge bg-azure-lt">{evaluation.archetype}</span>
                     )}
                     {evaluation.legitimacyTier && (
-                      <span className="badge badge-soft-secondary">{evaluation.legitimacyTier}</span>
+                      <span className="badge bg-secondary-lt">{evaluation.legitimacyTier}</span>
                     )}
                   </div>
                 </div>
@@ -71,7 +71,7 @@ export function EvaluationDetailPage() {
 
             {evaluation.tlDr && (
               <div className="card-body border-bottom py-2">
-                <p className="text-600 fs--1 mb-0">{evaluation.tlDr}</p>
+                <p className="text-secondary small mb-0">{evaluation.tlDr}</p>
               </div>
             )}
 
@@ -105,14 +105,14 @@ export function EvaluationDetailPage() {
                         <PolarGrid />
                         <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
                         <Tooltip />
-                        <Radar name="Score" dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.25} />
+                        <Radar name="Score" dataKey="value" stroke="var(--tblr-primary)" fill="var(--tblr-primary)" fillOpacity={0.25} />
                       </RadarChart>
                     </ResponsiveContainer>
                     <div className="row g-3">
                       {radarData.map((d) => (
                         <div key={d.subject} className="col-6 d-flex align-items-center gap-2">
                           <ScoreGauge score={d.value} size="sm" />
-                          <span className="fs--1">{d.subject}</span>
+                          <span className="small">{d.subject}</span>
                         </div>
                       ))}
                     </div>
@@ -123,8 +123,8 @@ export function EvaluationDetailPage() {
                 <div className={`tab-pane fade${tab === 'gaps' ? ' show active' : ''}`}>
                   {evaluation.gaps?.length ? (
                     <div className="table-responsive">
-                      <table className="table table-hover table-sm fs--1 mb-0">
-                        <thead className="table-light">
+                      <table className="table card-table table-vcenter table-hover table-sm small mb-0">
+                        <thead>
                           <tr>
                             <th>Gap</th>
                             <th>Severity</th>
@@ -138,7 +138,7 @@ export function EvaluationDetailPage() {
                               <td>
                                 <span className={gapBadgeClass(gap.severity)}>{gap.severity}</span>
                               </td>
-                              <td className="text-600">{gap.mitigation ?? '—'}</td>
+                              <td className="text-secondary">{gap.mitigation ?? '—'}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -151,20 +151,20 @@ export function EvaluationDetailPage() {
 
                 {/* Metadata tab */}
                 <div className={`tab-pane fade${tab === 'metadata' ? ' show active' : ''} p-3`}>
-                  <dl className="row fs--1 mb-0">
-                    <dt className="col-sm-3 text-600">Provider</dt>
+                  <dl className="row small mb-0">
+                    <dt className="col-sm-3 text-secondary">Provider</dt>
                     <dd className="col-sm-9">{evaluation.aiProvider ?? '—'}</dd>
-                    <dt className="col-sm-3 text-600">Model</dt>
+                    <dt className="col-sm-3 text-secondary">Model</dt>
                     <dd className="col-sm-9">{evaluation.aiModel ?? '—'}</dd>
-                    <dt className="col-sm-3 text-600">Tokens In</dt>
+                    <dt className="col-sm-3 text-secondary">Tokens In</dt>
                     <dd className="col-sm-9">{evaluation.aiTokensIn?.toLocaleString() ?? '—'}</dd>
-                    <dt className="col-sm-3 text-600">Tokens Out</dt>
+                    <dt className="col-sm-3 text-secondary">Tokens Out</dt>
                     <dd className="col-sm-9">{evaluation.aiTokensOut?.toLocaleString() ?? '—'}</dd>
-                    <dt className="col-sm-3 text-600">Cost</dt>
+                    <dt className="col-sm-3 text-secondary">Cost</dt>
                     <dd className="col-sm-9">{evaluation.aiCostUsd ? `$${parseFloat(evaluation.aiCostUsd).toFixed(4)}` : '—'}</dd>
-                    <dt className="col-sm-3 text-600">Latency</dt>
+                    <dt className="col-sm-3 text-secondary">Latency</dt>
                     <dd className="col-sm-9">{evaluation.aiLatencyMs ? `${evaluation.aiLatencyMs}ms` : '—'}</dd>
-                    <dt className="col-sm-3 text-600">Created</dt>
+                    <dt className="col-sm-3 text-secondary">Created</dt>
                     <dd className="col-sm-9">{new Date(evaluation.createdAt).toLocaleString()}</dd>
                   </dl>
                 </div>
@@ -178,13 +178,18 @@ export function EvaluationDetailPage() {
           <div className="card mb-3">
             <div className="card-body text-center">
               <ScoreGauge score={evaluation.scoreGlobal} size="lg" />
-              <p className="text-700 mt-2 mb-0">Match Score</p>
+              <p className="text-body mt-2 mb-1 fw-semibold">Match Score</p>
+              {evaluation.scoreGlobal != null && (
+                <span className="badge bg-green-lt text-green fs-4">
+                  {parseFloat(String(evaluation.scoreGlobal)).toFixed(1)}/5
+                </span>
+              )}
             </div>
           </div>
 
           <div className="card">
             <div className="card-header">
-              <h6 className="mb-0">Actions</h6>
+              <h6 className="card-title mb-0">Actions</h6>
             </div>
             <div className="card-body d-grid gap-2">
               {application?.pdfUrl && (
@@ -192,7 +197,7 @@ export function EvaluationDetailPage() {
                   href={`/api/v1/pdf/${evaluation.applicationId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-falcon-default btn-sm"
+                  className="btn btn-outline-secondary btn-sm"
                 >
                   Download PDF
                 </a>
@@ -201,7 +206,7 @@ export function EvaluationDetailPage() {
                 href={application?.url ?? '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-falcon-default btn-sm"
+                className="btn btn-outline-secondary btn-sm"
               >
                 View Job Posting
               </a>
