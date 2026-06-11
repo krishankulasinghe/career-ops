@@ -6,7 +6,16 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useApplications, useDeleteApplication, useImportApplications, useCreateApplication } from '@/api/applications';
 import toast from 'react-hot-toast';
-import { IconList } from '@tabler/icons-react';
+import {
+  IconList,
+  IconFileImport,
+  IconPlus,
+  IconX,
+  IconChevronLeft,
+  IconChevronRight,
+  IconSortAscending,
+  IconSortDescending,
+} from '@tabler/icons-react';
 
 const STATUSES = ['Evaluated', 'Applied', 'Responded', 'Interview', 'Offer', 'Rejected', 'Discarded', 'SKIP'];
 const PAGE_SIZE = 25;
@@ -85,7 +94,11 @@ export function ApplicationsPage() {
   const paged = allApps.slice(localPage * PAGE_SIZE, (localPage + 1) * PAGE_SIZE);
 
   const SortIcon = ({ col }: { col: string }) =>
-    sort === col ? <span className={`fas fa-sort-${order === 'asc' ? 'up' : 'down'} ms-1 text-500`}></span> : null;
+    sort === col
+      ? order === 'asc'
+        ? <IconSortAscending size={14} className="ms-1 text-secondary" />
+        : <IconSortDescending size={14} className="ms-1 text-secondary" />
+      : null;
 
   return (
     <Layout title="Applications">
@@ -101,7 +114,7 @@ export function ApplicationsPage() {
       ) : (
         <div className="card mb-3">
           <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <h5 className="mb-0">Applications</h5>
+            <h5 className="card-title mb-0">Applications</h5>
             <div className="d-flex gap-2 align-items-center flex-wrap">
               {selected.size > 0 && (
                 <button className="btn btn-sm btn-danger" onClick={handleBulkDelete}>
@@ -117,30 +130,31 @@ export function ApplicationsPage() {
                 <option value="">All statuses</option>
                 {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search company or role…"
-                style={{ width: 200 }}
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setLocalPage(0); setApiPage(1); }}
-              />
-              <button className="btn btn-sm btn-falcon-default" onClick={() => setShowImport(true)}>
-                <span className="fas fa-file-import me-1"></span>Import
+              <div className="input-group input-group-sm input-group-flat" style={{ width: 200 }}>
+                <input
+                  type="search"
+                  className="form-control"
+                  placeholder="Search company or role…"
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setLocalPage(0); setApiPage(1); }}
+                />
+              </div>
+              <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowImport(true)}>
+                <IconFileImport size={14} className="me-1" />Import
               </button>
-              <button className="btn btn-sm btn-falcon-primary" onClick={() => setShowAdd(true)}>
-                <span className="fas fa-plus me-1"></span>Add
+              <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>
+                <IconPlus size={14} className="me-1" />Add
               </button>
             </div>
           </div>
 
           <div className="card-body p-0">
             {total === 0 ? (
-              <div className="py-4 text-center text-500 fs--1">No applications match your search.</div>
+              <div className="py-4 text-center text-secondary small">No applications match your search.</div>
             ) : (
               <div className="table-responsive">
-                <table className="table table-hover table-sm fs--1 mb-0 overflow-hidden">
-                  <thead className="bg-200 text-900">
+                <table className="table card-table table-vcenter table-hover mb-0">
+                  <thead>
                     <tr>
                       <th style={{ width: 32 }}>
                         <input
@@ -154,14 +168,12 @@ export function ApplicationsPage() {
                       </th>
                       <th style={{ width: 36 }}>#</th>
                       <th
-                        className="cursor-pointer"
                         style={{ cursor: 'pointer' }}
                         onClick={() => toggleSort('date')}
                       >
                         Date <SortIcon col="date" />
                       </th>
                       <th
-                        className="cursor-pointer"
                         style={{ cursor: 'pointer' }}
                         onClick={() => toggleSort('company')}
                       >
@@ -169,14 +181,12 @@ export function ApplicationsPage() {
                       </th>
                       <th>Role</th>
                       <th
-                        className="cursor-pointer"
                         style={{ cursor: 'pointer', width: 90 }}
                         onClick={() => toggleSort('score')}
                       >
                         Score <SortIcon col="score" />
                       </th>
                       <th
-                        className="cursor-pointer"
                         style={{ cursor: 'pointer', width: 120 }}
                         onClick={() => toggleSort('status')}
                       >
@@ -201,27 +211,27 @@ export function ApplicationsPage() {
                             }}
                           />
                         </td>
-                        <td className="text-500">{app.seqNumber}</td>
-                        <td className="text-500">{app.date}</td>
-                        <td className="fw-semi-bold">{app.company}</td>
-                        <td className="text-700">{app.role}</td>
+                        <td className="text-secondary">{app.seqNumber}</td>
+                        <td className="text-secondary">{app.date}</td>
+                        <td className="fw-semibold">{app.company}</td>
+                        <td className="text-body">{app.role}</td>
                         <td><ScoreGauge score={app.score} size="sm" /></td>
                         <td><StatusBadge status={app.status} /></td>
                         <td className="text-center">{app.hasPdf ? '✅' : '—'}</td>
                         <td>
                           <div className="d-flex gap-1">
                             <a
-                              className="btn btn-sm btn-falcon-default"
+                              className="btn btn-sm btn-outline-secondary"
                               href={`/evaluations/${app.id}`}
                             >
                               View
                             </a>
                             <button
-                              className="btn btn-sm btn-falcon-danger"
+                              className="btn btn-sm btn-outline-danger"
                               onClick={() => handleDelete(app.id)}
                               title="Delete"
                             >
-                              <span className="fas fa-times"></span>
+                              <IconX size={14} />
                             </button>
                           </div>
                         </td>
@@ -235,20 +245,20 @@ export function ApplicationsPage() {
 
           {total > PAGE_SIZE && (
             <div className="card-footer d-flex justify-content-end align-items-center gap-2">
-              <span className="fs--1 text-600">{startItem}–{endItem} of {total}</span>
+              <span className="small text-secondary">{startItem}–{endItem} of {total}</span>
               <button
-                className="btn btn-sm btn-falcon-default"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={localPage === 0}
                 onClick={() => setLocalPage((p) => p - 1)}
               >
-                <span className="fas fa-chevron-left"></span>
+                <IconChevronLeft size={14} />
               </button>
               <button
-                className="btn btn-sm btn-falcon-default"
+                className="btn btn-sm btn-outline-secondary"
                 disabled={endItem >= total}
                 onClick={() => setLocalPage((p) => p + 1)}
               >
-                <span className="fas fa-chevron-right"></span>
+                <IconChevronRight size={14} />
               </button>
             </div>
           )}
@@ -256,7 +266,7 @@ export function ApplicationsPage() {
           {data?.pagination.hasMore && (
             <div className="card-footer text-center">
               <button
-                className="btn btn-sm btn-falcon-default"
+                className="btn btn-sm btn-outline-secondary"
                 onClick={() => setApiPage((p) => p + 1)}
               >
                 Load more
@@ -266,85 +276,95 @@ export function ApplicationsPage() {
         </div>
       )}
 
+      {/* Import Modal */}
       {showImport && (
-        <div className="modal-overlay" onClick={() => setShowImport(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Import applications.md</h2>
-              <button className="modal-close" onClick={() => setShowImport(false)}>×</button>
-            </div>
-            <p style={{ color: 'var(--text-muted)', marginBottom: 12 }}>Paste the contents of your applications.md file:</p>
-            <textarea
-              className="form-control"
-              rows={12}
-              value={importText}
-              onChange={(e) => setImportText(e.target.value)}
-              placeholder="| # | Date | Company | Role | Score | Status | ..."
-              style={{ fontFamily: 'monospace', fontSize: 12 }}
-            />
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowImport(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleImport} disabled={importApps.isPending}>
-                {importApps.isPending ? 'Importing…' : 'Import'}
-              </button>
+        <div className="modal show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Import applications.md</h5>
+                <button type="button" className="btn-close" onClick={() => setShowImport(false)} />
+              </div>
+              <div className="modal-body">
+                <p className="text-secondary small mb-3">Paste the contents of your applications.md file:</p>
+                <textarea
+                  className="form-control font-monospace"
+                  rows={12}
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  placeholder="| # | Date | Company | Role | Score | Status | ..."
+                  style={{ fontSize: 12 }}
+                />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowImport(false)}>Cancel</button>
+                <button className="btn btn-primary" onClick={handleImport} disabled={importApps.isPending}>
+                  {importApps.isPending ? 'Importing…' : 'Import'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Add Application Modal */}
       {showAdd && (
-        <div className="modal-overlay" onClick={() => setShowAdd(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Add Application</h2>
-              <button className="modal-close" onClick={() => setShowAdd(false)}>×</button>
+        <div className="modal show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Add Application</h5>
+                <button type="button" className="btn-close" onClick={() => setShowAdd(false)} />
+              </div>
+              <form onSubmit={handleAddApp}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Company</label>
+                    <input
+                      className="form-control"
+                      value={newApp.company}
+                      onChange={(e) => setNewApp({ ...newApp, company: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Role</label>
+                    <input
+                      className="form-control"
+                      value={newApp.role}
+                      onChange={(e) => setNewApp({ ...newApp, role: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Date</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={newApp.date}
+                      onChange={(e) => setNewApp({ ...newApp, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Status</label>
+                    <select
+                      className="form-select"
+                      value={newApp.status}
+                      onChange={(e) => setNewApp({ ...newApp, status: e.target.value })}
+                    >
+                      {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary" disabled={createApp.isPending}>
+                    {createApp.isPending ? 'Adding…' : 'Add Application'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleAddApp}>
-              <div className="form-group">
-                <label className="form-label">Company</label>
-                <input
-                  className="form-control"
-                  value={newApp.company}
-                  onChange={(e) => setNewApp({ ...newApp, company: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Role</label>
-                <input
-                  className="form-control"
-                  value={newApp.role}
-                  onChange={(e) => setNewApp({ ...newApp, role: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Date</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={newApp.date}
-                  onChange={(e) => setNewApp({ ...newApp, date: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Status</label>
-                <select
-                  className="form-control"
-                  value={newApp.status}
-                  onChange={(e) => setNewApp({ ...newApp, status: e.target.value })}
-                >
-                  {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={createApp.isPending}>
-                  {createApp.isPending ? 'Adding…' : 'Add Application'}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

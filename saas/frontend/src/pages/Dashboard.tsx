@@ -86,7 +86,7 @@ export function DashboardPage() {
       ) : (
         <>
           {/* KPI Row */}
-          <div className="row g-3 mb-3">
+          <div className="row row-deck row-cards mb-3">
             <div className="col-sm-6 col-xl-3">
               <KPICard
                 title="Total Applications"
@@ -122,11 +122,11 @@ export function DashboardPage() {
           </div>
 
           {/* Charts Row */}
-          <div className="row g-3 mb-3">
+          <div className="row row-deck row-cards mb-3">
             <div className="col-md-8">
               <div className="card h-100">
                 <div className="card-header">
-                  <h5 className="mb-0 fs--1">Applications by Status</h5>
+                  <h5 className="card-title mb-0">Applications by Status</h5>
                 </div>
                 <div className="card-body p-0">
                   {barCounts.every((v) => v === 0) ? (
@@ -145,7 +145,7 @@ export function DashboardPage() {
             <div className="col-md-4">
               <div className="card h-100">
                 <div className="card-header">
-                  <h5 className="mb-0 fs--1">Score Distribution</h5>
+                  <h5 className="card-title mb-0">Score Distribution</h5>
                 </div>
                 <div className="card-body p-0">
                   {scoreBinCounts.every((b) => b.value === 0) ? (
@@ -165,12 +165,12 @@ export function DashboardPage() {
           {/* Recent Applications Table */}
           <div className="card">
             <div className="card-header d-flex align-items-center justify-content-between">
-              <h5 className="mb-0">Recent Applications</h5>
+              <h5 className="card-title mb-0">Recent Applications</h5>
               <a className="btn btn-link btn-sm p-0" href="/applications">View all</a>
             </div>
             <div className="card-body p-0">
               {appsData?.applications.length ? (
-                <table className="table table-sm fs--1 mb-0 overflow-hidden">
+                <table className="table card-table table-vcenter mb-0">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
@@ -184,9 +184,9 @@ export function DashboardPage() {
                   <tbody>
                     {appsData.applications.slice(0, 10).map((app) => (
                       <tr key={app.id}>
-                        <td className="text-500">{app.seqNumber}</td>
+                        <td className="text-secondary">{app.seqNumber}</td>
                         <td className="fw-semibold">{app.company}</td>
-                        <td className="text-700">{app.role}</td>
+                        <td className="text-body">{app.role}</td>
                         <td>
                           {app.score ? (
                             <span className="badge bg-primary-lt">{app.score}/5</span>

@@ -6,13 +6,21 @@ import { usePortals, useCreatePortal, useUpdatePortal, useDeletePortal, useImpor
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import toast from 'react-hot-toast';
+import {
+  IconFileImport,
+  IconPlus,
+  IconTrash,
+  IconCircleCheck,
+  IconCircleX,
+  IconDeviceFloppy,
+} from '@tabler/icons-react';
 
 const API_TYPE_BADGE: Record<string, string> = {
-  greenhouse: 'badge-soft-success',
-  ashby: 'badge-soft-primary',
-  lever: 'badge-soft-warning',
-  workday: 'badge-soft-secondary',
-  custom: 'badge-soft-secondary',
+  greenhouse: 'bg-success-lt',
+  ashby: 'bg-primary-lt',
+  lever: 'bg-warning-lt',
+  workday: 'bg-secondary-lt',
+  custom: 'bg-secondary-lt',
 };
 
 export function PortalsPage() {
@@ -107,154 +115,158 @@ export function PortalsPage() {
 
   return (
     <Layout title="Portals">
-      <div className="d-flex flex-column gap-3">
+      <div className="row row-deck row-cards">
 
         {/* Portals card */}
-        <div className="card mb-3">
-          <div className="card-header">
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-              <div className="d-flex align-items-center gap-2">
-                <h5 className="mb-0">Job Portals</h5>
-                <span className="badge badge-soft-info">{portals?.length ?? 0} total</span>
-                <span className="badge badge-soft-success">{enabledCount} enabled</span>
-              </div>
-              <div className="d-flex gap-2 align-items-center flex-wrap">
-                {/* choices.js multi-select */}
-                <select ref={choicesRef} multiple style={{ display: 'none' }}>
-                  <option value="greenhouse">Greenhouse</option>
-                  <option value="ashby">Ashby</option>
-                  <option value="lever">Lever</option>
-                  <option value="workday">Workday</option>
-                  <option value="custom">Custom</option>
-                </select>
-                <button className="btn btn-sm btn-falcon-default" onClick={() => setShowImportModal(true)}>
-                  <span className="fas fa-file-import me-1" />
-                  Import YAML
-                </button>
-                <button className="btn btn-sm btn-primary" onClick={() => setShowAddModal(true)}>
-                  <span className="fas fa-plus me-1" />
-                  Add Portal
-                </button>
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 w-100">
+                <div className="d-flex align-items-center gap-2">
+                  <h5 className="card-title mb-0">Job Portals</h5>
+                  <span className="badge bg-info-lt">{portals?.length ?? 0} total</span>
+                  <span className="badge bg-success-lt">{enabledCount} enabled</span>
+                </div>
+                <div className="d-flex gap-2 align-items-center flex-wrap">
+                  {/* choices.js multi-select */}
+                  <select ref={choicesRef} multiple style={{ display: 'none' }}>
+                    <option value="greenhouse">Greenhouse</option>
+                    <option value="ashby">Ashby</option>
+                    <option value="lever">Lever</option>
+                    <option value="workday">Workday</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                  <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowImportModal(true)}>
+                    <IconFileImport size={14} className="me-1" />
+                    Import YAML
+                  </button>
+                  <button className="btn btn-sm btn-primary" onClick={() => setShowAddModal(true)}>
+                    <IconPlus size={14} className="me-1" />
+                    Add Portal
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="card-body p-0">
-            {!portals?.length ? (
-              <div className="p-4">
-                <EmptyState
-                  title="No portals configured"
-                  description="Add company career pages to scan for new job postings."
-                  action={<button className="btn btn-primary" onClick={() => setShowAddModal(true)}>Add Portal</button>}
-                />
-              </div>
-            ) : filteredPortals.length === 0 ? (
-              <div className="text-center p-4 text-500 fs--1">No portals match the selected filter.</div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-hover table-sm fs--1 mb-0">
-                  <thead className="bg-light">
-                    <tr>
-                      <th className="ps-3">Name</th>
-                      <th>ATS</th>
-                      <th>Enabled</th>
-                      <th>Careers URL</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredPortals.map((p) => (
-                      <tr key={p.id}>
-                        <td className="ps-3 fw-semibold">{p.name}</td>
-                        <td>
-                          {p.apiType ? (
-                            <span className={`badge ${API_TYPE_BADGE[p.apiType] ?? 'badge-soft-secondary'}`}>
-                              {p.apiType}
-                            </span>
-                          ) : (
-                            <span className="text-500">—</span>
-                          )}
-                        </td>
-                        <td>
-                          <div className="form-check form-switch mb-0">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              role="switch"
-                              checked={p.enabled}
-                              onChange={(e) => updatePortal.mutateAsync({ id: p.id, enabled: e.target.checked })}
-                            />
-                          </div>
-                        </td>
-                        <td className="text-truncate" style={{ maxWidth: 260 }}>
-                          {p.careersUrl ? (
-                            <a href={p.careersUrl} target="_blank" rel="noopener noreferrer" className="fs--2">
-                              {p.careersUrl}
-                            </a>
-                          ) : (
-                            <span className="text-500">—</span>
-                          )}
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => {
-                              if (confirm(`Delete ${p.name}?`)) deletePortal.mutateAsync(p.id);
-                            }}
-                          >
-                            <span className="fas fa-trash-alt" />
-                          </button>
-                        </td>
+            <div className="card-body p-0">
+              {!portals?.length ? (
+                <div className="p-4">
+                  <EmptyState
+                    title="No portals configured"
+                    description="Add company career pages to scan for new job postings."
+                    action={<button className="btn btn-primary" onClick={() => setShowAddModal(true)}>Add Portal</button>}
+                  />
+                </div>
+              ) : filteredPortals.length === 0 ? (
+                <div className="text-center p-4 text-secondary small">No portals match the selected filter.</div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table card-table table-vcenter table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th className="ps-3">Name</th>
+                        <th>ATS</th>
+                        <th>Enabled</th>
+                        <th>Careers URL</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {filteredPortals.map((p) => (
+                        <tr key={p.id}>
+                          <td className="ps-3 fw-semibold">{p.name}</td>
+                          <td>
+                            {p.apiType ? (
+                              <span className={`badge ${API_TYPE_BADGE[p.apiType] ?? 'bg-secondary-lt'}`}>
+                                {p.apiType}
+                              </span>
+                            ) : (
+                              <span className="text-secondary">—</span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="form-check form-switch mb-0">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                checked={p.enabled}
+                                onChange={(e) => updatePortal.mutateAsync({ id: p.id, enabled: e.target.checked })}
+                              />
+                            </div>
+                          </td>
+                          <td className="text-truncate" style={{ maxWidth: 260 }}>
+                            {p.careersUrl ? (
+                              <a href={p.careersUrl} target="_blank" rel="noopener noreferrer" className="small">
+                                {p.careersUrl}
+                              </a>
+                            ) : (
+                              <span className="text-secondary">—</span>
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => {
+                                if (confirm(`Delete ${p.name}?`)) deletePortal.mutateAsync(p.id);
+                              }}
+                            >
+                              <IconTrash size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Title Filters card */}
-        <div className="card mb-3">
-          <div className="card-header">
-            <h5 className="mb-0">Title Filters</h5>
-          </div>
-          <div className="card-body">
-            <p className="fs--1 text-500 mb-3">
-              Comma-separated keywords. Jobs must match at least one positive keyword (if any) and none of the negative keywords.
-            </p>
-            <div className="mb-3">
-              <label className="form-label">
-                <span className="fas fa-check-circle text-success me-1" />
-                Positive keywords (include)
-              </label>
-              <input
-                className="form-control"
-                value={positiveInput}
-                onChange={(e) => setPositiveInput(e.target.value)}
-                placeholder="e.g. engineer, developer, ai, machine learning"
-              />
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">Title Filters</h5>
             </div>
-            <div className="mb-3">
-              <label className="form-label">
-                <span className="fas fa-times-circle text-danger me-1" />
-                Negative keywords (exclude)
-              </label>
-              <input
-                className="form-control"
-                value={negativeInput}
-                onChange={(e) => setNegativeInput(e.target.value)}
-                placeholder="e.g. intern, junior, manager"
-              />
+            <div className="card-body">
+              <p className="small text-secondary mb-3">
+                Comma-separated keywords. Jobs must match at least one positive keyword (if any) and none of the negative keywords.
+              </p>
+              <div className="mb-3">
+                <label className="form-label">
+                  <IconCircleCheck size={14} className="text-success me-1" />
+                  Positive keywords (include)
+                </label>
+                <input
+                  className="form-control"
+                  value={positiveInput}
+                  onChange={(e) => setPositiveInput(e.target.value)}
+                  placeholder="e.g. engineer, developer, ai, machine learning"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">
+                  <IconCircleX size={14} className="text-danger me-1" />
+                  Negative keywords (exclude)
+                </label>
+                <input
+                  className="form-control"
+                  value={negativeInput}
+                  onChange={(e) => setNegativeInput(e.target.value)}
+                  placeholder="e.g. intern, junior, manager"
+                />
+              </div>
+              <button
+                className="btn btn-primary"
+                onClick={handleSaveFilters}
+                disabled={upsertFilters.isPending}
+              >
+                <IconDeviceFloppy size={14} className="me-1" />
+                {upsertFilters.isPending ? 'Saving…' : 'Save Filters'}
+              </button>
             </div>
-            <button
-              className="btn btn-primary"
-              onClick={handleSaveFilters}
-              disabled={upsertFilters.isPending}
-            >
-              <span className="fas fa-save me-1" />
-              {upsertFilters.isPending ? 'Saving…' : 'Save Filters'}
-            </button>
           </div>
         </div>
 
@@ -262,61 +274,59 @@ export function PortalsPage() {
 
       {/* Add Portal Modal */}
       {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal show d-block" tabIndex={-1} role="dialog">
-            <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Add Portal</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowAddModal(false)} />
-                </div>
-                <form onSubmit={handleAdd}>
-                  <div className="modal-body">
-                    <div className="mb-3">
-                      <label className="form-label">Company Name <span className="text-danger">*</span></label>
-                      <input
-                        required
-                        className="form-control"
-                        value={newPortal.name}
-                        onChange={(e) => setNewPortal((p) => ({ ...p, name: e.target.value }))}
-                        placeholder="Acme Corp"
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Careers URL</label>
-                      <input
-                        className="form-control"
-                        value={newPortal.careersUrl}
-                        onChange={(e) => setNewPortal((p) => ({ ...p, careersUrl: e.target.value }))}
-                        placeholder="https://jobs.ashbyhq.com/acme"
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Override ATS Type (optional)</label>
-                      <select
-                        className="form-select"
-                        value={newPortal.apiType}
-                        onChange={(e) => setNewPortal((p) => ({ ...p, apiType: e.target.value }))}
-                      >
-                        <option value="">Auto-detect</option>
-                        <option value="greenhouse">Greenhouse</option>
-                        <option value="ashby">Ashby</option>
-                        <option value="lever">Lever</option>
-                        <option value="workday">Workday</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-falcon-default" onClick={() => setShowAddModal(false)}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={createPortal.isPending}>
-                      {createPortal.isPending ? 'Adding…' : 'Add Portal'}
-                    </button>
-                  </div>
-                </form>
+        <div className="modal show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Add Portal</h5>
+                <button type="button" className="btn-close" onClick={() => setShowAddModal(false)} />
               </div>
+              <form onSubmit={handleAdd}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Company Name <span className="text-danger">*</span></label>
+                    <input
+                      required
+                      className="form-control"
+                      value={newPortal.name}
+                      onChange={(e) => setNewPortal((p) => ({ ...p, name: e.target.value }))}
+                      placeholder="Acme Corp"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Careers URL</label>
+                    <input
+                      className="form-control"
+                      value={newPortal.careersUrl}
+                      onChange={(e) => setNewPortal((p) => ({ ...p, careersUrl: e.target.value }))}
+                      placeholder="https://jobs.ashbyhq.com/acme"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Override ATS Type (optional)</label>
+                    <select
+                      className="form-select"
+                      value={newPortal.apiType}
+                      onChange={(e) => setNewPortal((p) => ({ ...p, apiType: e.target.value }))}
+                    >
+                      <option value="">Auto-detect</option>
+                      <option value="greenhouse">Greenhouse</option>
+                      <option value="ashby">Ashby</option>
+                      <option value="lever">Lever</option>
+                      <option value="workday">Workday</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => setShowAddModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={createPortal.isPending}>
+                    {createPortal.isPending ? 'Adding…' : 'Add Portal'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -324,37 +334,35 @@ export function PortalsPage() {
 
       {/* Import Modal */}
       {showImportModal && (
-        <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
-          <div className="modal show d-block" tabIndex={-1} role="dialog">
-            <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Import Portals</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowImportModal(false)} />
-                </div>
-                <form onSubmit={handleImport}>
-                  <div className="modal-body">
-                    <p className="fs--1 text-500 mb-3">
-                      Paste tab-separated lines: <code>Company Name{'\t'}Careers URL</code>
-                    </p>
-                    <textarea
-                      className="form-control font-monospace fs--2"
-                      rows={8}
-                      value={importText}
-                      onChange={(e) => setImportText(e.target.value)}
-                      placeholder={'Acme\thttps://jobs.ashbyhq.com/acme\nBeta Corp\thttps://jobs.lever.co/betacorp'}
-                    />
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-falcon-default" onClick={() => setShowImportModal(false)}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={importPortals.isPending}>
-                      {importPortals.isPending ? 'Importing…' : 'Import'}
-                    </button>
-                  </div>
-                </form>
+        <div className="modal show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.4)' }}>
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Import Portals</h5>
+                <button type="button" className="btn-close" onClick={() => setShowImportModal(false)} />
               </div>
+              <form onSubmit={handleImport}>
+                <div className="modal-body">
+                  <p className="small text-secondary mb-3">
+                    Paste tab-separated lines: <code>Company Name{'\t'}Careers URL</code>
+                  </p>
+                  <textarea
+                    className="form-control font-monospace small"
+                    rows={8}
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                    placeholder={'Acme\thttps://jobs.ashbyhq.com/acme\nBeta Corp\thttps://jobs.lever.co/betacorp'}
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => setShowImportModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={importPortals.isPending}>
+                    {importPortals.isPending ? 'Importing…' : 'Import'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

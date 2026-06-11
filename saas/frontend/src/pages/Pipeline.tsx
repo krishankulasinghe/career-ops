@@ -5,9 +5,9 @@ import { usePipeline, useAddToPipeline, useProcessPipeline, useDeletePipelineIte
 import toast from 'react-hot-toast';
 
 const STATUS_BADGE: Record<string, string> = {
-  pending: 'badge badge-soft-warning',
-  processing: 'badge badge-soft-primary',
-  processed: 'badge badge-soft-success',
+  pending: 'bg-warning-lt',
+  processing: 'bg-primary-lt',
+  processed: 'bg-success-lt',
 };
 
 export function PipelinePage() {
@@ -47,18 +47,18 @@ export function PipelinePage() {
       {/* Add URLs card */}
       <div className="card mb-3">
         <div className="card-header">
-          <h5 className="mb-0">Add URLs to Pipeline</h5>
+          <h5 className="card-title mb-0">Add URLs to Pipeline</h5>
         </div>
         <div className="card-body">
           <div className="mb-3">
-            <label className="form-label fw-semi-bold">Job URLs (one per line)</label>
+            <label className="form-label fw-semibold">Job URLs (one per line)</label>
             <textarea
-              className="form-control"
+              className="form-control font-monospace"
               rows={3}
               value={urlsInput}
               onChange={(e) => setUrlsInput(e.target.value)}
               placeholder={"Paste job URLs (one per line)\nhttps://jobs.ashbyhq.com/company/job-id\nhttps://jobs.lever.co/company/job-id"}
-              style={{ fontFamily: 'monospace', fontSize: 13 }}
+              style={{ fontSize: 13 }}
             />
           </div>
           <div className="d-flex gap-2">
@@ -70,7 +70,7 @@ export function PipelinePage() {
               {addToQueue.isPending ? 'Adding…' : '+ Add URLs'}
             </button>
             <button
-              className="btn btn-falcon-default"
+              className="btn btn-outline-secondary"
               onClick={handleProcess}
               disabled={processAll.isPending || pendingCount === 0}
             >
@@ -83,7 +83,7 @@ export function PipelinePage() {
       {/* Pipeline table card */}
       <div className="card">
         <div className="card-header d-flex align-items-center justify-content-between gap-3 flex-wrap">
-          <h5 className="mb-0">Pipeline Items</h5>
+          <h5 className="card-title mb-0">Pipeline Items</h5>
           <div style={{ maxWidth: 280, width: '100%' }}>
             <input
               type="search"
@@ -105,8 +105,8 @@ export function PipelinePage() {
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover table-sm fs--1 mb-0">
-                <thead className="table-light">
+              <table className="table card-table table-vcenter table-hover mb-0">
+                <thead>
                   <tr>
                     <th>Company / Title</th>
                     <th>URL</th>
@@ -118,31 +118,31 @@ export function PipelinePage() {
                 <tbody>
                   {filtered.map((item) => (
                     <tr key={item.id}>
-                      <td className="fw-semi-bold text-nowrap">
-                        {item.company ?? item.title ?? <span className="text-500">—</span>}
+                      <td className="fw-semibold text-nowrap">
+                        {item.company ?? item.title ?? <span className="text-secondary">—</span>}
                       </td>
                       <td>
                         <a
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-600 text-decoration-none"
+                          className="text-secondary text-decoration-none"
                           title={item.url}
                         >
                           {item.url.length > 55 ? `${item.url.slice(0, 55)}…` : item.url}
                         </a>
                       </td>
                       <td>
-                        <span className={STATUS_BADGE[item.status] ?? 'badge badge-soft-secondary'}>
+                        <span className={`badge ${STATUS_BADGE[item.status] ?? 'bg-secondary-lt'}`}>
                           {item.status}
                         </span>
                       </td>
-                      <td className="text-nowrap text-500">
+                      <td className="text-nowrap text-secondary">
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}
                       </td>
                       <td className="text-end">
                         <button
-                          className="btn btn-sm btn-falcon-default"
+                          className="btn btn-sm btn-outline-secondary"
                           onClick={() => deleteItem.mutateAsync(item.id)}
                           title="Remove"
                         >
@@ -157,10 +157,10 @@ export function PipelinePage() {
           )}
         </div>
         {filtered.length > 0 && (
-          <div className="card-footer d-flex align-items-center justify-content-between py-2 fs--1 text-500">
+          <div className="card-footer d-flex align-items-center justify-content-between py-2 small text-secondary">
             <span>Showing {filtered.length} of {items.length} item{items.length !== 1 ? 's' : ''}</span>
             {pendingCount > 0 && (
-              <span className="badge badge-soft-warning">{pendingCount} pending</span>
+              <span className="badge bg-warning-lt">{pendingCount} pending</span>
             )}
           </div>
         )}
