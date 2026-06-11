@@ -23,12 +23,17 @@ export function LoginPage() {
       setAuth(data.user, data.org);
       navigate('/');
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        setError('Invalid email or password.');
-      } else if (axios.isAxiosError(err) && !err.response) {
-        setError('Cannot reach the server. Make sure the API is running.');
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          setError('Cannot reach the server. Is the API running on port 3000?');
+        } else if (err.response.status === 401) {
+          setError('Invalid email or password.');
+        } else {
+          const msg = err.response.data?.error?.message ?? err.response.data?.message;
+          setError(msg ? `Error: ${msg}` : `Server error ${err.response.status} — check the API logs.`);
+        }
       } else {
-        setError('Something went wrong. Please try again.');
+        setError('Unexpected error — check the browser console.');
       }
     }
   };

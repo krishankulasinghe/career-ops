@@ -9,7 +9,8 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't auto-redirect when we're already on the login page
+    if (error.response?.status === 401 && !window.location.pathname.startsWith('/login')) {
       window.location.href = '/login';
     }
     return Promise.reject(error);
