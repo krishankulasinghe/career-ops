@@ -38,9 +38,6 @@ saas/dist/
 node_modules/
 bun.lock
 
-# Theme assets (not ready to commit)
-falcon-v3.14.0/
-
 # OS
 .DS_Store
 *.mov
